@@ -7,15 +7,15 @@
 ; common cases first, for the sake of efficiency,
 ; but the speed-up may be negligible.
 ;
-; Created 14Mar2018 by Matt Young.
+; Created by Matt Young.
 ;------------------------------------------------------------------------------
 ;                                 **PARAMETERS**
 ; PATH (default: './')
-;     Path in which to search for files used to compute nt_max.
+;    Path in which to search for files used to compute nt_max.
 ; VERBOSE (default: unset)
-;     Print runtime information.
+;    Print runtime information.
 ; <return>
-;     nt_max (long int) - Maximum number of available time steps.
+;    nt_max (long int) - Maximum number of available time steps.
 ;------------------------------------------------------------------------------
 ;                                   **NOTES**
 ; -- The parallel HDF method assumes all *.h5 files are

@@ -5,43 +5,43 @@
 ; plane from 2-D or 3-D HDF files produced by EPPIC, then
 ; creates a movie of that (2+1)-D data array.
 ;
-; Created 14Mar2018 by Matt Young.
+; Created by Matt Young.
 ;------------------------------------------------------------------------------
 ;                                 **PARAMETERS**
 ; DATA_NAME
-;     The name of the data quantity to read. If the data
-;     does not exist, read_ph5_plane.pro will return 0
-;     and this routine will exit gracefully.
+;    The name of the data quantity to read. If the data
+;    does not exist, read_ph5_plane.pro will return 0
+;    and this routine will exit gracefully.
 ; PLANE (default: 'xy')
-;     Simulation plane to extract from HDF data. If the
-;     simulation is 2 D, read_ph5_plane.pro will ignore
-;     this parameter.
+;    Simulation plane to extract from HDF data. If the
+;    simulation is 2 D, read_ph5_plane.pro will ignore
+;    this parameter.
 ; DATA_TYPE (default: 4)
-;     IDL numerical data type of simulation output, 
-;     typically either 4 (float) for spatial data
-;     or 6 (complex) for Fourier-transformed data.
+;    IDL numerical data type of simulation output, 
+;    typically either 4 (float) for spatial data
+;    or 6 (complex) for Fourier-transformed data.
 ; DATA_ISFT (default: 0)
-;     Boolean that represents whether the EPPIC data 
-;     quantity is Fourier-transformed or not.
+;    Boolean that represents whether the EPPIC data 
+;    quantity is Fourier-transformed or not.
 ; ROTATE (default: 0)
-;     Integer indcating whether, and in which direction,
-;     to rotate the data array and axes before creating a
-;     movie. This parameter corresponds to the 'direction'
-;     parameter in IDL's rotate.pro.
+;    Integer indcating whether, and in which direction,
+;    to rotate the data array and axes before creating a
+;    movie. This parameter corresponds to the 'direction'
+;    parameter in IDL's rotate.pro.
 ; FFT_DIRECTION (default: 0)
-;     Integer indicating whether, and in which direction,
-;     to calculate the FFT of the data before creating a
-;     movie. Setting fft_direction = 0 results in no FFT.
+;    Integer indicating whether, and in which direction,
+;    to calculate the FFT of the data before creating a
+;    movie. Setting fft_direction = 0 results in no FFT.
 ; INFO_PATH (default: './')
-;     Fully qualified path to the simulation parameter
-;     file (ppic3d.i or eppic.i).
+;    Fully qualified path to the simulation parameter
+;    file (ppic3d.i or eppic.i).
 ; DATA_PATH (default: './')
-;     Fully qualified path to the simulation data.
+;    Fully qualified path to the simulation data.
 ; SAVE_PATH (default: './')
-;     Fully qualified path to the location in which to save
-;     the output movie.
+;    Fully qualified path to the location in which to save
+;    the output movie.
 ; SAVE_NAME (default: 'data_movie.mp4')
-;     Name of the movie.
+;    Name of the movie.
 ;-
 pro eppic_movie, data_name, $
                  plane=plane, $

@@ -1,7 +1,36 @@
 ;+
 ; Routine for producing movies of EPPIC data from a (2+1)-D array.
 ;
-; NOTES
+; Created by Matt Young.
+;------------------------------------------------------------------------------
+;                                 **PARAMETERS**
+; MOVDATA (required)
+;    A (2+1)-D array from which to make a movie.
+; XDATA (optional)
+; YDATA (optional)
+; LUN (default: -1)
+;    Logical unit number for printing runtime messages.
+; FILENAME (default: 'data_movie.mp4')
+;    Name of resultant movie file.
+; FRAMERATE (default: 20)
+;    Movie frame rate.
+; TIMESTAMPS (default: none)
+;    Boolean keyword to toggle addition of time stamps to movie.
+; EXPAND (default: 1.0)
+;    Factor by which to expand image dimensions.
+; RESCALE (default: 1.0)
+;    Factor by which to rescale graphics window.
+; COLORBAR_TITLE (default: none)
+;    String title for colorbar. The presence or absence of this 
+;    keyword determines whether or not to draw the colorbar.
+; IMAGE_KW (default: none)
+;    Dictionary of graphics keywords accepted by IDL's image.pro.
+;    Unlike image.pro, the 'title' parameter may consist of one
+;    element for each time step. In that case, this routine will
+;    iterate through 'title', passing one value to the image()
+;    call for each frame.
+;------------------------------------------------------------------------------
+;                                   **NOTES**
 ; -- This routine assumes the final dimension of data 
 ;    is the time-step dimension. 
 ; -- This routine automatically sets the buffer keyword 
@@ -15,7 +44,8 @@
 ;    sets it to [nx,ny], where nx and ny are derived from the 
 ;    input data array.
 ;
-; TO DO
+;------------------------------------------------------------------------------
+;                                   **TO DO**
 ; -- Use different image scale factors for movies with 
 ;    and without colorbar.
 ; -- Allow different values of rescale for x and y.

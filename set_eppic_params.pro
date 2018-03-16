@@ -1,11 +1,11 @@
 ;+
 ; Read a simulation parameter file and set default values.
 ;
-; Created 14Mar2018 by Matt Young.
+; Created by Matt Young.
 ;------------------------------------------------------------------------------
 ;                                 **PARAMETERS**
 ; PATH (default: './')
-;     Path in which to search for parameter file.
+;    Path in which to search for parameter file.
 ;-
 function set_eppic_params, path=path
 
