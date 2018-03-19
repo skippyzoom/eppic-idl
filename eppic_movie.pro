@@ -39,7 +39,8 @@
 ;    Fully qualified path to the simulation data.
 ; SAVE_PATH (default: './')
 ;    Fully qualified path to the location in which to save
-;    the output movie.
+;    the output movie. If the path does not exist, this 
+;    routine will create it.
 ; SAVE_NAME (default: 'data_movie.mp4')
 ;    Name of the movie.
 ;-
@@ -70,19 +71,18 @@ pro eppic_movie, data_name, $
   ;;==Read simulation parameters
   params = set_eppic_params(path=info_path)
 
-  ;;==Build the spatial grid struct
-  grid = set_grid(path=info_path)
-
   ;;==Calculate max number of time steps
-  nt_max = calc_timesteps(path=info_path,grid=grid)
+  nt_max = calc_timesteps(path=info_path)
 
   ;;==Create the time-step array
   timestep = params.nout*lindgen(nt_max)
   nt = n_elements(timestep)
 
   ;;==Create arrays of x- and y-axis data points
-  xdata = grid.dx*indgen(grid.nx)
-  ydata = grid.dy*indgen(grid.ny)
+  xdata = params.dx*params.nout_avg* $
+          indgen(params.nx*params.nsubdomains/params.nout_avg)
+  ydata = params.dy*params.nout_avg* $
+          indgen(params.ny)
 
   ;;==Read a single (2+1)-D plane of data
   if strcmp(data_name,'e',1,/fold_case) then $
@@ -161,12 +161,14 @@ pro eppic_movie, data_name, $
         min_value = -max(abs(fdata[*,*,1:*]))
         max_value = +max(abs(fdata[*,*,1:*]))
         rgb_table = 5
+        colorbar_title = '$\delta n/n_0$'
      endif
      if strcmp(data_name,'phi') then begin
         min_value = -max(abs(fdata[*,*,1:*]))
         max_value = +max(abs(fdata[*,*,1:*]))
-        ct = get_custom_ct(2)
+        ct = get_custom_ct(1)
         rgb_table = [[ct.r],[ct.g],[ct.b]]
+        colorbar_title = '$\phi$ [V]'
      endif
      if strcmp(data_name,'Ex') || $
         strcmp(data_name,'efield_x') then begin
@@ -174,6 +176,7 @@ pro eppic_movie, data_name, $
         min_value = -max(abs(fdata[*,*,1:*]))
         max_value = +max(abs(fdata[*,*,1:*]))
         rgb_table = 5
+        colorbar_title = '$\delta E_x$ [V/m]'
      endif
      if strcmp(data_name,'Ey') || $
         strcmp(data_name,'efield_y') then begin
@@ -181,6 +184,7 @@ pro eppic_movie, data_name, $
         min_value = -max(abs(fdata[*,*,1:*]))
         max_value = +max(abs(fdata[*,*,1:*]))
         rgb_table = 5
+        colorbar_title = '$\delta E_y$ [V/m]'
      endif
      if strcmp(data_name,'Er') || $
         strcmp(data_name,'efield_r') || $
@@ -189,6 +193,7 @@ pro eppic_movie, data_name, $
         min_value = 0
         max_value = max(fdata[*,*,1:*])
         rgb_table = 3
+        colorbar_title = '$|\delta E|$ [V/m]'
      endif
      if strcmp(data_name,'Et') || $
         strcmp(data_name,'efield_t') then begin
@@ -197,11 +202,13 @@ pro eppic_movie, data_name, $
         max_value = +!pi
         ct = get_custom_ct(2)
         rgb_table = [[ct.r],[ct.g],[ct.b]]
+        colorbar_title = '$tan^{-1}(\delta E_y,\delta E_x)$ [rad.]'
      endif
      if fft_direction ne 0 then begin
         min_value = -30
         max_value = 0
         rgb_table = 39
+        colorbar_title = 'Power [dB]'
      endif
 
      ;;==Set up an array of times for the title
@@ -218,6 +225,7 @@ pro eppic_movie, data_name, $
                  rgb_table = rgb_table, $
                  axis_style = 1, $
                  title = title, $
+                 colorbar_title = colorbar_title, $
                  xtitle = xtitle, $
                  ytitle = ytitle, $
                  xstyle = 1, $
