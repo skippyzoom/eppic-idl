@@ -16,8 +16,11 @@
 ;    Movie frame rate.
 ; TIMESTAMPS (default: none)
 ;    Boolean keyword to toggle addition of time stamps to movie.
-; RESIZE (default: 1.0)
+; RESIZE (default: [1.0, 1.0])
 ;    Normalized factor by which to resize the graphics window.
+;    This parameter can be a scalar, in which case this routine
+;    will apply the same value to both axes, or it can be a vector
+;    with one value for each axis. 
 ; COLORBAR_TITLE (default: none)
 ;    String title for colorbar. The presence or absence of this 
 ;    keyword determines whether or not to draw the colorbar.
