@@ -16,10 +16,8 @@
 ;    Movie frame rate.
 ; TIMESTAMPS (default: none)
 ;    Boolean keyword to toggle addition of time stamps to movie.
-; EXPAND (default: 1.0)
-;    Factor by which to expand image dimensions.
-; RESCALE (default: 1.0)
-;    Factor by which to rescale graphics window.
+; RESIZE (default: 1.0)
+;    Normalized factor by which to resize the graphics window.
 ; COLORBAR_TITLE (default: none)
 ;    String title for colorbar. The presence or absence of this 
 ;    keyword determines whether or not to draw the colorbar.
@@ -46,9 +44,6 @@
 ;
 ;------------------------------------------------------------------------------
 ;                                   **TO DO**
-; -- Use different image scale factors for movies with 
-;    and without colorbar.
-; -- Allow different values of rescale for x and y.
 ; -- Improve or remove timestamps option.
 ;-
 pro data_movie, movdata,xdata,ydata, $
@@ -56,8 +51,7 @@ pro data_movie, movdata,xdata,ydata, $
                 filename=filename, $
                 framerate=framerate, $
                 timestamps=timestamps, $
-                expand=expand, $
-                rescale=rescale, $
+                resize=resize, $
                 colorbar_title=colorbar_title, $
                 image_kw=image_kw, $
                 _EXTRA=ex
@@ -78,12 +72,13 @@ pro data_movie, movdata,xdata,ydata, $
      if n_elements(framerate) eq 0 then framerate = 20
      if n_elements(xdata) eq 0 then xdata = indgen(nx)
      if n_elements(ydata) eq 0 then ydata = indgen(ny)
-     if n_elements(expand) eq 0 then expand = 1.0
-     if n_elements(rescale) eq 0 then rescale = 1.0
-     if n_elements(image_kw) eq 0 && n_elements(ex) ne 0 then $
-        image_kw = ex
+     if n_elements(resize) eq 0 then resize = 1.0
+     if n_elements(image_kw) eq 0 then begin
+        if n_elements(ex) ne 0 then image_kw = ex $
+        else image_kw = dictionary()
+     endif
      if isa(image_kw,'struct') then image_kw = dictionary(image_kw,/extract)
-     if image_kw.haskey('dimensions') then image_kw.dimensions *= expand $
+     if image_kw.haskey('dimensions') then image_kw.dimensions *= resize $
      else image_kw['dimensions'] = [nx,ny]
      if image_kw.haskey('title') then begin
         case n_elements(image_kw.title) of
@@ -96,7 +91,7 @@ pro data_movie, movdata,xdata,ydata, $
      endif
 
      ;;==Open video stream
-     printf, lun,"[DATA_MOVIE] Creating ",filename
+     printf, lun,"[DATA_MOVIE] Creating ",filename,"..."
      video = idlffvideowrite(filename)
      stream = video.addvideostream(image_kw.dimensions[0], $
                                    image_kw.dimensions[1], $
@@ -110,7 +105,6 @@ pro data_movie, movdata,xdata,ydata, $
                     /buffer, $
                     _EXTRA=image_kw.tostruct())
         if keyword_set(colorbar_title) then begin
-           img.scale, 0.8*rescale*expand,0.8*rescale*expand
            pos = img.position
            position = [pos[2]+0.02, $
                        pos[0]+0.15, $
@@ -121,8 +115,7 @@ pro data_movie, movdata,xdata,ydata, $
                           position = position, $
                           orientation = 1, $
                           textpos = 1)
-        endif $
-        else img.scale, rescale*expand,rescale*expand
+        endif
         if keyword_set(timestamps) then begin
            ;;-->This may be possible with fill_background and
            ;;   fill_color properties in text().
