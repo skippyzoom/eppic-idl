@@ -123,6 +123,15 @@ pro eppic_movie, data_name, $
      nx = fsize[1]
      ny = fsize[2]
 
+     ;;==Set default x and y titles
+     if fft_direction lt 0 or data_isft then begin
+        xtitle = '$k_{Zon}$ [m$^{-1}$]'
+        ytitle = '$k_{Ver}$ [m$^{-1}$]'
+     endif else begin
+        xtitle = 'Zonal [m]'
+        ytitle = 'Vertical [m]'
+     endelse
+
      ;;==Calculate FFT, if requested
      if fft_direction ne 0 then begin
         for it=0,nt-1 do $
@@ -133,14 +142,6 @@ pro eppic_movie, data_name, $
            fdata /= max(fdata)
            fdata = 10*alog10(fdata^2)
         endif
-        if fft_direction lt 1 then begin
-           xtitle = '$k_{Zon}$ [m$^{-1}$]'
-           ytitle = '$k_{Ver}$ [m$^{-1}$]'
-        endif $
-        else begin
-           xtitle = 'Zonal [m]'
-           ytitle = 'Vertical [m]'
-        endelse
      endif
 
      ;;==Calculate E, if necessary
