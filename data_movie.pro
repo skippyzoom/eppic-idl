@@ -72,14 +72,18 @@ pro data_movie, movdata,xdata,ydata, $
      if n_elements(framerate) eq 0 then framerate = 20
      if n_elements(xdata) eq 0 then xdata = indgen(nx)
      if n_elements(ydata) eq 0 then ydata = indgen(ny)
-     if n_elements(resize) eq 0 then resize = 1.0
+     if n_elements(resize) eq 0 then resize = [1.0, 1.0]
+     if n_elements(resize) eq 1 then resize = [resize, resize]
      if n_elements(image_kw) eq 0 then begin
         if n_elements(ex) ne 0 then image_kw = ex $
         else image_kw = dictionary()
      endif
      if isa(image_kw,'struct') then image_kw = dictionary(image_kw,/extract)
-     if image_kw.haskey('dimensions') then image_kw.dimensions *= resize $
-     else image_kw['dimensions'] = [nx,ny]
+     if ~image_kw.haskey('dimensions') then $
+        image_kw['dimensions'] = [nx,ny]
+     tmp = [image_kw.dimensions[0]*resize[0], $
+            image_kw.dimensions[1]*resize[1]]
+     image_kw.dimensions = tmp
      if image_kw.haskey('title') then begin
         case n_elements(image_kw.title) of
            0: title = make_array(nt,value='')
