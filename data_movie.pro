@@ -51,6 +51,7 @@
 ;-
 pro data_movie, movdata,xdata,ydata, $
                 lun=lun, $
+                log=log, $
                 filename=filename, $
                 framerate=framerate, $
                 timestamps=timestamps, $
@@ -107,8 +108,9 @@ pro data_movie, movdata,xdata,ydata, $
      ;;==Write data to video stream
      for it=0,nt-1 do begin
         if n_elements(title) ne 0 then image_kw['title'] = title[it]
-        img = image(movdata[*,*,it], $
-                    xdata,ydata, $
+        fdata = movdata[*,*,it]
+        if keyword_set(log) then fdata = alog10(fdata)
+        img = image(fdata,xdata,ydata, $
                     /buffer, $
                     _EXTRA=image_kw.tostruct())
         if keyword_set(colorbar_title) then begin
