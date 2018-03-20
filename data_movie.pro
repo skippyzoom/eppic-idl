@@ -10,12 +10,12 @@
 ; YDATA (optional)
 ; LUN (default: -1)
 ;    Logical unit number for printing runtime messages.
+; LOG (default: unset)
+;    Take the base-10 log of each frame before creating an image.
 ; FILENAME (default: 'data_movie.mp4')
 ;    Name of resultant movie file.
 ; FRAMERATE (default: 20)
 ;    Movie frame rate.
-; TIMESTAMPS (default: none)
-;    Boolean keyword to toggle addition of time stamps to movie.
 ; RESIZE (default: [1.0, 1.0])
 ;    Normalized factor by which to resize the graphics window.
 ;    This parameter can be a scalar, in which case this routine
@@ -29,7 +29,23 @@
 ;    Unlike image.pro, the 'title' parameter may consist of one
 ;    element for each time step. In that case, this routine will
 ;    iterate through 'title', passing one value to the image()
-;    call for each frame.
+;    call for each frame. See also the IDL help page for image.pro.
+; TEXT_POS (default: [0.0, 0.0, 0.0])
+;    An array containing the x, y, and z positions for text.pro.
+;    See also the IDL help page for text.pro.
+; TEXT_STRING (default: none)
+;    The string or string array to print with text.pro. The 
+;    presence or absence of this string determines whether or 
+;    not this routine calls text(). This routine currently only
+;    supports a single string, which it will use at each time 
+;    step, or an array of strings with length equal to the number
+;    of time steps. See also the IDL help page for text.pro.
+; TEXT_FORMAT (default: 'k')
+;    A string that sets the text color using short tokens. See
+;    also the IDL help page for text.pro.
+; TEXT_KW (default: none)
+;   Dictionary of keywords accepted by IDL's text.pro. See also 
+;   the IDL help page for text.pro.
 ;------------------------------------------------------------------------------
 ;                                   **NOTES**
 ; -- This routine assumes the final dimension of data 
@@ -44,20 +60,19 @@
 ;    user does not pass in the dimensions keyword, this routine 
 ;    sets it to [nx,ny], where nx and ny are derived from the 
 ;    input data array.
-;
-;------------------------------------------------------------------------------
-;                                   **TO DO**
-; -- Improve or remove timestamps option.
 ;-
 pro data_movie, movdata,xdata,ydata, $
                 lun=lun, $
                 log=log, $
                 filename=filename, $
                 framerate=framerate, $
-                timestamps=timestamps, $
                 resize=resize, $
                 colorbar_title=colorbar_title, $
                 image_kw=image_kw, $
+                text_pos=text_pos, $
+                text_string=text_string, $
+                text_format=text_format, $
+                text_kw=text_kw, $
                 _EXTRA=ex
 
   ;;==Get data size
@@ -97,6 +112,26 @@ pro data_movie, movdata,xdata,ydata, $
         endcase
         image_kw.remove, 'title'
      endif
+     if n_elements(text_pos) eq 0 then text_pos = [0.0, 0.0, 0.0] $
+     else if n_elements(text_pos) eq 2 then $
+        text_pos = [text_pos[0], text_pos[1], 0.0]
+     case n_elements(text_string) of
+        0: make_text = 0B
+        1: begin
+           text_string = make_array(nt,value=text_string)
+           make_text = 1B
+        end
+        nt: make_text = 1B
+        else: begin
+           printf, lun,"[DATA_MOVIE] Cannot use text_string for text."
+           printf, lun,"             Please provide a single string"
+           printf, lun,"             or an array with one element per"
+           printf, lun,"             time step."
+           make_text = 0B
+        end
+     endcase
+     if n_elements(text_format) eq 0 then text_format = 'k'
+     if n_elements(text_kw) eq 0 then text_kw = dictionary()
 
      ;;==Open video stream
      printf, lun,"[DATA_MOVIE] Creating ",filename,"..."
@@ -125,29 +160,11 @@ pro data_movie, movdata,xdata,ydata, $
                           orientation = 1, $
                           textpos = 1)
         endif
-        if keyword_set(timestamps) then begin
-           ;;-->This may be possible with fill_background and
-           ;;   fill_color properties in text().
-           ply_x0 = 0.07
-           ply_y0 = 0.85
-           ply_dx = 0.25
-           ply_dy = 0.08
-           ply = polygon([ply_x0,ply_x0+ply_dx,ply_x0+ply_dx,ply_x0], $
-                         [ply_y0,ply_y0,ply_y0+ply_dy,ply_y0+ply_dy], $
-                         /normal, $
-                         fill_color = 'white', $
-                         linestyle = 0, $
-                         thick = 2)
-           timeText = "it = "+strcompress(it,/remove_all)
-           txt = text(ply_x0+0.01, $
-                      ply_y0+0.02, $
-                      timeText, $
-                      /normal, $
-                      color = 'black', $
-                      alignment = 0.0, $
-                      vertical_alignment = 0.0, $
-                      font_name = 'Times', $
-                      font_size = 12)
+        if n_elements(text_string) ne 0 then begin
+           txt = text(text_pos[0],text_pos[1],text_pos[2], $
+                      text_string[it], $
+                      text_format, $
+                      _EXTRA = text_kw.tostruct())
         endif
         frame = img.copywindow()
         !NULL = video.put(stream,frame)
