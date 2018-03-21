@@ -155,10 +155,8 @@ function analyze_moments, path=path, $
      else mu1_start = 0.0
 
      ;;==Pedersen mobilities and drift
-     ped0_start = mu0_start/(1+wc0^2/(float(coll_rate0))^2)
-     ped1_start = mu1_start/(1+wc1^2/(float(coll_rate1))^2)
-     ;; ped0_start = mu0_start/(1+(wc0/coll_rate0)^2)
-     ;; ped1_start = mu1_start/(1+(wc1/coll_rate1)^2)
+     ped0_start = mu0_start/(1+(wc0/coll_rate0)^2)
+     ped1_start = mu1_start/(1+(wc1/coll_rate1)^2)
      v_ped0_start= Eyp*ped0_start
      v_ped1_start= Eyp*ped1_start
 
@@ -226,10 +224,8 @@ function analyze_moments, path=path, $
      else mu1 = 0.0*nu1
 
      ;;==Pedersen mobilities and drift
-     ped0 = mu0/(1+wc0^2/(nu0)^2)
-     ped1 = mu1/(1+wc1^2/(nu1)^2)
-     ;; ped0 = mu0/(1+(wc0/nu0)^2)
-     ;; ped1 = mu1/(1+(wc1/nu1)^2)
+     ped0 = mu0/(1+(wc0/nu0)^2)
+     ped1 = mu1/(1+(wc1/nu1)^2)
      v_ped0 = Eyp*ped0
      v_ped1 = Eyp*ped1
 
