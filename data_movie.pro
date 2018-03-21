@@ -11,7 +11,15 @@
 ; LUN (default: -1)
 ;    Logical unit number for printing runtime messages.
 ; LOG (default: unset)
-;    Take the base-10 log of each frame before creating an image.
+;    Take the logarithm of each frame before creating an image.
+;    The value of alog_base sets the logarithmic base.
+; ALOG_BASE (default: 10)
+;    String or number indicating the logarithmic base to use when 
+;    /log is true. The use can pass the following values:
+;    10 or '10' for base-10 (alog10); 2 or '2' for base-2 (alog2);
+;    any string starting with 'e', any string whose first 3 letters
+;    are 'nat', or the value exp(1) for base-e (alog). Setting this
+;    parameter will set log = 1B
 ; FILENAME (default: 'data_movie.mp4')
 ;    Name of resultant movie file, including extension. IDL will 
 ;    use the extension to determine the video type. The user can
@@ -73,6 +81,7 @@
 pro data_movie, movdata,xdata,ydata, $
                 lun=lun, $
                 log=log, $
+                alog_base=alog_base, $
                 filename=filename, $
                 framerate=framerate, $
                 resize=resize, $
@@ -96,6 +105,9 @@ pro data_movie, movdata,xdata,ydata, $
 
      ;;==Defaults and guards
      if n_elements(lun) eq 0 then lun = -1
+     if ~keyword_set(log) && n_elements(alog_base) ne 0 then $
+        log = 1B
+     if n_elements(alog_base) eq 0 then alog_base = '10'
      if n_elements(filename) eq 0 then filename = 'data_movie.mp4'
      if n_elements(framerate) eq 0 then framerate = 20
      if n_elements(xdata) eq 0 then xdata = indgen(nx)
@@ -153,22 +165,20 @@ pro data_movie, movdata,xdata,ydata, $
      for it=0,nt-1 do begin
         if n_elements(title) ne 0 then image_kw['title'] = title[it]
         fdata = movdata[*,*,it]
-        if keyword_set(log) then fdata = alog10(fdata)
+        if keyword_set(log) then begin
+           if strcmp(alog_base,'10') then alog_base = 10
+           if strcmp(alog_base,'2') then alog_base = 2
+           if strcmp(alog_base,'e',1) || $
+              strcmp(alog_base,'nat',3) then alog_base = exp(1)
+           case alog_base of
+              10: fdata = alog10(fdata)
+              2: fdata = alog2(fdata)
+              exp(1): fdata = alog(fdata)
+           endcase
+        endif
         img = image(fdata,xdata,ydata, $
                     /buffer, $
                     _EXTRA=image_kw.tostruct())
-        ;; if keyword_set(colorbar_title) then begin
-        ;;    pos = img.position
-        ;;    position = [pos[2]+0.02, $
-        ;;                pos[0]+0.15, $
-        ;;                pos[2]+0.04, $
-        ;;                pos[3]-0.15]
-        ;;    clr = colorbar(target = img, $
-        ;;                   title = colorbar_title, $
-        ;;                   position = position, $
-        ;;                   orientation = 1, $
-        ;;                   textpos = 1)
-        ;; endif
         if n_elements(colorbar_kw) ne 0 then begin
 
            clr = colorbar(target = img, $
