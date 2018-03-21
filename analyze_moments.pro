@@ -155,10 +155,10 @@ function analyze_moments, path=path, $
      else mu1_start = 0.0
 
      ;;==Pedersen mobilities and drift
-     ;; ped0_start = mu0_start/(1+wc0^2/(float(coll_rate0))^2)
-     ;; ped1_start = mu1_start/(1+wc1^2/(float(coll_rate1))^2)
-     ped0_start = mu0_start/(1+(wc0/coll_rate0)^2)
-     ped1_start = mu1_start/(1+(wc1/coll_rate1)^2)
+     ped0_start = mu0_start/(1+wc0^2/(float(coll_rate0))^2)
+     ped1_start = mu1_start/(1+wc1^2/(float(coll_rate1))^2)
+     ;; ped0_start = mu0_start/(1+(wc0/coll_rate0)^2)
+     ;; ped1_start = mu1_start/(1+(wc1/coll_rate1)^2)
      v_ped0_start= Eyp*ped0_start
      v_ped1_start= Eyp*ped1_start
 
@@ -189,7 +189,6 @@ function analyze_moments, path=path, $
                                 ;------------------;
 
      ;;==Collision frequencies and Psi
-     ;; if (efield_algorithm eq 1) || (efield_algorithm eq 2) then $
      if keyword_set(hybrid_run) then $
         ;;--From input value
         nu0 = moments1[5,*]*0.0 + coll_rate0 $
@@ -227,10 +226,10 @@ function analyze_moments, path=path, $
      else mu1 = 0.0*nu1
 
      ;;==Pedersen mobilities and drift
-     ;; ped0 = mu0/(1+wc0^2/(nu0)^2)
-     ;; ped1 = mu1/(1+wc1^2/(nu1)^2)
-     ped0 = mu0/(1+(wc0/nu0)^2)
-     ped1 = mu1/(1+(wc1/nu1)^2)
+     ped0 = mu0/(1+wc0^2/(nu0)^2)
+     ped1 = mu1/(1+wc1^2/(nu1)^2)
+     ;; ped0 = mu0/(1+(wc0/nu0)^2)
+     ;; ped1 = mu1/(1+(wc1/nu1)^2)
      v_ped0 = Eyp*ped0
      v_ped1 = Eyp*ped1
 
@@ -244,11 +243,13 @@ function analyze_moments, path=path, $
      Tx0 = (md0/kb)*moments0[2,*]
      Ty0 = (md0/kb)*moments0[6,*]
      Tz0 = (md0/kb)*moments0[10,*]
-     T0 = (Tx0+Ty0+Tz0)/float(params.ndim_space)
+     if params.ndim_space eq 2 then T0 = (Tx0+Ty0)/2.0 $
+     else T0 = (Tx0+Ty0+Tz0)/3.0
      Tx1 = (md1/kb)*moments1[2,*]
      Ty1 = (md1/kb)*moments1[6,*]
      Tz1 = (md1/kb)*moments1[10,*]
-     T1 = (Tx1+Ty1+Tz1)/float(params.ndim_space)
+     if params.ndim_space eq 2 then T1 = (Tx1+Ty1)/2.0 $
+     else T1 = (Tx1+Ty1+Tz1)/3.0
      Cs = sqrt(kb*(T0+T1)/md1)
 
 
