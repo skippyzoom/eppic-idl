@@ -53,7 +53,8 @@ pro eppic_movie, data_name, $
                  info_path=info_path, $
                  data_path=data_path, $
                  save_path=save_path, $
-                 save_name=save_name
+                 save_name=save_name, $
+                 _EXTRA=ex
 
   ;;==Defaults and guards
   if n_elements(plane) eq 0 then plane = 'xy'
