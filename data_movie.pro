@@ -13,7 +13,14 @@
 ; LOG (default: unset)
 ;    Take the base-10 log of each frame before creating an image.
 ; FILENAME (default: 'data_movie.mp4')
-;    Name of resultant movie file.
+;    Name of resultant movie file, including extension. IDL will 
+;    use the extension to determine the video type. The user can
+;    call 
+;    IDL> idlffvideowrite.getformats()
+;    or
+;    IDL> idlffvideowrite.getformats(/long_names)
+;    for more information on available video formats. See also the 
+;    IDL help page for idlffvideowrite.
 ; FRAMERATE (default: 20)
 ;    Movie frame rate.
 ; RESIZE (default: [1.0, 1.0])
@@ -21,15 +28,17 @@
 ;    This parameter can be a scalar, in which case this routine
 ;    will apply the same value to both axes, or it can be a vector
 ;    with one value for each axis. 
-; COLORBAR_TITLE (default: none)
-;    String title for colorbar. The presence or absence of this 
-;    keyword determines whether or not to draw the colorbar.
 ; IMAGE_KW (default: none)
-;    Dictionary of graphics keywords accepted by IDL's image.pro.
+;    Dictionary of keyword properties accepted by IDL's image.pro.
 ;    Unlike image.pro, the 'title' parameter may consist of one
 ;    element for each time step. In that case, this routine will
 ;    iterate through 'title', passing one value to the image()
 ;    call for each frame. See also the IDL help page for image.pro.
+; COLORBAR_KW (default: none)
+;    Dictionary of keyword properties accepted by IDL's colorbar.pro,
+;    with the exception that this routine will automatically set 
+;    target = img.
+;    See also the IDL help page for colorbar.pro.
 ; TEXT_POS (default: [0.0, 0.0, 0.0])
 ;    An array containing the x, y, and z positions for text.pro.
 ;    See also the IDL help page for text.pro.
@@ -44,8 +53,8 @@
 ;    A string that sets the text color using short tokens. See
 ;    also the IDL help page for text.pro.
 ; TEXT_KW (default: none)
-;   Dictionary of keywords accepted by IDL's text.pro. See also 
-;   the IDL help page for text.pro.
+;   Dictionary of keyword properties accepted by IDL's text.pro. 
+;   See also the IDL help page for text.pro.
 ;------------------------------------------------------------------------------
 ;                                   **NOTES**
 ; -- This routine assumes the final dimension of data 
@@ -67,8 +76,8 @@ pro data_movie, movdata,xdata,ydata, $
                 filename=filename, $
                 framerate=framerate, $
                 resize=resize, $
-                colorbar_title=colorbar_title, $
                 image_kw=image_kw, $
+                colorbar_kw=colorbar_kw, $
                 text_pos=text_pos, $
                 text_string=text_string, $
                 text_format=text_format, $
@@ -148,17 +157,22 @@ pro data_movie, movdata,xdata,ydata, $
         img = image(fdata,xdata,ydata, $
                     /buffer, $
                     _EXTRA=image_kw.tostruct())
-        if keyword_set(colorbar_title) then begin
-           pos = img.position
-           position = [pos[2]+0.02, $
-                       pos[0]+0.15, $
-                       pos[2]+0.04, $
-                       pos[3]-0.15]
+        ;; if keyword_set(colorbar_title) then begin
+        ;;    pos = img.position
+        ;;    position = [pos[2]+0.02, $
+        ;;                pos[0]+0.15, $
+        ;;                pos[2]+0.04, $
+        ;;                pos[3]-0.15]
+        ;;    clr = colorbar(target = img, $
+        ;;                   title = colorbar_title, $
+        ;;                   position = position, $
+        ;;                   orientation = 1, $
+        ;;                   textpos = 1)
+        ;; endif
+        if n_elements(colorbar_kw) ne 0 then begin
+
            clr = colorbar(target = img, $
-                          title = colorbar_title, $
-                          position = position, $
-                          orientation = 1, $
-                          textpos = 1)
+                          _EXTRA = colorbar_kw.tostruct())
         endif
         if n_elements(text_string) ne 0 then begin
            txt = text(text_pos[0],text_pos[1],text_pos[2], $
