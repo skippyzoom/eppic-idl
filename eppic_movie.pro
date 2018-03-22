@@ -43,6 +43,8 @@
 ;    routine will create it.
 ; SAVE_NAME (default: 'data_movie.mp4')
 ;    Name of the movie.
+; LUN (default: -1)
+;    Logical unit number for printing runtime messages.
 ;-
 pro eppic_movie, data_name, $
                  plane=plane, $
@@ -54,6 +56,7 @@ pro eppic_movie, data_name, $
                  data_path=data_path, $
                  save_path=save_path, $
                  save_name=save_name, $                 
+                 lun=lun, $
                  _EXTRA=ex
 
   ;;==Defaults and guards
@@ -68,6 +71,7 @@ pro eppic_movie, data_name, $
   if ~file_test(save_path,/directory) then $
      spawn, 'mkdir -p '+expand_path(save_path)
   if n_elements(save_name) eq 0 then save_name = 'data_movie.mp4'
+  if n_elements(lun) eq 0 then lun = -1
 
   ;;==Declare the movie file name
   filename = expand_path(save_path+path_sep()+save_name)
@@ -88,7 +92,7 @@ pro eppic_movie, data_name, $
   ydata = params.dy*params.nout_avg* $
           indgen(params.ny)
 
-  ;;==Read a single (2+1)-D plane of data
+  ;;==Read data at each time step
   if strcmp(data_name,'e',1,/fold_case) then $
      read_name = 'phi' $
   else $
@@ -259,6 +263,7 @@ pro eppic_movie, data_name, $
 
      ;;==Create and save the movie
      data_movie, fdata,xdata,ydata, $
+                 lun = lun, $
                  filename = filename, $
                  image_kw = image_kw, $
                  colorbar_kw = colorbar_kw, $
@@ -268,6 +273,6 @@ pro eppic_movie, data_name, $
                  text_kw = text_kw
 
   endif $
-  else print, "[EPPIC_MOVIE] Could not create movie of "+data_name+"."
+  else printf, lun, "[EPPIC_MOVIE] Could not create movie of "+data_name+"."
   
 end
