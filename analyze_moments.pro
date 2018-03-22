@@ -143,8 +143,8 @@ function analyze_moments, path=path, $
                                 ;--------------------;
 
      ;;==Cyclotron frequencies
-     wc0  = qd0*B0/md0
-     wc1  = qd1*B0/md1
+     wc0  = abs(qd0*B0/md0)
+     wc1  = abs(qd1*B0/md1)
 
      ;;==Parallel mobilities
      if (coll_rate0 ne 0) then $
@@ -193,7 +193,7 @@ function analyze_moments, path=path, $
      else begin
         ;;--From parallel or Hall drift
         if keyword_set(E0_par) then nu0 = (Ezp/vzpd0)*(qd0/md0) $
-        else nu0 = wc0*vypd0/vxpd0
+        else nu0 = wc0*abs(vypd0/vxpd0)
      endelse
      ;;--From Ped drift
      ;; nu1 = (Eyp/vypd1)*(qd1/md1)
