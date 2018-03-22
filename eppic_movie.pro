@@ -53,7 +53,7 @@ pro eppic_movie, data_name, $
                  info_path=info_path, $
                  data_path=data_path, $
                  save_path=save_path, $
-                 save_name=save_name, $
+                 save_name=save_name, $                 
                  _EXTRA=ex
 
   ;;==Defaults and guards
@@ -68,6 +68,9 @@ pro eppic_movie, data_name, $
   if ~file_test(save_path,/directory) then $
      spawn, 'mkdir -p '+expand_path(save_path)
   if n_elements(save_name) eq 0 then save_name = 'data_movie.mp4'
+
+  ;;==Declare the movie file name
+  filename = expand_path(save_path+path_sep()+save_name)
 
   ;;==Read simulation parameters
   params = set_eppic_params(path=info_path)
@@ -158,94 +161,111 @@ pro eppic_movie, data_name, $
         endfor
      endif
 
+     ;;==Convert time steps to strings
+     str_time = strcompress(string(1e3*params.dt*timestep, $
+                                   format='(f6.2)'),/remove_all)
+     time_stamps = "t = "+str_time+" ms"
+
      ;;==Set graphics preferences
+     img_pos = [0.10,0.10,0.80,0.80]
+     clr_pos = [0.82,0.10,0.84,0.80]
+     image_kw = dictionary('axis_style', 1, $
+                           'position', img_pos, $
+                           'xtitle', xtitle, $
+                           'ytitle', ytitle, $
+                           'xstyle', 1, $
+                           'ystyle', 1, $
+                           'xmajor', 5, $
+                           'xminor', 1, $
+                           'ymajor', 5, $
+                           'yminor', 1, $
+                           'xticklen', 0.02, $
+                           'yticklen', 0.02*(float(ny)/nx), $
+                           'xsubticklen', 0.5, $
+                           'ysubticklen', 0.5, $
+                           'xtickdir', 1, $
+                           'ytickdir', 1, $
+                           'xtickfont_size', 20.0, $
+                           'ytickfont_size', 20.0, $
+                           'font_size', 24.0, $
+                           'font_name', "Times")
+     colorbar_kw = dictionary('orientation', 1, $
+                              'textpos', 1, $
+                              'position', clr_pos)
+     text_pos = [0.05,0.85]
+     text_string = time_stamps
+     text_format = 'k'
+     text_kw = dictionary('font_name', 'Times', $
+                          'font_size', 24, $
+                          'font_color', 'black', $
+                          'normal', 1B, $
+                          'alignment', 0.0, $
+                          'vertical_alignment', 0.0, $
+                          'fill_background', 1B, $
+                          'fill_color', 'powder blue')
      if strcmp(data_name,'den',3) then begin
-        min_value = -max(abs(fdata[*,*,1:*]))
-        max_value = +max(abs(fdata[*,*,1:*]))
-        rgb_table = 5
-        colorbar_title = '$\delta n/n_0$'
+        image_kw['min_value'] = -max(abs(fdata[*,*,1:*]))
+        image_kw['max_value'] = +max(abs(fdata[*,*,1:*]))
+        image_kw['rgb_table'] = 5
+        colorbar_kw['title'] = '$\delta n/n_0$'
      endif
      if strcmp(data_name,'phi') then begin
-        min_value = -max(abs(fdata[*,*,1:*]))
-        max_value = +max(abs(fdata[*,*,1:*]))
+        image_kw['min_value'] = -max(abs(fdata[*,*,1:*]))
+        image_kw['max_value'] = +max(abs(fdata[*,*,1:*]))
         ct = get_custom_ct(1)
-        rgb_table = [[ct.r],[ct.g],[ct.b]]
-        colorbar_title = '$\phi$ [V]'
+        image_kw['rgb_table'] = [[ct.r],[ct.g],[ct.b]]
+        colorbar_kw['title'] = '$\phi$ [V]'
      endif
      if strcmp(data_name,'Ex') || $
         strcmp(data_name,'efield_x') then begin
         fdata = Ex
-        min_value = -max(abs(fdata[*,*,1:*]))
-        max_value = +max(abs(fdata[*,*,1:*]))
-        rgb_table = 5
-        colorbar_title = '$\delta E_x$ [V/m]'
+        image_kw['min_value'] = -max(abs(fdata[*,*,1:*]))
+        image_kw['max_value'] = +max(abs(fdata[*,*,1:*]))
+        image_kw['rgb_table'] = 5
+        colorbar_kw['title'] = '$\delta E_x$ [V/m]'
      endif
      if strcmp(data_name,'Ey') || $
         strcmp(data_name,'efield_y') then begin
         fdata = Ey
-        min_value = -max(abs(fdata[*,*,1:*]))
-        max_value = +max(abs(fdata[*,*,1:*]))
-        rgb_table = 5
-        colorbar_title = '$\delta E_y$ [V/m]'
+        image_kw['min_value'] = -max(abs(fdata[*,*,1:*]))
+        image_kw['max_value'] = +max(abs(fdata[*,*,1:*]))
+        image_kw['rgb_table'] = 5
+        colorbar_kw['title'] = '$\delta E_y$ [V/m]'
      endif
      if strcmp(data_name,'Er') || $
         strcmp(data_name,'efield_r') || $
         strcmp(data_name,'efield') then begin
         fdata = sqrt(Ex^2 + Ey^2)
-        min_value = 0
-        max_value = max(fdata[*,*,1:*])
-        rgb_table = 3
-        colorbar_title = '$|\delta E|$ [V/m]'
+        image_kw['min_value'] = 0
+        image_kw['max_value'] = max(fdata[*,*,1:*])
+        image_kw['rgb_table'] = 3
+        colorbar_kw['title'] = '$|\delta E|$ [V/m]'
      endif
      if strcmp(data_name,'Et') || $
         strcmp(data_name,'efield_t') then begin
         fdata = atan(Ey,Ex)
-        min_value = -!pi
-        max_value = +!pi
+        image_kw['min_value'] = -!pi
+        image_kw['max_value'] = +!pi
         ct = get_custom_ct(2)
-        rgb_table = [[ct.r],[ct.g],[ct.b]]
-        colorbar_title = '$tan^{-1}(\delta E_y,\delta E_x)$ [rad.]'
+        image_kw['rgb_table'] = [[ct.r],[ct.g],[ct.b]]
+        colorbar_kw['title'] = '$tan^{-1}(\delta E_y,\delta E_x)$ [rad.]'
      endif
      if fft_direction ne 0 then begin
-        min_value = -30
-        max_value = 0
-        rgb_table = 39
-        colorbar_title = 'Power [dB]'
+        image_kw['min_value'] = -30
+        image_kw['max_value'] = 0
+        image_kw['rgb_table'] = 39
+        colorbar_kw['title'] = 'Power [dB]'
      endif
 
-     ;;==Set up an array of times for the title
-     str_time = strcompress(string(1e3*params.dt*timestep, $
-                                   format='(f6.2)'),/remove_all)
-     title = "t = "+str_time+" ms"
-
-     ;;==Create the movie
-     filename = expand_path(save_path+path_sep()+save_name)
+     ;;==Create and save the movie
      data_movie, fdata,xdata,ydata, $
                  filename = filename, $
-                 min_value = min_value, $
-                 max_value = max_value, $
-                 rgb_table = rgb_table, $
-                 axis_style = 1, $
-                 title = title, $
-                 colorbar_title = colorbar_title, $
-                 xtitle = xtitle, $
-                 ytitle = ytitle, $
-                 xstyle = 1, $
-                 ystyle = 1, $
-                 xmajor = 5, $
-                 xminor = 1, $
-                 ymajor = 5, $
-                 yminor = 1, $
-                 xticklen = 0.02, $
-                 yticklen = 0.02*(float(ny)/nx), $
-                 xsubticklen = 0.5, $
-                 ysubticklen = 0.5, $
-                 xtickdir = 1, $
-                 ytickdir = 1, $
-                 xtickfont_size = 20.0, $
-                 ytickfont_size = 20.0, $
-                 font_size = 24.0, $
-                 font_name = "Times"
+                 image_kw = image_kw, $
+                 colorbar_kw = colorbar_kw, $
+                 text_pos = text_pos, $
+                 text_string = text_string, $
+                 text_format = text_format, $
+                 text_kw = text_kw
 
   endif $
   else print, "[EPPIC_MOVIE] Could not create movie of "+data_name+"."
