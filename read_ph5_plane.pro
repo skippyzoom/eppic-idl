@@ -17,7 +17,7 @@ function read_ph5_plane, data_name, $
                          timestep=timestep, $
                          axes=axes, $
                          center=center, $
-                         type=type, $
+                         data_type=data_type, $
                          data_isft=data_isft, $
                          run_dir=run_dir, $
                          path=path, $
@@ -26,7 +26,7 @@ function read_ph5_plane, data_name, $
 
   ;;==Defaults and guards
   if n_elements(ext) eq 0 then ext = 'h5'
-  if n_elements(type) eq 0 then type = 4
+  if n_elements(data_type) eq 0 then data_type = 4
   if n_elements(path) eq 0 then path = './'
   if n_elements(axes) eq 0 then axes = 'xy'
   if n_elements(center) eq 0 then center = [0,0,0]
@@ -101,7 +101,7 @@ function read_ph5_plane, data_name, $
               ft_template = {ikx:0, iky:0, ikz:0, val:complex(0.0,0.0)}
            end 
         endcase
-        data = make_array(nxp,nyp,nt,type=type)
+        data = make_array(nxp,nyp,nt,data_type=data_type)
         tmp = !NULL
      endif else n_dim = 0
   endif $
@@ -132,7 +132,7 @@ function read_ph5_plane, data_name, $
               endcase
            end
         endcase 
-        data = make_array(nxp,nyp,nt,type=type)
+        data = make_array(nxp,nyp,nt,data_type=data_type)
         tmp = !NULL
      endif else n_dim = 0
   endelse   
