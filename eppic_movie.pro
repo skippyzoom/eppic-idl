@@ -80,7 +80,7 @@ pro eppic_movie, data_name, $
 
   ;;==Create the time-step array
   timestep = params.nout*lindgen(nt_max)
-  nt = n_elements(timestep)
+  nts = n_elements(timestep)
 
   ;;==Create arrays of x- and y-axis data points
   xdata = params.dx*params.nout_avg* $
@@ -114,11 +114,11 @@ pro eppic_movie, data_name, $
            xdata = tmp
            fsize = size(fdata)
            tmp = fdata
-           fdata = make_array(fsize[2],fsize[1],nt,type=fsize[4],/nozero)
-           for it=0,nt-1 do fdata[*,*,it] = rotate(tmp[*,*,it],rotate)
+           fdata = make_array(fsize[2],fsize[1],nts,type=fsize[4],/nozero)
+           for it=0,nts-1 do fdata[*,*,it] = rotate(tmp[*,*,it],rotate)
         endif $
         else begin
-           for it=0,nt-1 do fdata[*,*,it] = rotate(fdata[*,*,it],rotate)
+           for it=0,nts-1 do fdata[*,*,it] = rotate(fdata[*,*,it],rotate)
         endelse
      endif
 
@@ -138,7 +138,7 @@ pro eppic_movie, data_name, $
 
      ;;==Calculate FFT, if requested
      if fft_direction ne 0 then begin
-        for it=0,nt-1 do $
+        for it=0,nts-1 do $
            fdata[*,*,it] = real_part(fft(fdata[*,*,it],fft_direction))
         if fft_direction lt 0 then begin
            fdata = shift(fdata,[nx/2,ny/2,0])
@@ -152,7 +152,7 @@ pro eppic_movie, data_name, $
      if strcmp(data_name,'e',1,/fold_case) then begin
         Ex = fltarr(size(fdata,/dim))
         Ey = fltarr(size(fdata,/dim))
-        for it=0,nt-1 do begin
+        for it=0,nts-1 do begin
            gradf = gradient(fdata[*,*,it], $
                             dx = params.dx*params.nout_avg, $
                             dy = params.dy*params.nout_avg)
