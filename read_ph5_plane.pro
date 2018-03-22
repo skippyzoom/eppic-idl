@@ -15,7 +15,7 @@
 function read_ph5_plane, data_name, $
                          ext=ext, $
                          timestep=timestep, $
-                         plane=plane, $
+                         axes=axes, $
                          center=center, $
                          type=type, $
                          data_isft=data_isft, $
@@ -28,7 +28,7 @@ function read_ph5_plane, data_name, $
   if n_elements(ext) eq 0 then ext = 'h5'
   if n_elements(type) eq 0 then type = 4
   if n_elements(path) eq 0 then path = './'
-  if n_elements(plane) eq 0 then plane = 'xy'
+  if n_elements(axes) eq 0 then axes = 'xy'
   if n_elements(center) eq 0 then center = [0,0,0]
   path = terminal_slash(path)
   if n_elements(run_dir) eq 0 then $
@@ -85,15 +85,15 @@ function read_ph5_plane, data_name, $
            end
            3: begin
               case 1B of
-                 strcmp(plane,'xy') || strcmp(plane,'yx'): begin
+                 strcmp(axes,'xy') || strcmp(axes,'yx'): begin
                     nxp = nx
                     nyp = ny
                  end
-                 strcmp(plane,'xz') || strcmp(plane,'zx'): begin
+                 strcmp(axes,'xz') || strcmp(axes,'zx'): begin
                     nxp = nx
                     nyp = nz
                  end
-                 strcmp(plane,'yz') || strcmp(plane,'zy'): begin
+                 strcmp(axes,'yz') || strcmp(axes,'zy'): begin
                     nxp = ny
                     nyp = nz
                  end
@@ -117,15 +117,15 @@ function read_ph5_plane, data_name, $
            end
            3: begin
               case 1B of
-                 strcmp(plane,'xy') || strcmp(plane,'yx'): begin
+                 strcmp(axes,'xy') || strcmp(axes,'yx'): begin
                     nxp = nx/nout_avg
                     nyp = ny/nout_avg
                  end
-                 strcmp(plane,'xz') || strcmp(plane,'zx'): begin
+                 strcmp(axes,'xz') || strcmp(axes,'zx'): begin
                     nxp = nx/nout_avg
                     nyp = nz/nout_avg
                  end
-                 strcmp(plane,'yz') || strcmp(plane,'zy'): begin
+                 strcmp(axes,'yz') || strcmp(axes,'zy'): begin
                     nxp = ny/nout_avg
                     nyp = nz/nout_avg
                  end
@@ -219,11 +219,11 @@ function read_ph5_plane, data_name, $
                     full_array = shift(full_array,[1,1,0])
                     full_array = conj(full_array)
                     case 1B of 
-                       strcmp(plane,'xy') || strcmp(plane,'yx'): $
+                       strcmp(axes,'xy') || strcmp(axes,'yx'): $
                           data[*,*,it] = reform(full_array[*,*,center[2]])
-                       strcmp(plane,'xz') || strcmp(plane,'zx'): $
+                       strcmp(axes,'xz') || strcmp(axes,'zx'): $
                           data[*,*,it] = reform(full_array[*,center[1],*])
-                       strcmp(plane,'yz') || strcmp(plane,'zy'): $
+                       strcmp(axes,'yz') || strcmp(axes,'zy'): $
                           data[*,*,it] = reform(full_array[center[0],*,*])
                     endcase
                  end
@@ -242,11 +242,11 @@ function read_ph5_plane, data_name, $
                  3: begin
                     tmp = transpose(tmp,[2,1,0])
                     case 1B of 
-                       strcmp(plane,'xy') || strcmp(plane,'yx'): $
+                       strcmp(axes,'xy') || strcmp(axes,'yx'): $
                           data[*,*,it] = reform(tmp[*,*,center[2]])
-                       strcmp(plane,'xz') || strcmp(plane,'zx'): $
+                       strcmp(axes,'xz') || strcmp(axes,'zx'): $
                           data[*,*,it] = reform(tmp[*,center[1],*])
-                       strcmp(plane,'yz') || strcmp(plane,'zy'): $
+                       strcmp(axes,'yz') || strcmp(axes,'zy'): $
                           data[*,*,it] = reform(tmp[center[0],*,*])
                     endcase                    
                  end
