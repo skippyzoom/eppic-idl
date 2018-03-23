@@ -20,19 +20,19 @@ function read_ph5_plane, data_name, $
                          data_type=data_type, $
                          data_isft=data_isft, $
                          run_dir=run_dir, $
-                         path=path, $
+                         data_path=data_path, $
                          lun=lun, $
                          verbose=verbose
 
   ;;==Defaults and guards
   if n_elements(ext) eq 0 then ext = 'h5'
   if n_elements(data_type) eq 0 then data_type = 4
-  if n_elements(path) eq 0 then path = './'
+  if n_elements(data_path) eq 0 then data_path = './'
   if n_elements(axes) eq 0 then axes = 'xy'
   if n_elements(center) eq 0 then center = [0,0,0]
-  path = terminal_slash(path)
+  data_path = terminal_slash(data_path)
   if n_elements(run_dir) eq 0 then $
-     run_dir = strmid(path,0,strpos(path,'parallel',/reverse_search))
+     run_dir = strmid(data_path,0,strpos(data_path,'parallel',/reverse_search))
   if n_elements(lun) eq 0 then lun = -1
 
   ;;==Read in run parameters
@@ -50,7 +50,7 @@ function read_ph5_plane, data_name, $
      ext = strmid(ext,1,strlen(ext))
 
   ;;==Search for available files...
-  h5_file = file_search(path+'*.'+ext,count=n_files)
+  h5_file = file_search(data_path+'*.'+ext,count=n_files)
   if n_files ne 0 then begin
      ;;...If files exist, derive nout for subsetting (below)
      h5_base = file_basename(h5_file)
@@ -64,7 +64,7 @@ function read_ph5_plane, data_name, $
   endelse
 
   ;;==Declare the reference file
-  h5_file_ref = expand_path(path+path_sep()+'parallel000000.h5')
+  h5_file_ref = expand_path(data_path+path_sep()+'parallel000000.h5')
   
   ;;==Select a subset of time steps, if requested
   if n_elements(timestep) ne 0 then h5_file = h5_file[timestep/nout]
