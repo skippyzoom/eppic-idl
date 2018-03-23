@@ -133,7 +133,7 @@ function read_ph5_plane, data_name, $
               endcase
            end
         endcase 
-        data = make_array(nxp,nyp,nt,data_type=data_type)
+        data = make_array(nxp,nyp,nt,type=data_type)
         tmp = !NULL
      endif else n_dim = 0
   endelse   
