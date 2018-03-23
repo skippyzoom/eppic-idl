@@ -12,8 +12,8 @@
 ;    The name of the data quantity to read. If the data
 ;    does not exist, read_ph5_plane.pro will return 0
 ;    and this routine will exit gracefully.
-; PLANE (default: 'xy')
-;    Simulation plane to extract from HDF data. If the
+; AXES (default: 'xy')
+;    Simulation axes to extract from HDF data. If the
 ;    simulation is 2 D, read_ph5_plane.pro will ignore
 ;    this parameter.
 ; DATA_TYPE (default: 4)
@@ -47,7 +47,7 @@
 ;    Logical unit number for printing runtime messages.
 ;-
 pro eppic_movie, data_name, $
-                 plane=plane, $
+                 axes=axes, $
                  data_type=data_type, $
                  data_isft=data_isft, $
                  rotate=rotate, $
@@ -60,7 +60,7 @@ pro eppic_movie, data_name, $
                  _EXTRA=ex
 
   ;;==Defaults and guards
-  if n_elements(plane) eq 0 then plane = 'xy'
+  if n_elements(axes) eq 0 then axes = 'xy'
   if n_elements(data_type) eq 0 then data_type = 4
   if n_elements(data_isft) eq 0 then data_isft = 0B
   if n_elements(rotate) eq 0 then rotate = 0
@@ -100,10 +100,11 @@ pro eppic_movie, data_name, $
   fdata = read_ph5_plane(read_name, $
                          ext = '.h5', $
                          timestep = timestep, $
-                         plane = plane, $
-                         type = data_type, $
+                         axes = 'xy', $
+                         data_type = data_type, $
                          data_isft = data_isft, $
-                         path = data_path, $
+                         data_path = data_path, $
+                         info_path = info_path, $
                          /verbose)
 
   ;;==Check dimensions
