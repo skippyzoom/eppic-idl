@@ -42,15 +42,20 @@
 ;    element for each time step. In that case, this routine will
 ;    iterate through 'title', passing one value to the image()
 ;    call for each frame. See also the IDL help page for image.pro.
-; DEFAULT_COLORBAR (default: unset)
+; ADD_COLORBAR (default: unset)
 ;    Toggle a colorbar with minimal keyword properties. This keyword
 ;    allows the user to have a reference before passing more keyword
-;    properties via colorbar_kw.
+;    properties via colorbar_kw. If the user sets this keyword as a
+;    boolean value (typically, /add_colorbar) then this routine will 
+;    create a horizontal colorbar. The user may also set this keyword
+;    to 'horizontal' or 'vertical', including abbreviations (e.g., 'h'
+;    or 'vert'), to create a colorbar with the corresponding orientation.
+;    This routine will ignore this keyword if the user passes a 
+;    dictionary for colorbar_kw.
 ; COLORBAR_KW (default: none)
 ;    Dictionary of keyword properties accepted by IDL's colorbar.pro,
 ;    with the exception that this routine will automatically set 
-;    target = img.
-;    See also the IDL help page for colorbar.pro.
+;    target = img. See also the IDL help page for colorbar.pro.
 ; TEXT_POS (default: [0.0, 0.0, 0.0])
 ;    An array containing the x, y, and z positions for text.pro.
 ;    See also the IDL help page for text.pro.
@@ -90,7 +95,7 @@ pro data_movie, movdata,xdata,ydata, $
                 framerate=framerate, $
                 resize=resize, $
                 image_kw=image_kw, $
-                default_colorbar=default_colorbar, $
+                add_colorbar=add_colorbar, $
                 colorbar_kw=colorbar_kw, $
                 text_pos=text_pos, $
                 text_string=text_string, $
@@ -137,6 +142,16 @@ pro data_movie, movdata,xdata,ydata, $
            else: title = !NULL
         endcase
         image_kw.remove, 'title'
+     endif
+     if keyword_set(add_colorbar) then begin
+        if isa(add_colorbar,/number) && $
+           add_colorbar eq 1 then orientation = 0 $
+        else if strcmp(add_colorbar,'h',1) then orientation = 0 $
+        else if strcmp(add_colorbar,'v',1) then orientation = 1 $
+        else begin 
+           printf, lun,"[DATA_MOVIE] Did not recognize value of add_colorbar"
+           add_colorbar = 0B
+        endelse
      endif
      if n_elements(text_pos) eq 0 then text_pos = [0.0, 0.0, 0.0] $
      else if n_elements(text_pos) eq 2 then $
@@ -187,8 +202,9 @@ pro data_movie, movdata,xdata,ydata, $
         if n_elements(colorbar_kw) ne 0 then $
            clr = colorbar(target = img, $
                           _EXTRA = colorbar_kw.tostruct()) $
-        else if keyword_set(default_colorbar) then $
-           clr = colorbar(target = img)
+        else if keyword_set(add_colorbar) then $
+           clr = colorbar(target = img, $
+                          orientation = orientation)
         if n_elements(text_string) ne 0 then begin
            txt = text(text_pos[0],text_pos[1],text_pos[2], $
                       text_string[it], $
