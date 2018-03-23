@@ -42,6 +42,10 @@
 ;    element for each time step. In that case, this routine will
 ;    iterate through 'title', passing one value to the image()
 ;    call for each frame. See also the IDL help page for image.pro.
+; DEFAULT_COLORBAR (default: unset)
+;    Toggle a colorbar with minimal keyword properties. This keyword
+;    allows the user to have a reference before passing more keyword
+;    properties via colorbar_kw.
 ; COLORBAR_KW (default: none)
 ;    Dictionary of keyword properties accepted by IDL's colorbar.pro,
 ;    with the exception that this routine will automatically set 
@@ -86,6 +90,7 @@ pro data_movie, movdata,xdata,ydata, $
                 framerate=framerate, $
                 resize=resize, $
                 image_kw=image_kw, $
+                default_colorbar=default_colorbar, $
                 colorbar_kw=colorbar_kw, $
                 text_pos=text_pos, $
                 text_string=text_string, $
@@ -179,11 +184,11 @@ pro data_movie, movdata,xdata,ydata, $
         img = image(fdata,xdata,ydata, $
                     /buffer, $
                     _EXTRA=image_kw.tostruct())
-        if n_elements(colorbar_kw) ne 0 then begin
-
+        if n_elements(colorbar_kw) ne 0 then $
            clr = colorbar(target = img, $
-                          _EXTRA = colorbar_kw.tostruct())
-        endif
+                          _EXTRA = colorbar_kw.tostruct()) $
+        else if keyword_set(default_colorbar) then $
+           clr = colorbar(target = img)
         if n_elements(text_string) ne 0 then begin
            txt = text(text_pos[0],text_pos[1],text_pos[2], $
                       text_string[it], $
