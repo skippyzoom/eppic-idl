@@ -19,7 +19,7 @@ function read_ph5_plane, data_name, $
                          center=center, $
                          data_type=data_type, $
                          data_isft=data_isft, $
-                         run_dir=run_dir, $
+                         info_path=info_path, $
                          data_path=data_path, $
                          lun=lun, $
                          verbose=verbose
@@ -31,12 +31,13 @@ function read_ph5_plane, data_name, $
   if n_elements(axes) eq 0 then axes = 'xy'
   if n_elements(center) eq 0 then center = [0,0,0]
   data_path = terminal_slash(data_path)
-  if n_elements(run_dir) eq 0 then $
-     run_dir = strmid(data_path,0,strpos(data_path,'parallel',/reverse_search))
+  if n_elements(info_path) eq 0 then $
+     info_path = strmid(data_path,0, $
+                        strpos(data_path,'parallel',/reverse_search))
   if n_elements(lun) eq 0 then lun = -1
 
   ;;==Read in run parameters
-  params = set_eppic_params(path=run_dir)
+  params = set_eppic_params(path=info_path)
 
   ;;==Extract global dimensions from parameters
   nx = params.nx*params.nsubdomains
