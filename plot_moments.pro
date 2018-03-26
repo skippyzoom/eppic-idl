@@ -140,6 +140,12 @@ pro plot_moments, moments, $
                           xtitle = xtitle, $
                           ytitle = v_keys[ip], $
                           name = ivar.name[0])
+           txt = text(0.5,0.0,path, $
+                      alignment = 0.5, $
+                      target = img, $
+                      font_name = 'Times', $
+                      font_size = 8.0)
+
            if n_var gt 1 then opl = objarr(n_var-1)
            for iv=1,n_var-1 do begin
               idata = reform(idist[ivar.data[iv]])
@@ -148,6 +154,11 @@ pro plot_moments, moments, $
                                ivar.format[iv], $
                                /overplot, $
                                name = ivar.name[iv])
+              txt = text(0.5,0.0,path, $
+                         alignment = 0.5, $
+                         target = img, $
+                         font_name = 'Times', $
+                         font_size = 8.0)
            endfor
            leg = legend(target = [plt[ip],opl], $
                         /auto_text_color)
@@ -219,6 +230,11 @@ pro plot_moments, moments, $
                        xtitle = xtitle, $
                        ytitle = v_keys[ip], $
                        name = ivar.name[0])
+        txt = text(0.5,0.0,path, $
+                   alignment = 0.5, $
+                   target = img, $
+                   font_name = 'Times', $
+                   font_size = 8.0)
         if n_var gt 1 then opl = objarr(n_var-1)
         for iv=1,n_var-1 do begin
            idata = reform(m_dict[ivar.data[iv]])
@@ -227,6 +243,11 @@ pro plot_moments, moments, $
                             ivar.format[iv], $
                             /overplot, $
                             name = ivar.name[iv])
+           txt = text(0.5,0.0,path, $
+                      alignment = 0.5, $
+                      target = img, $
+                      font_name = 'Times', $
+                      font_size = 8.0)
         endfor
         leg = legend(target = [plt[ip],opl], $
                      /auto_text_color)
