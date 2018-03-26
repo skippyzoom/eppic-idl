@@ -17,6 +17,7 @@ function read_ph5_plane, data_name, $
                          timestep=timestep, $
                          axes=axes, $
                          center=center, $
+                         ranges=ranges, $
                          data_type=data_type, $
                          data_isft=data_isft, $
                          info_path=info_path, $
@@ -30,6 +31,13 @@ function read_ph5_plane, data_name, $
   if n_elements(data_path) eq 0 then data_path = './'
   if n_elements(axes) eq 0 then axes = 'xy'
   if n_elements(center) eq 0 then center = [0,0,0]
+  if n_elements(ranges) eq 0 then ranges = [0,1,0,1]
+  if ranges[1] lt ranges[0] then $
+     message, "Must have ranges[1] ("+string(ranges[1])+ $
+              ") < ranges[0] ("+string(ranges[0])+")"
+  if ranges[3] lt ranges[2] then $
+     message, "Must have ranges[2] ("+string(ranges[2])+ $
+              ") < ranges[3] ("+string(ranges[3])+")"
   data_path = terminal_slash(data_path)
   if n_elements(info_path) eq 0 then $
      info_path = strmid(data_path,0, $
@@ -80,28 +88,42 @@ function read_ph5_plane, data_name, $
         n_dim = (size(tmp))[1]
         case n_dim of
            2: begin
-              nxp = nx
-              nyp = ny
+              x0 = ranges[0]*nx
+              xf = ranges[1]*nx
+              y0 = ranges[2]*ny
+              yf = ranges[3]*ny
               ft_template = {ikx:0, iky:0, val:complex(0.0,0.0)}
            end
            3: begin
               case 1B of
                  strcmp(axes,'xy') || strcmp(axes,'yx'): begin
-                    nxp = nx
-                    nyp = ny
+                    x0 = ranges[0]*nx
+                    xf = ranges[1]*nx
+                    y0 = ranges[2]*ny
+                    yf = ranges[3]*ny
                  end
                  strcmp(axes,'xz') || strcmp(axes,'zx'): begin
-                    nxp = nx
-                    nyp = nz
+                    x0 = ranges[0]*nx
+                    xf = ranges[1]*nx
+                    y0 = ranges[2]*nz
+                    yf = ranges[3]*nz
                  end
                  strcmp(axes,'yz') || strcmp(axes,'zy'): begin
-                    nxp = ny
-                    nyp = nz
+                    x0 = ranges[0]*ny
+                    xf = ranges[1]*ny
+                    y0 = ranges[2]*nz
+                    yf = ranges[3]*nz
                  end
               endcase
               ft_template = {ikx:0, iky:0, ikz:0, val:complex(0.0,0.0)}
            end 
         endcase
+        x0 = fix(x0)
+        xf = fix(xf)
+        y0 = fix(y0)
+        yf = fix(yf)
+        nxp = xf-x0
+        nyp = yf-y0
         data = make_array(nxp,nyp,nt,data_type=data_type)
         tmp = !NULL
      endif else n_dim = 0
@@ -113,26 +135,40 @@ function read_ph5_plane, data_name, $
         n_dim = (size(tmp))[0]
         case n_dim of
            2: begin 
-              nxp = nx/nout_avg
-              nyp = ny/nout_avg
+              x0 = ranges[0]*nx/nout_avg
+              xf = ranges[1]*nx/nout_avg
+              y0 = ranges[2]*ny/nout_avg
+              yf = ranges[3]*ny/nout_avg
            end
            3: begin
               case 1B of
                  strcmp(axes,'xy') || strcmp(axes,'yx'): begin
-                    nxp = nx/nout_avg
-                    nyp = ny/nout_avg
+                    x0 = ranges[0]*nx/nout_avg
+                    xf = ranges[1]*nx/nout_avg
+                    y0 = ranges[2]*ny/nout_avg
+                    yf = ranges[3]*ny/nout_avg
                  end
                  strcmp(axes,'xz') || strcmp(axes,'zx'): begin
-                    nxp = nx/nout_avg
-                    nyp = nz/nout_avg
+                    x0 = ranges[0]*nx/nout_avg
+                    xf = ranges[1]*nx/nout_avg
+                    y0 = ranges[2]*nz/nout_avg
+                    yf = ranges[3]*nz/nout_avg
                  end
                  strcmp(axes,'yz') || strcmp(axes,'zy'): begin
-                    nxp = ny/nout_avg
-                    nyp = nz/nout_avg
+                    x0 = ranges[0]*nx/nout_avg
+                    xf = ranges[1]*nx/nout_avg
+                    y0 = ranges[2]*nz/nout_avg
+                    yf = ranges[3]*nz/nout_avg
                  end
               endcase
            end
         endcase 
+        x0 = fix(x0)
+        xf = fix(xf)
+        y0 = fix(y0)
+        yf = fix(yf)
+        nxp = xf-x0
+        nyp = yf-y0
         data = make_array(nxp,nyp,nt,type=data_type)
         tmp = !NULL
      endif else n_dim = 0
@@ -209,7 +245,7 @@ function read_ph5_plane, data_name, $
                     ft_array = !NULL              
                     full_array = shift(full_array,[1,1])
                     full_array = conj(full_array)
-                    data[*,*,it] = full_array
+                    data[*,*,it] = full_array[x0:xf-1,y0:yf-1]
                  end
                  3: begin
                     full_array = complexarr(full_size[1], $
@@ -221,17 +257,20 @@ function read_ph5_plane, data_name, $
                     full_array = conj(full_array)
                     case 1B of 
                        strcmp(axes,'xy') || strcmp(axes,'yx'): $
-                          data[*,*,it] = reform(full_array[*,*,center[2]])
+                          data[*,*,it] = $
+                          reform(full_array[x0:xf-1,y0:yf-1,center[2]])
                        strcmp(axes,'xz') || strcmp(axes,'zx'): $
-                          data[*,*,it] = reform(full_array[*,center[1],*])
+                          data[*,*,it] = $
+                          reform(full_array[x0:xf-1,center[1],y0:yf-1])
                        strcmp(axes,'yz') || strcmp(axes,'zy'): $
-                          data[*,*,it] = reform(full_array[center[0],*,*])
+                          data[*,*,it] = $
+                          reform(full_array[center[0],x0:xf-1,y0:yf-1])
                     endcase
                  end
               endcase              ;data dimensions
            endif else null_count++ ;tmp_data exists?
         endfor                     ;time step loop
-     endif $
+     endif $                       ;FT data
      else begin
         for it=0,nt-1 do begin
            ;;==Read data set
@@ -239,16 +278,20 @@ function read_ph5_plane, data_name, $
            ;;==Assign to return array
            if n_elements(tmp) ne 0 then begin
               case ndim_space of
-                 2: data[*,*,it] = transpose(tmp,[1,0])
+                 2: data[*,*,it] = $
+                    (transpose(tmp,[1,0]))[x0:xf-1,y0:yf-1]
                  3: begin
                     tmp = transpose(tmp,[2,1,0])
                     case 1B of 
                        strcmp(axes,'xy') || strcmp(axes,'yx'): $
-                          data[*,*,it] = reform(tmp[*,*,center[2]])
+                          data[*,*,it] = $
+                          reform(tmp[x0:xf-1,y0:yf-1,center[2]])
                        strcmp(axes,'xz') || strcmp(axes,'zx'): $
-                          data[*,*,it] = reform(tmp[*,center[1],*])
+                          data[*,*,it] = $
+                          reform(tmp[x0:xf-1,center[1],y0:yf-1])
                        strcmp(axes,'yz') || strcmp(axes,'zy'): $
-                          data[*,*,it] = reform(tmp[center[0],*,*])
+                          data[*,*,it] = $
+                          reform(tmp[center[0],x0:xf-1,y0:yf-1])
                     endcase                    
                  end
               endcase
