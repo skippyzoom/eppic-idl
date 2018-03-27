@@ -103,6 +103,9 @@ pro data_movie, movdata,xdata,ydata, $
                 text_kw=text_kw, $
                 _EXTRA=ex
 
+  ;;==Default LUN
+  if n_elements(lun) eq 0 then lun = -1
+
   ;;==Get data size
   data_size = size(movdata)
   n_dims = data_size[0]
@@ -113,8 +116,7 @@ pro data_movie, movdata,xdata,ydata, $
      nx = data_size[1]
      ny = data_size[2]
 
-     ;;==Defaults and guards
-     if n_elements(lun) eq 0 then lun = -1
+     ;;==Other defaults and guards
      if ~keyword_set(log) && n_elements(alog_base) ne 0 then $
         log = 1B
      if n_elements(alog_base) eq 0 then alog_base = '10'
@@ -221,6 +223,6 @@ pro data_movie, movdata,xdata,ydata, $
      printf, lun,"[DATA_MOVIE] Finished"
 
   endif $
-  else printf, lun,"[DATA_MOVIE] movdata must have dimensions (x,y,t)"
+  else printf, lun,"[DATA_MOVIE] movie data must have dimensions (x,y,t)"
 
 end
