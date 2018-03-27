@@ -10,12 +10,12 @@
 ;                                 **PARAMETERS**
 ; DATA_NAME
 ;    The name of the data quantity to read. If the data
-;    does not exist, read_ph5_plane.pro will return 0
-;    and this routine will exit gracefully.
+;    does not exist, read_ph5.pro will return 0 and this 
+;    routine will exit gracefully.
 ; AXES (default: 'xy')
 ;    Simulation axes to extract from HDF data. If the
-;    simulation is 2 D, read_ph5_plane.pro will ignore
-;    this parameter.
+;    simulation is 2 D, read_ph5.pro will ignore this 
+;    parameter.
 ; DATA_TYPE (default: 4)
 ;    IDL numerical data type of simulation output, 
 ;    typically either 4 (float) for spatial data
@@ -62,7 +62,8 @@ pro eppic_movie, data_name, $
 
   ;;==Defaults and guards
   if n_elements(axes) eq 0 then axes = 'xy'
-  if n_elements(ranges) eq 0 then ranges = [0,1,0,1]
+  if n_elements(ranges) eq 0 then ranges = [0,1,0,1,0,1]
+  if n_elements(ranges) eq 4 then ranges = [ranges,0,1]
   if n_elements(data_type) eq 0 then data_type = 4
   if n_elements(data_isft) eq 0 then data_isft = 0B
   if n_elements(rotate) eq 0 then rotate = 0
@@ -82,36 +83,25 @@ pro eppic_movie, data_name, $
   params = set_eppic_params(path=info_path)
 
   ;;==Convert ranges to physical indices
-  case 1B of
-     strcmp(axes,'xy'): begin
-        x0 = params.nx*params.nsubdomains*ranges[0]/params.nout_avg
-        xf = params.nx*params.nsubdomains*ranges[1]/params.nout_avg
-        y0 = params.ny*ranges[2]/params.nout_avg
-        yf = params.ny*ranges[3]/params.nout_avg
-        dx = params.dx
-        dy = params.dy
-     end
-     strcmp(axes,'xz'): begin
-        x0 = params.nx*params.nsubdomains*ranges[0]/params.nout_avg
-        xf = params.nx*params.nsubdomains*ranges[1]/params.nout_avg
-        y0 = params.nz*ranges[2]/params.nout_avg
-        yf = params.nz*ranges[3]/params.nout_avg
-        dx = params.dx
-        dy = params.dz
-     end
-     strcmp(axes,'yz'): begin
-        x0 = params.ny*ranges[0]/params.nout_avg
-        xf = params.ny*ranges[1]/params.nout_avg
-        y0 = params.nz*ranges[2]/params.nout_avg
-        yf = params.nz*ranges[3]/params.nout_avg
-        dx = params.dy
-        dy = params.dz
-     end
-  endcase
-  x0 = fix(x0)
-  xf = fix(xf)
-  y0 = fix(y0)
-  yf = fix(yf)
+  if keyword_set(data_isft) then begin
+     x0 = fix(params.nx*params.nsubdomains*ranges[0])
+     xf = fix(params.nx*params.nsubdomains*ranges[1])
+     y0 = fix(params.ny*ranges[2])
+     yf = fix(params.ny*ranges[3])
+     z0 = fix(params.nz*ranges[4])
+     zf = fix(params.nz*ranges[5])
+  endif $
+  else begin
+     x0 = fix(params.nx*params.nsubdomains*ranges[0])/params.nout_avg
+     xf = fix(params.nx*params.nsubdomains*ranges[1])/params.nout_avg
+     y0 = fix(params.ny*ranges[2])/params.nout_avg
+     yf = fix(params.ny*ranges[3])/params.nout_avg
+     z0 = fix(params.nz*ranges[4])/params.nout_avg
+     zf = fix(params.nz*ranges[5])/params.nout_avg
+  endelse
+  ranges = dictionary('x0',x0, 'xf',xf, $
+                      'y0',y0, 'yf',yf, $
+                      'z0',z0, 'zf',zf)
 
   ;;==Calculate max number of time steps
   nt_max = calc_timesteps(path=info_path)
@@ -125,47 +115,37 @@ pro eppic_movie, data_name, $
      read_name = 'phi' $
   else $
      read_name = data_name
-  fdata = read_ph5_plane(read_name, $
-                         ext = '.h5', $
-                         timestep = timestep, $
-                         axes = axes, $
-                         data_type = data_type, $
-                         data_isft = data_isft, $
-                         data_path = data_path, $
-                         info_path = info_path, $
-                         ranges = ranges, $
-                         /verbose)
+  rdata = read_ph5(read_name, $
+                   ext = '.h5', $
+                   timestep = timestep, $
+                   data_type = data_type, $
+                   data_isft = data_isft, $
+                   data_path = data_path, $
+                   info_path = info_path, $
+                   ranges = ranges, $
+                   /verbose)
 
   ;;==Check dimensions
-  fsize = size(fdata)
-  if fsize[0] eq 3 then begin
+  rsize = size(rdata)
+  if rsize[0] eq 3 then begin
 
-     ;;==Get dimensions of data array
-     fsize = size(fdata)
-     nx = fsize[1]
-     ny = fsize[2]
+     ;;==Set the (2+1)-D array for imaging
+     plane = set_image_plane(rdata, $
+                             ranges = ranges, $
+                             axes = axes, $
+                             rotate = rotate, $
+                             params = params, $
+                             path = path)
 
-     ;;==Create full arrays of x- and y-axis data points
-     xdata = dx*(x0 + indgen(xf-x0))
-     ydata = dy*(y0 + indgen(yf-y0))
+     ;;==Extract variables from plane dictionary
+     fdata = plane.f
+     xdata = plane.x
+     ydata = plane.y
+     dx = plane.dx
+     dy = plane.dy
+     plane = !NULL
 
-     ;;==Rotate data, if requested
-     if rotate gt 0 then begin
-        if rotate mod 2 then begin
-           tmp = ydata
-           ydata = xdata
-           xdata = tmp
-           fsize = size(fdata)
-           tmp = fdata
-           fdata = make_array(fsize[2],fsize[1],nts,type=fsize[4],/nozero)
-           for it=0,nts-1 do fdata[*,*,it] = rotate(tmp[*,*,it],rotate)
-        endif $
-        else begin
-           for it=0,nts-1 do fdata[*,*,it] = rotate(fdata[*,*,it],rotate)
-        endelse
-     endif
-
-     ;;==Get (possibly new) dimensions of data array
+     ;;==Get dimensions of image array
      fsize = size(fdata)
      nx = fsize[1]
      ny = fsize[2]
@@ -184,8 +164,8 @@ pro eppic_movie, data_name, $
      if fft_direction lt 0 or data_isft then begin
         xtitle = '$k_{Zon}$ [m$^{-1}$]'
         ytitle = '$k_{Ver}$ [m$^{-1}$]'
-        xtickname = strarr(xmajor)
-        inds = strcompress(1+indgen(xmajor/2),/remove_all)
+        ;; xtickname = strarr(xmajor)
+        ;; inds = strcompress(1+indgen(xmajor/2),/remove_all)
         ;; if xmajor mod 2 then begin
         ;;    xtickname[xmajor/2] = '0'
         ;;    for ix=1,xmajor/2 do begin
@@ -197,6 +177,7 @@ pro eppic_movie, data_name, $
         ;;    for ix=0,xmajor-1 do begin
         ;;       xtickname[ix] = '-'+inds[ix]+'$\pi$'
         ;;       xtickname[xmajor-ix] = '+'+inds[ix]+'$\pi$'
+        ;;    endfor
         ;; endelse
      endif else begin
         xtitle = 'Zonal [m]'
@@ -221,8 +202,7 @@ pro eppic_movie, data_name, $
         Ey = fltarr(size(fdata,/dim))
         for it=0,nts-1 do begin
            gradf = gradient(fdata[*,*,it], $
-                            dx = params.dx*params.nout_avg, $
-                            dy = params.dy*params.nout_avg)
+                            dx=plane.dx, dy=plane.dy)
            Ex[*,*,it] = -1.0*gradf.x
            Ey[*,*,it] = -1.0*gradf.y
         endfor
@@ -252,6 +232,10 @@ pro eppic_movie, data_name, $
                            'ysubticklen', 0.5, $
                            'xtickdir', 1, $
                            'ytickdir', 1, $
+                           'xtickvalues', xtickvalues, $
+                           'ytickvalues', ytickvalues, $
+                           'xtickname', xtickname, $
+                           'ytickname', ytickname, $
                            'xtickfont_size', 20.0, $
                            'ytickfont_size', 20.0, $
                            'font_size', 24.0, $
