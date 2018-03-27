@@ -57,8 +57,7 @@ pro eppic_movie, data_name, $
                  data_path=data_path, $
                  save_path=save_path, $
                  save_name=save_name, $                 
-                 lun=lun, $
-                 _EXTRA=ex
+                 lun=lun
 
   ;;==Defaults and guards
   if n_elements(axes) eq 0 then axes = 'xy'
@@ -156,29 +155,10 @@ pro eppic_movie, data_name, $
      ymajor = 5
      yminor = 1
 
-     ;; ;;==Compute locations of x and y tick marks
-     ;; xtickvalues = nx*indgen(xmajor)/(xmajor-1)
-     ;; ytickvalues = ny*indgen(ymajor)/(ymajor-1)
-
      ;;==Set x and y titles
      if fft_direction lt 0 or data_isft then begin
         xtitle = '$k_{Zon}$ [m$^{-1}$]'
         ytitle = '$k_{Ver}$ [m$^{-1}$]'
-        ;; xtickname = strarr(xmajor)
-        ;; inds = strcompress(1+indgen(xmajor/2),/remove_all)
-        ;; if xmajor mod 2 then begin
-        ;;    xtickname[xmajor/2] = '0'
-        ;;    for ix=1,xmajor/2 do begin
-        ;;       xtickname[xmajor/2-ix] = '-'+inds[ix-1]+'$\pi$'
-        ;;       xtickname[xmajor/2+ix] = '+'+inds[ix-1]+'$\pi$'
-        ;;    endfor
-        ;; endif $
-        ;; else begin
-        ;;    for ix=0,xmajor-1 do begin
-        ;;       xtickname[ix] = '-'+inds[ix]+'$\pi$'
-        ;;       xtickname[xmajor-ix] = '+'+inds[ix]+'$\pi$'
-        ;;    endfor
-        ;; endelse
      endif else begin
         xtitle = 'Zonal [m]'
         ytitle = 'Vertical [m]'
