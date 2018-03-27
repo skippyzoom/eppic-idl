@@ -10,6 +10,8 @@
 ; time.
 ;
 ; Created by Matt Young.
+; The FT portion of this code is based on code written by
+; Meers Oppenheim and Liane Tarnecki.
 ;------------------------------------------------------------------------------
 ;                                 **PARAMETERS**
 ; DATA_NAME
@@ -24,7 +26,7 @@
 ;    Simulation axes to extract from HDF data. If the
 ;    simulation is 2 D, read_ph5_plane.pro will ignore
 ;    this parameter.
-; CENTER (default: 0)
+; ZERO_POINT (default: 0)
 ;    The point at which to subscript the axis perpendicular
 ;    to the requested plane.
 ; RANGES (default: [0,nx,0,ny])
@@ -56,7 +58,7 @@ function read_ph5_plane, data_name, $
                          ext=ext, $
                          timestep=timestep, $
                          axes=axes, $
-                         center=center, $
+                         zero_point=zero_point, $
                          ranges=ranges, $
                          data_type=data_type, $
                          data_isft=data_isft, $
@@ -70,11 +72,11 @@ function read_ph5_plane, data_name, $
   if n_elements(data_type) eq 0 then data_type = 4
   if n_elements(data_path) eq 0 then data_path = './'
   if n_elements(axes) eq 0 then axes = 'xy'
-  if n_elements(center) eq 0 then center = 0
+  if n_elements(zero_point) eq 0 then zero_point = 0
   if n_elements(ranges) eq 0 then ranges = [0,1,0,1]
   if ranges[1] lt ranges[0] then $
-     message, "Must have ranges[1] ("+string(ranges[1])+ $
-              ") < ranges[0] ("+string(ranges[0])+")"
+     message, "Must have ranges[0] ("+string(ranges[1])+ $
+              ") < ranges[1] ("+string(ranges[0])+")"
   if ranges[3] lt ranges[2] then $
      message, "Must have ranges[2] ("+string(ranges[2])+ $
               ") < ranges[3] ("+string(ranges[3])+")"
@@ -264,13 +266,13 @@ function read_ph5_plane, data_name, $
                     case 1B of 
                        strcmp(axes,'xy') || strcmp(axes,'yx'): $
                           data[*,*,it] = $
-                          reform(full_array[x0:xf-1,y0:yf-1,center])
+                          reform(full_array[x0:xf-1,y0:yf-1,zero_point])
                        strcmp(axes,'xz') || strcmp(axes,'zx'): $
                           data[*,*,it] = $
-                          reform(full_array[x0:xf-1,center,y0:yf-1])
+                          reform(full_array[x0:xf-1,zero_point,y0:yf-1])
                        strcmp(axes,'yz') || strcmp(axes,'zy'): $
                           data[*,*,it] = $
-                          reform(full_array[center,x0:xf-1,y0:yf-1])
+                          reform(full_array[zero_point,x0:xf-1,y0:yf-1])
                     endcase
                  end
               endcase              ;data dimensions
@@ -291,13 +293,13 @@ function read_ph5_plane, data_name, $
                     case 1B of 
                        strcmp(axes,'xy') || strcmp(axes,'yx'): $
                           data[*,*,it] = $
-                          reform(tmp[x0:xf-1,y0:yf-1,center])
+                          reform(tmp[x0:xf-1,y0:yf-1,zero_point])
                        strcmp(axes,'xz') || strcmp(axes,'zx'): $
                           data[*,*,it] = $
-                          reform(tmp[x0:xf-1,center,y0:yf-1])
+                          reform(tmp[x0:xf-1,zero_point,y0:yf-1])
                        strcmp(axes,'yz') || strcmp(axes,'zy'): $
                           data[*,*,it] = $
-                          reform(tmp[center,x0:xf-1,y0:yf-1])
+                          reform(tmp[zero_point,x0:xf-1,y0:yf-1])
                     endcase                    
                  end
               endcase
