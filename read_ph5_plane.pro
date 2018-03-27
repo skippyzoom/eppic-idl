@@ -1,16 +1,56 @@
 ;+
-; This function builds an array of data from files 
-; written in the parallel HDF5 format. It is tuned
-; to work with EPPIC simulation output and is based
-; on read_ph5_data.pro
+; Read EPPIC data and return a (2+1)-D array
 ;
-; The purpose of using this function in place of
-; read_ph5_data.pro is to save memory in cases of
-; large data sets. It will return an array with 
-; dimensions (nx,ny,nt): for spatially  2-D data, 
-; it returns the full data set; for 3-D data, it 
-; returns a logically 3-D data set comprising data 
-; in the requested plane as a function of time.
+; This function builds an array of data from files 
+; written in the parallel HDF5 format. This function
+; returns an array with dimensions (nx,ny,nt). 
+; For spatially  2-D data, it returns the full data set; 
+; for 3-D data, it returns a logically 3-D data set 
+; comprising data in the requested plane as a function of 
+; time.
+;
+; Created by Matt Young.
+;------------------------------------------------------------------------------
+;                                 **PARAMETERS**
+; DATA_NAME
+;    The name of the data quantity to read. If the data
+;    does not exist, read_ph5_plane.pro will return 0
+;    and this routine will exit gracefully.
+; EXT (default: 'h5')
+;    File extension of data to read.
+; TIMESTEP (default: 0)
+;    Simulation time steps at which to read data.
+; AXES (default: 'xy')
+;    Simulation axes to extract from HDF data. If the
+;    simulation is 2 D, read_ph5_plane.pro will ignore
+;    this parameter.
+; CENTER (default: 0)
+;    The point at which to subscript the axis perpendicular
+;    to the requested plane.
+; RANGES (default: [0,nx,0,ny])
+;    A four-element array specifying logical x and y ranges
+;    to return. The elements are [x0,xf,y0,yf], where 
+;    x0 and xf are the bounds of the first dimension specified
+;    by 'axes' and y0 and yf are the bounds of the second
+;    dimension.
+; DATA_TYPE (default: 4)
+;    IDL numerical data type of simulation output, 
+;    typically either 4 (float) for spatial data
+;    or 6 (complex) for Fourier-transformed data.
+; DATA_ISFT (default: 0)
+;    Boolean that represents whether the EPPIC data 
+;    quantity is Fourier-transformed or not.
+; INFO_PATH (default: './')
+;    Fully qualified path to the simulation parameter
+;    file (ppic3d.i or eppic.i).
+; DATA_PATH (default: './')
+;    Fully qualified path to the simulation data.
+; LUN (default: -1)
+;    Logical unit number for printing runtime messages.
+; VERBOSE (default: unset)
+;    Print runtime information.
+; <return>
+;    A logically (2+1)-D array of the type specified by data_type.
 ;-
 function read_ph5_plane, data_name, $
                          ext=ext, $
@@ -30,7 +70,7 @@ function read_ph5_plane, data_name, $
   if n_elements(data_type) eq 0 then data_type = 4
   if n_elements(data_path) eq 0 then data_path = './'
   if n_elements(axes) eq 0 then axes = 'xy'
-  if n_elements(center) eq 0 then center = [0,0,0]
+  if n_elements(center) eq 0 then center = 0
   if n_elements(ranges) eq 0 then ranges = [0,1,0,1]
   if ranges[1] lt ranges[0] then $
      message, "Must have ranges[1] ("+string(ranges[1])+ $
@@ -258,13 +298,13 @@ function read_ph5_plane, data_name, $
                     case 1B of 
                        strcmp(axes,'xy') || strcmp(axes,'yx'): $
                           data[*,*,it] = $
-                          reform(full_array[x0:xf-1,y0:yf-1,center[2]])
+                          reform(full_array[x0:xf-1,y0:yf-1,center])
                        strcmp(axes,'xz') || strcmp(axes,'zx'): $
                           data[*,*,it] = $
-                          reform(full_array[x0:xf-1,center[1],y0:yf-1])
+                          reform(full_array[x0:xf-1,center,y0:yf-1])
                        strcmp(axes,'yz') || strcmp(axes,'zy'): $
                           data[*,*,it] = $
-                          reform(full_array[center[0],x0:xf-1,y0:yf-1])
+                          reform(full_array[center,x0:xf-1,y0:yf-1])
                     endcase
                  end
               endcase              ;data dimensions
@@ -285,13 +325,13 @@ function read_ph5_plane, data_name, $
                     case 1B of 
                        strcmp(axes,'xy') || strcmp(axes,'yx'): $
                           data[*,*,it] = $
-                          reform(tmp[x0:xf-1,y0:yf-1,center[2]])
+                          reform(tmp[x0:xf-1,y0:yf-1,center])
                        strcmp(axes,'xz') || strcmp(axes,'zx'): $
                           data[*,*,it] = $
-                          reform(tmp[x0:xf-1,center[1],y0:yf-1])
+                          reform(tmp[x0:xf-1,center,y0:yf-1])
                        strcmp(axes,'yz') || strcmp(axes,'zy'): $
                           data[*,*,it] = $
-                          reform(tmp[center[0],x0:xf-1,y0:yf-1])
+                          reform(tmp[center,x0:xf-1,y0:yf-1])
                     endcase                    
                  end
               endcase
