@@ -94,6 +94,9 @@ function read_ph5_plane, data_name, $
   nout_avg = params.nout_avg
   ndim_space = params.ndim_space
 
+  ;;==Fix axes for 2-D runs
+  if ndim_space eq 2 then axes = 'xy'
+
   ;;==Trim the dot from file extension pattern
   if strcmp(strmid(ext,0,1),'.') then $
      ext = strmid(ext,1,strlen(ext))
@@ -121,98 +124,61 @@ function read_ph5_plane, data_name, $
   ;;==Get the size of the subset
   nt = n_elements(h5_file)
 
-  ;;==Set up array for EPPIC Fourier-transformed data
+  ;;==Set up data array
   if keyword_set(data_isft) then begin
      tmp = get_h5_data(h5_file_ref,data_name+'_index')
-     if n_elements(tmp) ne 0 then begin
-        n_dim = (size(tmp))[1]
-        case n_dim of
-           2: begin
-              x0 = ranges[0]*nx
-              xf = ranges[1]*nx
-              y0 = ranges[2]*ny
-              yf = ranges[3]*ny
-              ft_template = {ikx:0, iky:0, val:complex(0.0,0.0)}
-           end
-           3: begin
-              case 1B of
-                 strcmp(axes,'xy') || strcmp(axes,'yx'): begin
-                    x0 = ranges[0]*nx
-                    xf = ranges[1]*nx
-                    y0 = ranges[2]*ny
-                    yf = ranges[3]*ny
-                 end
-                 strcmp(axes,'xz') || strcmp(axes,'zx'): begin
-                    x0 = ranges[0]*nx
-                    xf = ranges[1]*nx
-                    y0 = ranges[2]*nz
-                    yf = ranges[3]*nz
-                 end
-                 strcmp(axes,'yz') || strcmp(axes,'zy'): begin
-                    x0 = ranges[0]*ny
-                    xf = ranges[1]*ny
-                    y0 = ranges[2]*nz
-                    yf = ranges[3]*nz
-                 end
-              endcase
-              ft_template = {ikx:0, iky:0, ikz:0, val:complex(0.0,0.0)}
-           end 
-        endcase
-        x0 = fix(x0)
-        xf = fix(xf)
-        y0 = fix(y0)
-        yf = fix(yf)
-        nxp = xf-x0
-        nyp = yf-y0
-        data = make_array(nxp,nyp,nt,data_type=data_type)
-        tmp = !NULL
-     endif else n_dim = 0
+     ndim_tmp = (size(tmp))[1]
   endif $
-  ;;==Set up array for standard EPPIC data
   else begin
      tmp = get_h5_data(h5_file_ref,data_name)
-     if n_elements(tmp) ne 0 then begin
-        n_dim = (size(tmp))[0]
-        case n_dim of
-           2: begin 
-              x0 = ranges[0]*nx/nout_avg
-              xf = ranges[1]*nx/nout_avg
-              y0 = ranges[2]*ny/nout_avg
-              yf = ranges[3]*ny/nout_avg
-           end
-           3: begin
-              case 1B of
-                 strcmp(axes,'xy') || strcmp(axes,'yx'): begin
-                    x0 = ranges[0]*nx/nout_avg
-                    xf = ranges[1]*nx/nout_avg
-                    y0 = ranges[2]*ny/nout_avg
-                    yf = ranges[3]*ny/nout_avg
-                 end
-                 strcmp(axes,'xz') || strcmp(axes,'zx'): begin
-                    x0 = ranges[0]*nx/nout_avg
-                    xf = ranges[1]*nx/nout_avg
-                    y0 = ranges[2]*nz/nout_avg
-                    yf = ranges[3]*nz/nout_avg
-                 end
-                 strcmp(axes,'yz') || strcmp(axes,'zy'): begin
-                    x0 = ranges[0]*nx/nout_avg
-                    xf = ranges[1]*nx/nout_avg
-                    y0 = ranges[2]*nz/nout_avg
-                    yf = ranges[3]*nz/nout_avg
-                 end
-              endcase
-           end
-        endcase 
-        x0 = fix(x0)
-        xf = fix(xf)
-        y0 = fix(y0)
-        yf = fix(yf)
-        nxp = xf-x0
-        nyp = yf-y0
-        data = make_array(nxp,nyp,nt,type=data_type)
-        tmp = !NULL
-     endif else n_dim = 0
-  endelse   
+     ndim_tmp = (size(tmp))[0]
+  endelse
+  if n_elements(tmp) ne 0 && ndim_tmp eq ndim_space then begin
+     n_dim = ndim_space
+     case 1B of
+        strcmp(axes,'xy') || strcmp(axes,'yx'): begin
+           x0 = ranges[0]*nx
+           xf = ranges[1]*nx
+           y0 = ranges[2]*ny
+           yf = ranges[3]*ny
+        end
+        strcmp(axes,'xz') || strcmp(axes,'zx'): begin
+           x0 = ranges[0]*nx
+           xf = ranges[1]*nx
+           y0 = ranges[2]*nz
+           yf = ranges[3]*nz
+        end
+        strcmp(axes,'yz') || strcmp(axes,'zy'): begin
+           x0 = ranges[0]*ny
+           xf = ranges[1]*ny
+           y0 = ranges[2]*nz
+           yf = ranges[3]*nz
+        end
+     endcase
+
+     if keyword_set(data_isft) then begin
+        if ndim_space eq 2 then $
+           ft_template = {ikx:0, iky:0, val:complex(0)} $
+        else $
+           ft_template = {ikx:0, iky:0, ikz:0, val:complex(0)}
+     endif $
+     else begin
+        x0 /= nout_avg
+        xf /= nout_avg
+        y0 /= nout_avg
+        yf /= nout_avg
+     endelse
+     x0 = fix(x0)
+     xf = fix(xf)
+     y0 = fix(y0)
+     yf = fix(yf)
+     nxp = xf-x0
+     nyp = yf-y0
+     data = make_array(nxp,nyp,nt,type=data_type)
+     tmp = !NULL
+
+  endif else n_dim = 0
+
   if nt eq 1 then data = reform(data,[size(data,/dim),1])
 
   if n_dim eq 2 || n_dim eq 3 then begin
@@ -343,9 +309,9 @@ function read_ph5_plane, data_name, $
      ;;==Let user know about missing data (not necessarily an error)
      if keyword_set(verbose) && null_count gt 0 then $
         printf, lun,"[READ_PH5_PLANE] Warning: Did not find '", $
-               data_name+"' in ", $
-               strcompress(null_count,/remove_all),"/", $
-               strcompress(nt,/remove_all)," files."
+                data_name+"' in ", $
+                strcompress(null_count,/remove_all),"/", $
+                strcompress(nt,/remove_all)," files."
 
      if n_elements(data) eq 0 then data = !NULL
      return, data
