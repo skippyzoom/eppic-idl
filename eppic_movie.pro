@@ -48,6 +48,7 @@
 ;-
 pro eppic_movie, data_name, $
                  axes=axes, $
+                 ranges=ranges, $
                  data_type=data_type, $
                  data_isft=data_isft, $
                  rotate=rotate, $
@@ -61,6 +62,7 @@ pro eppic_movie, data_name, $
 
   ;;==Defaults and guards
   if n_elements(axes) eq 0 then axes = 'xy'
+  if n_elements(ranges) eq 0 then ranges = [0,1,0,1]
   if n_elements(data_type) eq 0 then data_type = 4
   if n_elements(data_isft) eq 0 then data_isft = 0B
   if n_elements(rotate) eq 0 then rotate = 0
@@ -79,18 +81,44 @@ pro eppic_movie, data_name, $
   ;;==Read simulation parameters
   params = set_eppic_params(path=info_path)
 
+  ;;==Convert ranges to physical indices
+  case 1B of
+     strcmp(axes,'xy'): begin
+        x0 = params.nx*params.nsubdomains*ranges[0]/params.nout_avg
+        xf = params.nx*params.nsubdomains*ranges[1]/params.nout_avg
+        y0 = params.ny*ranges[2]/params.nout_avg
+        yf = params.ny*ranges[3]/params.nout_avg
+        dx = params.dx
+        dy = params.dy
+     end
+     strcmp(axes,'xz'): begin
+        x0 = params.nx*params.nsubdomains*ranges[0]/params.nout_avg
+        xf = params.nx*params.nsubdomains*ranges[1]/params.nout_avg
+        y0 = params.nz*ranges[2]/params.nout_avg
+        yf = params.nz*ranges[3]/params.nout_avg
+        dx = params.dx
+        dy = params.dz
+     end
+     strcmp(axes,'yz'): begin
+        x0 = params.ny*ranges[0]/params.nout_avg
+        xf = params.ny*ranges[1]/params.nout_avg
+        y0 = params.nz*ranges[2]/params.nout_avg
+        yf = params.nz*ranges[3]/params.nout_avg
+        dx = params.dy
+        dy = params.dz
+     end
+  endcase
+  x0 = fix(x0)
+  xf = fix(xf)
+  y0 = fix(y0)
+  yf = fix(yf)
+
   ;;==Calculate max number of time steps
   nt_max = calc_timesteps(path=info_path)
 
   ;;==Create the time-step array
   timestep = params.nout*lindgen(nt_max)
   nts = n_elements(timestep)
-
-  ;;==Create arrays of x- and y-axis data points
-  xdata = params.dx*params.nout_avg* $
-          indgen(params.nx*params.nsubdomains/params.nout_avg)
-  ydata = params.dy*params.nout_avg* $
-          indgen(params.ny)
 
   ;;==Read data at each time step
   if strcmp(data_name,'e',1,/fold_case) then $
@@ -100,16 +128,26 @@ pro eppic_movie, data_name, $
   fdata = read_ph5_plane(read_name, $
                          ext = '.h5', $
                          timestep = timestep, $
-                         axes = 'xy', $
+                         axes = axes, $
                          data_type = data_type, $
                          data_isft = data_isft, $
                          data_path = data_path, $
                          info_path = info_path, $
+                         ranges = ranges, $
                          /verbose)
 
   ;;==Check dimensions
   fsize = size(fdata)
   if fsize[0] eq 3 then begin
+
+     ;;==Get dimensions of data array
+     fsize = size(fdata)
+     nx = fsize[1]
+     ny = fsize[2]
+
+     ;;==Create full arrays of x- and y-axis data points
+     xdata = dx*(x0 + indgen(xf-x0))
+     ydata = dy*(y0 + indgen(yf-y0))
 
      ;;==Rotate data, if requested
      if rotate gt 0 then begin
@@ -127,15 +165,39 @@ pro eppic_movie, data_name, $
         endelse
      endif
 
-     ;;==Get dimensions of data array
+     ;;==Get (possibly new) dimensions of data array
      fsize = size(fdata)
      nx = fsize[1]
      ny = fsize[2]
 
-     ;;==Set default x and y titles
+     ;;==Set number of x and y ticks
+     xmajor = 5
+     xminor = 1
+     ymajor = 5
+     yminor = 1
+
+     ;; ;;==Compute locations of x and y tick marks
+     ;; xtickvalues = nx*indgen(xmajor)/(xmajor-1)
+     ;; ytickvalues = ny*indgen(ymajor)/(ymajor-1)
+
+     ;;==Set x and y titles
      if fft_direction lt 0 or data_isft then begin
         xtitle = '$k_{Zon}$ [m$^{-1}$]'
         ytitle = '$k_{Ver}$ [m$^{-1}$]'
+        xtickname = strarr(xmajor)
+        inds = strcompress(1+indgen(xmajor/2),/remove_all)
+        ;; if xmajor mod 2 then begin
+        ;;    xtickname[xmajor/2] = '0'
+        ;;    for ix=1,xmajor/2 do begin
+        ;;       xtickname[xmajor/2-ix] = '-'+inds[ix-1]+'$\pi$'
+        ;;       xtickname[xmajor/2+ix] = '+'+inds[ix-1]+'$\pi$'
+        ;;    endfor
+        ;; endif $
+        ;; else begin
+        ;;    for ix=0,xmajor-1 do begin
+        ;;       xtickname[ix] = '-'+inds[ix]+'$\pi$'
+        ;;       xtickname[xmajor-ix] = '+'+inds[ix]+'$\pi$'
+        ;; endelse
      endif else begin
         xtitle = 'Zonal [m]'
         ytitle = 'Vertical [m]'
@@ -180,10 +242,10 @@ pro eppic_movie, data_name, $
                            'ytitle', ytitle, $
                            'xstyle', 1, $
                            'ystyle', 1, $
-                           'xmajor', 5, $
-                           'xminor', 1, $
-                           'ymajor', 5, $
-                           'yminor', 1, $
+                           'xmajor', xmajor, $
+                           'xminor', xminor, $
+                           'ymajor', ymajor, $
+                           'yminor', yminor, $
                            'xticklen', 0.02, $
                            'yticklen', 0.02*(float(ny)/nx), $
                            'xsubticklen', 0.5, $
