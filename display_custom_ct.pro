@@ -13,7 +13,6 @@ pro display_custom_ct
      rgb_table = [[ct.r],[ct.g],[ct.b]]
      cdata = intarr(16,256)
      for ic=0,255 do cdata[*,ic] = ic
-     help, it
      img = image(cdata, $
                  layout = [n_tables,1,it+1], $
                  rgb_table = rgb_table, $
