@@ -1,6 +1,26 @@
+;+
+; Return a six-element dictionary of physical ranges 
+; appropriate for subscripting EPPIC data arrays.
+;
+; Created by Matt Young.
+;------------------------------------------------------------------------------
+;                                 **PARAMETERS**
+; RANGES (required)
+;    A four- or six-element array or dictionary of physical
+;    ranges. Elements must be ordered [x0,xf,y0,yf,z0,zf],
+;    where x0 ge 0 is the lower x-axis bound, xf lt nx*nsubdomains
+;    is the upper x-axis bound, and so on for y and z.
+; PATH (default: './')
+;    The fully qualified path from which to build an EPPIC
+;    parameter dictionary, if necessary.
+; PARAMS (default: none)
+;    The parameter dictionary from an EPPIC run. If the user 
+;    does not supply params, this function will read it from 
+;    path.
+;-
 function set_ranges, ranges, $
-                     params=params, $
-                     path=path
+                     path=path, $
+                     params=params
 
   ;;==Defaults and guards
   if n_elements(path) eq 0 then path = './'
