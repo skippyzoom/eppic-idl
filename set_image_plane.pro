@@ -17,8 +17,20 @@ function set_image_plane, fdata, $
                0,params.nz/params.nout_avg]
   if params.ndim_space eq 2 then axes = 'xy'
 
-  ;;==Check ranges
+  ;;==Check input ranges
+  ranges_in = ranges
   ranges = set_ranges(ranges,params=params,path=path)
+
+  ;;==Extract x, y, and z ranges
+  x0 = ranges.x0
+  xf = ranges.xf
+  y0 = ranges.y0
+  yf = ranges.yf
+  z0 = ranges.z0
+  zf = ranges.zf
+
+  ;;==Restore input
+  ranges = ranges_in
 
   ;;==Get dimensions of data array
   fsize = size(fdata)
@@ -36,28 +48,22 @@ function set_image_plane, fdata, $
      strcmp(axes,'xy'): begin
         plane['dx'] = params.dx*params.nout_avg
         plane['dy'] = params.dy*params.nout_avg
-        plane['x'] = plane.dx*(ranges.x0 + indgen(nx))
-        plane['y'] = plane.dy*(ranges.y0 + indgen(ny))
-        ;; if ndim eq 3 then plane['f'] = fdata $
-        ;; else plane['f'] = reform(fdata[*,*,zero_point,*])
+        plane['x'] = plane.dx*(x0 + indgen(nx))
+        plane['y'] = plane.dy*(y0 + indgen(ny))
         if ndim eq 4 then fdata = reform(fdata[*,*,zero_point,*])
      end
      strcmp(axes,'xz'): begin
         plane['dx'] = params.dx*params.nout_avg
         plane['dy'] = params.dz*params.nout_avg
-        plane['x'] = plane.dx*(ranges.x0 + indgen(nx))
-        plane['y'] = plane.dz*(ranges.z0 + indgen(nz))
-        ;; if ndim eq 3 then plane['f'] = fdata $
-        ;; else plane['f'] = reform(fdata[*,zero_point,*,*])
+        plane['x'] = plane.dx*(x0 + indgen(nx))
+        plane['y'] = plane.dz*(z0 + indgen(nz))
         if ndim eq 4 then fdata = reform(fdata[*,zero_point,*,*])
      end
      strcmp(axes,'yz'): begin
         plane['dx'] = params.dy*params.nout_avg
         plane['dy'] = params.dz*params.nout_avg
-        plane['x'] = plane.dy*(ranges.y0 + indgen(ny))
-        plane['y'] = plane.dz*(ranges.z0 + indgen(nz))
-        ;; if ndim eq 3 then plane['f'] = fdata $
-        ;; else plane['f'] = reform(fdata[zero_point,*,*,*])
+        plane['x'] = plane.dy*(y0 + indgen(ny))
+        plane['y'] = plane.dz*(z0 + indgen(nz))
         if ndim eq 4 then fdata = reform(fdata[zero_point,*,*,*])
      end
   endcase
