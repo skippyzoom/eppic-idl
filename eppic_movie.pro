@@ -16,6 +16,10 @@
 ;    Simulation axes to extract from HDF data. If the
 ;    simulation is 2 D, read_ph5.pro will ignore this 
 ;    parameter.
+; RANGES (default: [0,1,0,1,0,1]
+;    A four- or six-element array of normalized ranges.
+;    This function will convert ranges into physical
+;    units for use in lower functions.
 ; DATA_TYPE (default: 4)
 ;    IDL numerical data type of simulation output, 
 ;    typically either 4 (float) for spatial data
@@ -82,23 +86,24 @@ pro eppic_movie, data_name, $
   params = set_eppic_params(path=info_path)
 
   ;;==Convert ranges to physical indices
+  norm_ranges = ranges
   if keyword_set(data_isft) then begin
-     x0 = fix(params.nx*params.nsubdomains*ranges[0])
-     xf = fix(params.nx*params.nsubdomains*ranges[1])
-     y0 = fix(params.ny*ranges[2])
-     yf = fix(params.ny*ranges[3])
-     z0 = fix(params.nz*ranges[4])
-     zf = fix(params.nz*ranges[5])
+     x0 = fix(params.nx*params.nsubdomains*norm_ranges[0])
+     xf = fix(params.nx*params.nsubdomains*norm_ranges[1])
+     y0 = fix(params.ny*norm_ranges[2])
+     yf = fix(params.ny*norm_ranges[3])
+     z0 = fix(params.nz*norm_ranges[4])
+     zf = fix(params.nz*norm_ranges[5])
   endif $
   else begin
-     x0 = fix(params.nx*params.nsubdomains*ranges[0])/params.nout_avg
-     xf = fix(params.nx*params.nsubdomains*ranges[1])/params.nout_avg
-     y0 = fix(params.ny*ranges[2])/params.nout_avg
-     yf = fix(params.ny*ranges[3])/params.nout_avg
-     z0 = fix(params.nz*ranges[4])/params.nout_avg
-     zf = fix(params.nz*ranges[5])/params.nout_avg
+     x0 = fix(params.nx*params.nsubdomains*norm_ranges[0])/params.nout_avg
+     xf = fix(params.nx*params.nsubdomains*norm_ranges[1])/params.nout_avg
+     y0 = fix(params.ny*norm_ranges[2])/params.nout_avg
+     yf = fix(params.ny*norm_ranges[3])/params.nout_avg
+     z0 = fix(params.nz*norm_ranges[4])/params.nout_avg
+     zf = fix(params.nz*norm_ranges[5])/params.nout_avg
   endelse
-  ranges = dictionary('x0',x0, 'xf',xf, $
+  phys_ranges = dictionary('x0',x0, 'xf',xf, $
                       'y0',y0, 'yf',yf, $
                       'z0',z0, 'zf',zf)
 
@@ -121,7 +126,7 @@ pro eppic_movie, data_name, $
                    data_isft = data_isft, $
                    data_path = data_path, $
                    info_path = info_path, $
-                   ranges = ranges, $
+                   ranges = phys_ranges, $
                    /verbose)
 
   ;;==Check dimensions
@@ -130,7 +135,7 @@ pro eppic_movie, data_name, $
 
      ;;==Set the (2+1)-D array for imaging
      plane = set_image_plane(rdata, $
-                             ranges = ranges, $
+                             ranges = phys_ranges, $
                              axes = axes, $
                              rotate = rotate, $
                              params = params, $
