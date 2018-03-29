@@ -16,7 +16,7 @@
 ;    Simulation time steps at which to read data.
 ; RANGES (default: [0,nx,0,ny,0,nz])
 ;    A four- or six-element array or dictionary specifying the
-;    x, y, and z ranges to return. The elements are 
+;    physical x, y, and z ranges to return. The elements are 
 ;    (x0,xf,y0,yf,z0,zf), where [x0,xf) is the range of x 
 ;    values, and similarly for y and z.
 ; DATA_TYPE (default: 4)
@@ -69,8 +69,20 @@ function read_ph5, data_name, $
   nout_avg = params.nout_avg
   ndim_space = params.ndim_space
 
-  ;;==Check ranges
+  ;;==Check input ranges
+  ranges_in = ranges
   ranges = set_ranges(ranges,params=params,path=path)
+
+  ;;==Extract x, y, and z ranges
+  x0 = ranges.x0
+  xf = ranges.xf
+  y0 = ranges.y0
+  yf = ranges.yf
+  z0 = ranges.z0
+  zf = ranges.zf
+
+  ;;==Restore input
+  ranges = ranges_in
 
   ;;==Trim the dot from file extension pattern
   if strcmp(strmid(ext,0,1),'.') then $
@@ -117,12 +129,12 @@ function read_ph5, data_name, $
   endif
   if dims_eq then begin
      n_dim = ndim_space 
-     x0 = ranges.x0
-     xf = ranges.xf
-     y0 = ranges.y0
-     yf = ranges.yf
-     z0 = ranges.z0
-     zf = ranges.zf
+     ;; x0 = ranges.x0
+     ;; xf = ranges.xf
+     ;; y0 = ranges.y0
+     ;; yf = ranges.yf
+     ;; z0 = ranges.z0
+     ;; zf = ranges.zf
      nxp = xf-x0
      nyp = yf-y0
      nzp = zf-z0
