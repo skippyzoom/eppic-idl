@@ -17,6 +17,8 @@
 ;    The parameter dictionary from an EPPIC run. If the user 
 ;    does not supply params, this function will read it from 
 ;    path.
+; <return>
+;    A dictionary with integer elements x0,xf,y0,yf,z0,zf.
 ;-
 function set_ranges, ranges, $
                      path=path, $
