@@ -42,6 +42,12 @@
 ;    element for each time step. In that case, this routine will
 ;    iterate through 'title', passing one value to the image()
 ;    call for each frame. See also the IDL help page for image.pro.
+; PLOT_KW (default: none)
+;    Dictionary of keyword properties accepted by IDL's plot.pro.
+;    Unlike plot.pro, the 'title' parameter may consist of one
+;    element for each time step. In that case, this routine will
+;    iterate through 'title', passing one value to the plot()
+;    call for each frame. See also the IDL help page for plot.pro.
 ; ADD_COLORBAR (default: unset)
 ;    Toggle a colorbar with minimal keyword properties. This keyword
 ;    allows the user to have a reference before passing more keyword
@@ -52,10 +58,24 @@
 ;    or 'vert'), to create a colorbar with the corresponding orientation.
 ;    This routine will ignore this keyword if the user passes a 
 ;    dictionary for colorbar_kw.
+; ADD_LEGEND (default: unset)
+;    Toggle a legend with minimal keyword properties. This keyword
+;    allows the user to have a reference before passing more keyword
+;    properties via legend_kw. If the user sets this keyword as a
+;    boolean value (typically, /add_legend) then this routine will 
+;    create a vertical legend. The user may also set this keyword
+;    to 'horizontal' or 'vertical', including abbreviations (e.g., 'h'
+;    or 'vert'), to create a legend with the corresponding orientation.
+;    This routine will ignore this keyword if the user passes a 
+;    dictionary for legend_kw.
 ; COLORBAR_KW (default: none)
 ;    Dictionary of keyword properties accepted by IDL's colorbar.pro,
 ;    with the exception that this routine will automatically set 
 ;    target = img. See also the IDL help page for colorbar.pro.
+; LEGEND_KW (default: none)
+;    Dictionary of keyword properties accepted by IDL's legend.pro,
+;    with the exception that this routine will automatically set 
+;    target = plt. See also the IDL help page for legend.pro.
 ; TEXT_POS (default: [0.0, 0.0, 0.0])
 ;    An array containing the x, y, and z positions for text.pro.
 ;    See also the IDL help page for text.pro.
@@ -74,20 +94,8 @@
 ;   See also the IDL help page for text.pro.
 ;------------------------------------------------------------------------------
 ;                                   **NOTES**
-; -- This routine assumes the final dimension of data 
-;    is the time-step dimension. 
-; -- This routine automatically sets the buffer keyword 
-;    to 1B to ensure that the current frame goes to a 
-;    buffer instead of printing to the screen. The latter 
-;    would slow the process considerably and clutter the 
-;    screen. 
-; -- This routine requires that the image dimensions match 
-;    the dimensions of the initialized video stream. If the 
-;    user does not pass in the dimensions keyword, this routine 
-;    sets it to [nx,ny], where nx and ny are derived from the 
-;    input data array.
 ;-
-pro data_movie, movdata,xdata,ydata, $
+pro data_movie, arg1,arg2,arg3, $
                 lun=lun, $
                 log=log, $
                 alog_base=alog_base, $
@@ -95,8 +103,11 @@ pro data_movie, movdata,xdata,ydata, $
                 framerate=framerate, $
                 resize=resize, $
                 image_kw=image_kw, $
+                plot_kw=plot_kw, $
                 add_colorbar=add_colorbar, $
+                add_legend=add_legend, $
                 colorbar_kw=colorbar_kw, $
+                legend_kw=legend_kw, $
                 text_pos=text_pos, $
                 text_string=text_string, $
                 text_format=text_format, $
@@ -106,123 +117,113 @@ pro data_movie, movdata,xdata,ydata, $
   ;;==Default LUN
   if n_elements(lun) eq 0 then lun = -1
 
-  ;;==Get data size
-  data_size = size(movdata)
-  n_dims = data_size[0]
+  ;;==Determine image/plot mode from input dimensions
+  size1 = size(arg1)
+  call_seq_err = 0B
+  case size1[0] of
+     1: begin
+        size2 = size(arg2)
+        if size2[0] eq 2 then begin
 
-  ;;==Check data size
-  if n_dims eq 3 then begin
-     nt = data_size[n_dims]
-     nx = data_size[1]
-     ny = data_size[2]
+           ;;==Make movie from plot frames
+           movie_frame_plot, arg1,arg2, $
+                             lun=lun, $
+                             log=log, $
+                             alog_base=alog_base, $
+                             filename=filename, $
+                             framerate=framerate, $
+                             resize=resize, $
+                             plot_kw=plot_kw, $
+                             add_legend=add_legend, $
+                             legend_kw=legend_kw, $
+                             text_pos=text_pos, $
+                             text_string=text_string, $
+                             text_format=text_format, $
+                             text_kw=text_kw, $
+                             _EXTRA=ex
 
-     ;;==Other defaults and guards
-     if ~keyword_set(log) && n_elements(alog_base) ne 0 then $
-        log = 1B
-     if n_elements(alog_base) eq 0 then alog_base = '10'
-     if n_elements(filename) eq 0 then filename = 'data_movie.mp4'
-     if n_elements(framerate) eq 0 then framerate = 20
-     if n_elements(xdata) eq 0 then xdata = indgen(nx)
-     if n_elements(ydata) eq 0 then ydata = indgen(ny)
-     if n_elements(resize) eq 0 then resize = [1.0, 1.0]
-     if n_elements(resize) eq 1 then resize = [resize, resize]
-     if n_elements(image_kw) eq 0 then begin
-        if n_elements(ex) ne 0 then image_kw = ex $
-        else image_kw = dictionary()
-     endif
-     if isa(image_kw,'struct') then image_kw = dictionary(image_kw,/extract)
-     if ~image_kw.haskey('dimensions') then $
-        image_kw['dimensions'] = [nx,ny]
-     tmp = [image_kw.dimensions[0]*resize[0], $
-            image_kw.dimensions[1]*resize[1]]
-     image_kw.dimensions = tmp
-     if image_kw.haskey('title') then begin
-        case n_elements(image_kw.title) of
-           0: title = make_array(nt,value='')
-           1: title = make_array(nt,value=image_kw.title)
-           nt: title = image_kw.title
-           else: title = !NULL
+        endif $
+        else call_seq_err = 1B
+     end
+     2: begin
+
+        ;;==Make movie from plot frames
+        movie_frame_plot, arg1, $
+                          lun=lun, $
+                          log=log, $
+                          alog_base=alog_base, $
+                          filename=filename, $
+                          framerate=framerate, $
+                          resize=resize, $
+                          plot_kw=plot_kw, $
+                          add_legend=add_legend, $
+                          legend_kw=legend_kw, $
+                          text_pos=text_pos, $
+                          text_string=text_string, $
+                          text_format=text_format, $
+                          text_kw=text_kw, $
+                          _EXTRA=ex
+
+     end
+     3: begin
+        size2 = size(arg2)
+        size3 = size(arg3)
+        case 1B of
+           (size2[0] eq 1 and size3[0] eq 1): begin
+
+              ;;==Make movie from image frames
+              movie_frame_image, arg1,arg2,arg3, $
+                                 lun=lun, $
+                                 log=log, $
+                                 alog_base=alog_base, $
+                                 filename=filename, $
+                                 framerate=framerate, $
+                                 resize=resize, $
+                                 image_kw=image_kw, $
+                                 add_colorbar=add_colorbar, $
+                                 colorbar_kw=colorbar_kw, $
+                                 text_pos=text_pos, $
+                                 text_string=text_string, $
+                                 text_format=text_format, $
+                                 text_kw=text_kw, $
+                                 _EXTRA=ex
+
+           end
+           (size2[0] eq 0 and size3[0] eq 0): begin
+
+              ;;==Make movie from image frames
+              movdata = arg1
+              movie_frame_image, movdata, $
+                                 lun=lun, $
+                                 log=log, $
+                                 alog_base=alog_base, $
+                                 filename=filename, $
+                                 framerate=framerate, $
+                                 resize=resize, $
+                                 image_kw=image_kw, $
+                                 add_colorbar=add_colorbar, $
+                                 colorbar_kw=colorbar_kw, $
+                                 text_pos=text_pos, $
+                                 text_string=text_string, $
+                                 text_format=text_format, $
+                                 text_kw=text_kw, $
+                                 _EXTRA=ex
+
+           end
+           else: call_seq_err = 1B
         endcase
-        image_kw.remove, 'title'
-     endif
-     if keyword_set(add_colorbar) then begin
-        if isa(add_colorbar,/number) && $
-           add_colorbar eq 1 then orientation = 0 $
-        else if strcmp(add_colorbar,'h',1) then orientation = 0 $
-        else if strcmp(add_colorbar,'v',1) then orientation = 1 $
-        else begin 
-           printf, lun,"[DATA_MOVIE] Did not recognize value of add_colorbar"
-           add_colorbar = 0B
-        endelse
-     endif
-     if n_elements(text_pos) eq 0 then text_pos = [0.0, 0.0, 0.0] $
-     else if n_elements(text_pos) eq 2 then $
-        text_pos = [text_pos[0], text_pos[1], 0.0]
-     case n_elements(text_string) of
-        0: make_text = 0B
-        1: begin
-           text_string = make_array(nt,value=text_string)
-           make_text = 1B
-        end
-        nt: make_text = 1B
-        else: begin
-           printf, lun,"[DATA_MOVIE] Cannot use text_string for text."
-           printf, lun,"             Please provide a single string"
-           printf, lun,"             or an array with one element per"
-           printf, lun,"             time step."
-           make_text = 0B
-        end
-     endcase
-     if n_elements(text_format) eq 0 then text_format = 'k'
-     if n_elements(text_kw) eq 0 then text_kw = dictionary()
-
-     ;;==Open video stream
-     printf, lun,"[DATA_MOVIE] Creating ",filename,"..."
-     video = idlffvideowrite(filename)
-     stream = video.addvideostream(image_kw.dimensions[0], $
-                                   image_kw.dimensions[1], $
-                                   framerate)
-
-     ;;==Write data to video stream
-     for it=0,nt-1 do begin
-        if n_elements(title) ne 0 then image_kw['title'] = title[it]
-        fdata = movdata[*,*,it]
-        if keyword_set(log) then begin
-           if strcmp(alog_base,'10') then alog_base = 10
-           if strcmp(alog_base,'2') then alog_base = 2
-           if strcmp(alog_base,'e',1) || $
-              strcmp(alog_base,'nat',3) then alog_base = exp(1)
-           case alog_base of
-              10: fdata = alog10(fdata)
-              2: fdata = alog2(fdata)
-              exp(1): fdata = alog(fdata)
-           endcase
-        endif
-        img = image(fdata,xdata,ydata, $
-                    /buffer, $
-                    _EXTRA=image_kw.tostruct())
-        if n_elements(colorbar_kw) ne 0 then $
-           clr = colorbar(target = img, $
-                          _EXTRA = colorbar_kw.tostruct()) $
-        else if keyword_set(add_colorbar) then $
-           clr = colorbar(target = img, $
-                          orientation = orientation)
-        if n_elements(text_string) ne 0 then begin
-           txt = text(text_pos[0],text_pos[1],text_pos[2], $
-                      text_string[it], $
-                      text_format, $
-                      _EXTRA = text_kw.tostruct())
-        endif
-        frame = img.copywindow()
-        !NULL = video.put(stream,frame)
-        img.close
-     endfor
-
-     ;;==Close video stream
-     video.cleanup
-     printf, lun,"[DATA_MOVIE] Finished"
-
-  endif $
-  else printf, lun,"[DATA_MOVIE] movie data must have dimensions (x,y,t)"
+     end
+     else: call_seq_err = 1B
+  endcase
+  if call_seq_err then begin
+     printf, lun,"[DATA_MOVIE] Calling sequence may be either"
+     printf, lun,"             IDL> data_movie, xdata,ydata,[kw/prop]"
+     printf, lun,"             with 1-D xdata and (1+1)-D ydata"
+     printf, lun,"             for a movie of plot frames"
+     printf, lun,"                         OR"
+     printf, lun,"             IDL> data_movie, fdata,xdata,ydata,[kw/prop]"
+     printf, lun,"             with (2+1)-D fdata, 1-D xdata, and 1-D ydata"
+     printf, lun,"             for a movie of image frames"
+  endif
 
 end
