@@ -150,7 +150,7 @@ pro movie_frame_image, movdata,xdata,ydata, $
      else if strcmp(add_colorbar,'h',1) then orientation = 0 $
      else if strcmp(add_colorbar,'v',1) then orientation = 1 $
      else begin 
-        printf, lun,"[DATA_MOVIE] Did not recognize value of add_colorbar"
+        printf, lun,"[MOVIE_FRAME_IMAGE] Did not recognize value of add_colorbar"
         add_colorbar = 0B
      endelse
   endif
@@ -165,7 +165,7 @@ pro movie_frame_image, movdata,xdata,ydata, $
      end
      nt: make_text = 1B
      else: begin
-        printf, lun,"[DATA_MOVIE] Cannot use text_string for text."
+        printf, lun,"[MOVIE_FRAME_IMAGE] Cannot use text_string for text."
         printf, lun,"             Please provide a single string"
         printf, lun,"             or an array with one element per"
         printf, lun,"             time step."
@@ -176,7 +176,7 @@ pro movie_frame_image, movdata,xdata,ydata, $
   if n_elements(text_kw) eq 0 then text_kw = dictionary()
 
   ;;==Open video stream
-  printf, lun,"[DATA_MOVIE] Creating ",filename,"..."
+  printf, lun,"[MOVIE_FRAME_IMAGE] Creating ",filename,"..."
   video = idlffvideowrite(filename)
   stream = video.addvideostream(image_kw.dimensions[0], $
                                 image_kw.dimensions[1], $
@@ -184,34 +184,13 @@ pro movie_frame_image, movdata,xdata,ydata, $
 
   ;;==Write data to video stream at each time step
   for it=0,nt-1 do begin
-     if n_elements(title) ne 0 then image_kw['title'] = title[it]
      fdata = movdata[*,*,it]
-     if keyword_set(log) then begin
-        if strcmp(alog_base,'10') then alog_base = 10
-        if strcmp(alog_base,'2') then alog_base = 2
-        if strcmp(alog_base,'e',1) || $
-           strcmp(alog_base,'nat',3) then alog_base = exp(1)
-        case alog_base of
-           10: fdata = alog10(fdata)
-           2: fdata = alog2(fdata)
-           exp(1): fdata = alog(fdata)
-        endcase
-     endif
-     img = image(fdata,xdata,ydata, $
-                 /buffer, $
-                 _EXTRA=image_kw.tostruct())
-     if n_elements(colorbar_kw) ne 0 then $
-        clr = colorbar(target = img, $
-                       _EXTRA = colorbar_kw.tostruct()) $
-     else if keyword_set(add_colorbar) then $
-        clr = colorbar(target = img, $
-                       orientation = orientation)
-     if n_elements(text_string) ne 0 then begin
-        txt = text(text_pos[0],text_pos[1],text_pos[2], $
-                   text_string[it], $
-                   text_format, $
-                   _EXTRA = text_kw.tostruct())
-     endif
+     img = image_frame(fdata,xdata,ydata, $
+                       title=title, $
+                       image_kw=image_kw, $
+                       colorbar_kw=colobar_kw, $
+                       add_colorbar=add_colorbar, $
+                       text_kw=text_kw)
      frame = img.copywindow()
      !NULL = video.put(stream,frame)
      img.close
@@ -219,6 +198,6 @@ pro movie_frame_image, movdata,xdata,ydata, $
 
   ;;==Close video stream
   video.cleanup
-  printf, lun,"[DATA_MOVIE] Finished"
+  printf, lun,"[MOVIE_FRAME_IMAGE] Finished"
 
 end

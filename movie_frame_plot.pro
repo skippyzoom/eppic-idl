@@ -147,7 +147,7 @@ pro movie_frame_plot, xdata,movdata, $
      else if strcmp(add_legend,'h',1) then orientation = 1 $
      else if strcmp(add_legend,'v',1) then orientation = 0 $
      else begin 
-        printf, lun,"[DATA_MOVIE] Did not recognize value of add_legend"
+        printf, lun,"[MOVIE_FRAME_PLOT] Did not recognize value of add_legend"
         add_legend = 0B
      endelse
   endif
@@ -162,7 +162,7 @@ pro movie_frame_plot, xdata,movdata, $
      end
      nt: make_text = 1B
      else: begin
-        printf, lun,"[DATA_MOVIE] Cannot use text_string for text."
+        printf, lun,"[MOVIE_FRAME_PLOT] Cannot use text_string for text."
         printf, lun,"             Please provide a single string"
         printf, lun,"             or an array with one element per"
         printf, lun,"             time step."
@@ -173,7 +173,7 @@ pro movie_frame_plot, xdata,movdata, $
   if n_elements(text_kw) eq 0 then text_kw = dictionary()
 
   ;;==Open video stream
-  printf, lun,"[DATA_MOVIE] Creating ",filename,"..."
+  printf, lun,"[MOVIE_FRAME_PLOT] Creating ",filename,"..."
   video = idlffvideowrite(filename)
   stream = video.addvideostream(plot_kw.dimensions[0], $
                                 plot_kw.dimensions[1], $
@@ -181,34 +181,13 @@ pro movie_frame_plot, xdata,movdata, $
 
   ;;==Write data to video stream at each time step
   for it=0,nt-1 do begin
-     if n_elements(title) ne 0 then plot_kw['title'] = title[it]
      ydata = movdata[*,it]
-     if keyword_set(log) then begin
-        if strcmp(alog_base,'10') then alog_base = 10
-        if strcmp(alog_base,'2') then alog_base = 2
-        if strcmp(alog_base,'e',1) || $
-           strcmp(alog_base,'nat',3) then alog_base = exp(1)
-        case alog_base of
-           10: ydata = alog10(ydata)
-           2: ydata = alog2(ydata)
-           exp(1): ydata = alog(ydata)
-        endcase
-     endif
-     plt = plot(xdata,ydata, $
-                /buffer, $
-                _EXTRA=plot_kw.tostruct())
-     if n_elements(legend_kw) ne 0 then $
-        leg = legend(target = plt, $
-                     _EXTRA = legend_kw.tostruct()) $
-     else if keyword_set(add_legend) then $
-        leg = legend(target = plt, $
-                     orientation = orientation)
-     if n_elements(text_string) ne 0 then begin
-        txt = text(text_pos[0],text_pos[1],text_pos[2], $
-                   text_string[it], $
-                   text_format, $
-                   _EXTRA = text_kw.tostruct())
-     endif
+     plt = plot_frame(xdata,ydata, $
+                      title=title, $
+                      plot_kw=plot_kw, $
+                      legend_kw=legend_kw, $
+                      add_legend=add_legend, $
+                      text_kw=text_kw)
      frame = plt.copywindow()
      !NULL = video.put(stream,frame)
      plt.close
@@ -216,6 +195,6 @@ pro movie_frame_plot, xdata,movdata, $
 
   ;;==Close video stream
   video.cleanup
-  printf, lun,"[DATA_MOVIE] Finished"
+  printf, lun,"[MOVIE_FRAME_PLOT] Finished"
 
 end

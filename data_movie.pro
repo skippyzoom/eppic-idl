@@ -4,10 +4,16 @@
 ; Created by Matt Young.
 ;------------------------------------------------------------------------------
 ;                                 **PARAMETERS**
-; MOVDATA (required)
-;    A (2+1)-D array from which to make a movie.
-; XDATA (optional)
-; YDATA (optional)
+; ARG1 (required)
+;    Either a (2+1)-D array from which to make images,
+;    a (1+1)-D array from which to make plots, or a 1-D
+;    array of x-axis points for making plots.
+; ARG2 (optional)
+;    Either a 1-D array of x-axis points for making images
+;    or a (1+1)-D array from which to make plots when arg1
+;    is a 1-D array of x-axis points.
+; ARG3 (optional)
+;    A 1-D array of y-axis points for making images.
 ; LUN (default: -1)
 ;    Logical unit number for printing runtime messages.
 ; LOG (default: unset)
@@ -94,6 +100,9 @@
 ;   See also the IDL help page for text.pro.
 ;------------------------------------------------------------------------------
 ;                                   **NOTES**
+; -- This routine selects movie_frame_plot or movie_frame_image,
+;    and the appropriate calling sequence, based on the dimensions 
+;    of arg1, arg2, and arg3.
 ;-
 pro data_movie, arg1,arg2,arg3, $
                 lun=lun, $
