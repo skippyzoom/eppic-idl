@@ -1,7 +1,7 @@
 function image_frame, fdata,xdata,ydata, $
                       title=title, $
                       image_kw=image_kw, $
-                      colorbar_kw=colobar_kw, $
+                      colorbar_kw=colorbar_kw, $
                       add_colorbar=add_colorbar, $
                       text_kw=text_kw
 
@@ -17,6 +17,7 @@ function image_frame, fdata,xdata,ydata, $
         exp(1): fdata = alog(fdata)
      endcase
   endif
+
   img = image(fdata,xdata,ydata, $
               /buffer, $
               _EXTRA=image_kw.tostruct())

@@ -196,7 +196,7 @@ pro image_graphics, movdata,xdata,ydata, $
      img = image_frame(fdata,xdata,ydata, $
                        title=title, $
                        image_kw=image_kw, $
-                       colorbar_kw=colobar_kw, $
+                       colorbar_kw=colorbar_kw, $
                        add_colorbar=add_colorbar, $
                        text_kw=text_kw)
      if keyword_set(make_movie) then begin
