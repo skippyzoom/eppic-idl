@@ -26,7 +26,7 @@
 ;    any string starting with 'e', any string whose first 3 letters
 ;    are 'nat', or the value exp(1) for base-e (alog). Setting this
 ;    parameter will set log = 1B
-; FILENAME (default: 'data_movie.mp4')
+; FILENAME (default: 'data_frame.mp4')
 ;    Name of resultant movie file, including extension. IDL will 
 ;    use the extension to determine the video type. The user can
 ;    call 
@@ -104,7 +104,7 @@
 ;    and the appropriate calling sequence, based on the dimensions 
 ;    of arg1, arg2, and arg3.
 ;-
-pro data_movie, arg1,arg2,arg3, $
+pro data_frame, arg1,arg2,arg3, $
                 lun=lun, $
                 log=log, $
                 alog_base=alog_base, $
@@ -149,7 +149,7 @@ pro data_movie, arg1,arg2,arg3, $
                           text_string=text_string, $
                           text_format=text_format, $
                           text_kw=text_kw, $
-                          /make_movie, $
+                          /make_frame, $
                           _EXTRA=ex
 
         endif $
@@ -172,7 +172,7 @@ pro data_movie, arg1,arg2,arg3, $
                        text_string=text_string, $
                        text_format=text_format, $
                        text_kw=text_kw, $
-                       /make_movie, $
+                       /make_frame, $
                        _EXTRA=ex
 
      end
@@ -197,7 +197,7 @@ pro data_movie, arg1,arg2,arg3, $
                               text_string=text_string, $
                               text_format=text_format, $
                               text_kw=text_kw, $
-                              /make_movie, $
+                              /make_frame, $
                               _EXTRA=ex
 
            end
@@ -219,7 +219,7 @@ pro data_movie, arg1,arg2,arg3, $
                               text_string=text_string, $
                               text_format=text_format, $
                               text_kw=text_kw, $
-                              /make_movie, $
+                              /make_frame, $
                               _EXTRA=ex
 
            end
@@ -229,12 +229,12 @@ pro data_movie, arg1,arg2,arg3, $
      else: call_seq_err = 1B
   endcase
   if call_seq_err then begin
-     printf, lun,"[DATA_MOVIE] Calling sequence may be either"
-     printf, lun,"             IDL> data_movie, xdata,ydata,[kw/prop]"
+     printf, lun,"[DATA_FRAME] Calling sequence may be either"
+     printf, lun,"             IDL> data_frame, xdata,ydata,[kw/prop]"
      printf, lun,"             with 1-D xdata and (1+1)-D ydata"
      printf, lun,"             for a movie of plot frames"
      printf, lun,"                         OR"
-     printf, lun,"             IDL> data_movie, fdata,xdata,ydata,[kw/prop]"
+     printf, lun,"             IDL> data_frame, fdata,xdata,ydata,[kw/prop]"
      printf, lun,"             with (2+1)-D fdata, 1-D xdata, and 1-D ydata"
      printf, lun,"             for a movie of image frames"
   endif
