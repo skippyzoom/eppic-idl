@@ -193,7 +193,8 @@ function analyze_moments, path=path, $
      else begin
         ;;--From parallel or Hall drift
         if keyword_set(E0_par) then nu0 = (Ezp/vzpd0)*(qd0/md0) $
-        else nu0 = wc0*abs(vypd0/vxpd0)
+        ;; else nu0 = wc0*abs(vypd0/vxpd0)
+        else nu0 = wc0*abs(vxpd0/vypd0) ;;-->HACK for rotated run
      endelse
      ;;--From Ped drift
      ;; nu1 = (Eyp/vypd1)*(qd1/md1)
