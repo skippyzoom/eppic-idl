@@ -109,6 +109,12 @@ pro image_graphics, movdata,xdata,ydata, $
                     make_frame=make_frame, $
                     _EXTRA=ex
 
+  ;;==Make sure target directory exists for movies
+  if keyword_set(make_movie) then begin
+     if ~file_test(file_dirname(filename),/directory) then $
+        spawn, 'mkdir -p '+file_dirname(filename)
+  endif
+
   ;;==Get data size
   data_size = size(movdata)
   n_dims = data_size[0]
