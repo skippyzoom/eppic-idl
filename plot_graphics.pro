@@ -103,8 +103,7 @@ pro plot_graphics, xdata,movdata, $
                    text_pos=text_pos, $
                    text_string=text_string, $
                    text_format=text_format, $
-                   text_kw=text_kw, $
-                   _EXTRA=ex
+                   text_kw=text_kw
 
   ;;==Get data size
   xsize = size(xdata)

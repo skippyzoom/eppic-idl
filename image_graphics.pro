@@ -106,8 +106,7 @@ pro image_graphics, movdata,xdata,ydata, $
                     text_format=text_format, $
                     text_kw=text_kw, $
                     make_movie=make_movie, $
-                    make_frame=make_frame, $
-                    _EXTRA=ex
+                    make_frame=make_frame
 
   ;;==Make sure target directory exists for movies
   if keyword_set(make_movie) then begin
