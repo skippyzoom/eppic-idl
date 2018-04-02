@@ -173,7 +173,7 @@ pro plot_moments, moments, $
      else $
         filename = path+path_sep()+dist_keys[id]+'_moments.pdf'
 
-     image_save, plt,filename=filename,lun=lun
+     frame_save, plt,filename=filename,lun=lun
      plt = !NULL
 
   endfor
@@ -257,7 +257,7 @@ pro plot_moments, moments, $
   endfor
 
   ;;==Save
-  image_save, plt,filename=path+path_sep()+'common_moments.pdf',lun=lun
+  frame_save, plt,filename=path+path_sep()+'common_moments.pdf',lun=lun
   plt = !NULL
 
 end

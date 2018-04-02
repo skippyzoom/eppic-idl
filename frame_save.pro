@@ -18,7 +18,7 @@
 ; LUN (default: -1)
 ;    Logical unit number for printing runtime messages.
 ;-
-pro image_save, image,filename=filename,lun=lun,_EXTRA=ex
+pro frame_save, image,filename=filename,lun=lun,_EXTRA=ex
 
   ;;==List IDL-supported file types
   types = ['bmp', $                ;Windows bitmap
@@ -47,7 +47,7 @@ pro image_save, image,filename=filename,lun=lun,_EXTRA=ex
   ext = get_extension(filename)
   supported = string_exists(types,ext,/fold_case)
   if ~supported then begin
-     printf, lun,"[IMAGE_SAVE] File type not recognized or not supported." 
+     printf, lun,"[FRAME_SAVE] File type not recognized or not supported." 
      printf, lun,"             Using PNG."
      filename = strip_extension(filename)+'.png'
   endif
@@ -55,27 +55,27 @@ pro image_save, image,filename=filename,lun=lun,_EXTRA=ex
   ;;==Save image
   case n_elements(image) of
      0: begin
-        printf, lun,"[IMAGE_SAVE] Invalid image hangle."
+        printf, lun,"[FRAME_SAVE] Invalid image hangle."
         printf, lun,"             Did not save ",filename,"."
      end
      1: begin
-        printf, lun,"[IMAGE_SAVE] Saving ",filename,"..."
+        printf, lun,"[FRAME_SAVE] Saving ",filename,"..."
         image.save, filename,_EXTRA=ex
         if strcmp(ext,'pdf') || strcmp(ext,'gif') then image.close
-        printf, lun,"[IMAGE_SAVE] Finished."
+        printf, lun,"[FRAME_SAVE] Finished."
      end
      else: begin
         if ~strcmp(ext,'pdf') && ~strcmp(ext,'gif') then begin
-           printf, lun,"[IMAGE_SAVE] Multipage images must be .pdf or .gif"
+           printf, lun,"[FRAME_SAVE] Multipage images must be .pdf or .gif"
            printf, lun,"             Please change the file type or pass a"
            printf, lun,"             single file handle."
         endif $
         else begin
-           printf, lun,"[IMAGE_SAVE] Saving ",filename,"..."
+           printf, lun,"[FRAME_SAVE] Saving ",filename,"..."
            n_pages = n_elements(image)
            for ip=0,n_pages-1 do image[ip].save, filename,_EXTRA=ex,/append, $
               close = (ip eq n_pages-1)
-           printf, lun,"[IMAGE_SAVE] Finished."
+           printf, lun,"[FRAME_SAVE] Finished."
         endelse
      end
   endcase

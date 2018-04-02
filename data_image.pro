@@ -22,7 +22,7 @@
 ;    parameter will set log = 1B
 ; FILENAME (default: 'data_image.pdf')
 ;    Name of resultant image file, including extension. This routine
-;    will pass filename to image_save.pro, where IDL will use the 
+;    will pass filename to frame_save.pro, where IDL will use the 
 ;    extension to determine the file type. See the IDL help pages
 ;    for image.pro and save_method for more information on supported
 ;    file types. This routine will attemp to make the number of 
@@ -212,12 +212,12 @@ pro data_image, imgdata,xdata,ydata, $
                       _EXTRA = text_kw.tostruct())
         endif
         if ~keyword_set(multi_page) then $
-           image_save, img, $
+           frame_save, img, $
                        filename = filename[it], $
                        lun = lun
      endfor
      if keyword_set(multi_page) then $
-        image_save, img, $
+        frame_save, img, $
                     filename = filename, $
                     lun = lun
 

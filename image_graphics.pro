@@ -212,14 +212,14 @@ pro image_graphics, movdata,xdata,ydata, $
      endif
      if keyword_set(make_frame) then begin
         if ~keyword_set(multi_page) then $
-           image_save, img, $
+           frame_save, img, $
                        filename = filename[it], $
                        lun = lun
      endif
   endfor
   if keyword_set(make_frame) then begin
      if keyword_set(multi_page) then $
-        image_save, img, $
+        frame_save, img, $
                     filename = filename, $
                     lun = lun
   endif

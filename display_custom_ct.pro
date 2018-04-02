@@ -20,7 +20,7 @@ pro display_custom_ct
                  current = (ic gt 1), $
                  /buffer)
   endfor
-  image_save, img, $
+  frame_save, img, $
               filename = expand_path('~/idl/custom_color_tables.pdf')
 
 end
