@@ -15,17 +15,20 @@
 ;    This routine uses nout and dt from params to construct the time
 ;    vector for plots. If the user does not supply params, this
 ;    routine will simply use a vector of time indices.
+; SAVE_PATH (default: './')
+;    Fully qualified path of directory to which to save plots.
 ; RAW_MOMENTS (default: unset)
 ;    Boolean keyword to indicate whether or not to plot raw moments.
 ;-
 pro plot_moments, moments, $
                   lun=lun, $
                   params=params, $
-                  path=path, $
+                  save_path=save_path, $
                   raw_moments=raw_moments
 
   ;;==Defaults and guards
   if n_elements(lun) eq 0 then lun = -1
+  if n_elements(save_path) eq 0 then save_path = './'
 
   ;;==Convert moments struct to dictionary
   if isa(moments,'struct') then m_dict = dictionary(moments,/extract)
@@ -88,9 +91,11 @@ pro plot_moments, moments, $
                    'name', ['$V_{H,sim}$','$V_{H,inp}$'], $
                    'format', ['b-','b--'])
      variables['Mean Velocity [$m/s$]'] = $
-        dictionary('data', ['vx_m1','vy_m1','vz_m1'], $
-                   'name', ['$<V_x>$','$<V_y>$','$<V_z>$'], $
-                   'format', ['b-','r-','g-'])
+        dictionary('data', ['vx_m1','vy_m1','vz_m1', $
+                            'vx_m1_start','vy_m1_start','vz_m1_start'], $
+                   'name', ['$<V_{x,sim}>$','$<V_{y,sim}>$','$<V_{z,sim}>$', $
+                            '$<V_{x,inp}>$','$<V_{y,inp}>$','$<V_{z,inp}>$'], $
+                   'format', ['b-','r-','g-','b--','r--','g--'])
   endelse
   n_pages = variables.count()
   v_keys = variables.keys()
@@ -115,13 +120,13 @@ pro plot_moments, moments, $
 
            ;;==Calculate the global min and max values
            idata = reform(idist[ivar.data[0]])
-           ymin = min(idata[nt/4:*])
-           ymax = max(idata[nt/4:*])
+           ymin = min(idata[nt/2:*])
+           ymax = max(idata[nt/2:*])
            for iv=1,n_var-1 do begin
               idata = reform(idist[ivar.data[iv]])
               if n_elements(idata) eq 1 then idata = idata[0] + 0.0*tvec
-              ymin = min([ymin,min(idata[nt/4:*])])
-              ymax = max([ymax,max(idata[nt/4:*])])
+              ymin = min([ymin,min(idata[nt/2:*])])
+              ymax = max([ymax,max(idata[nt/2:*])])
            endfor
            pad = (ymin lt 0) ? 1.1 : 0.9
            ymin *= pad
@@ -140,7 +145,7 @@ pro plot_moments, moments, $
                           xtitle = xtitle, $
                           ytitle = v_keys[ip], $
                           name = ivar.name[0])
-           txt = text(0.5,0.0,path, $
+           txt = text(0.5,0.0,save_path, $
                       alignment = 0.5, $
                       target = img, $
                       font_name = 'Times', $
@@ -154,7 +159,7 @@ pro plot_moments, moments, $
                                ivar.format[iv], $
                                /overplot, $
                                name = ivar.name[iv])
-              txt = text(0.5,0.0,path, $
+              txt = text(0.5,0.0,save_path, $
                          alignment = 0.5, $
                          target = img, $
                          font_name = 'Times', $
@@ -169,9 +174,9 @@ pro plot_moments, moments, $
 
      ;;==Save
      if keyword_set(raw_moments) then $
-        filename = path+path_sep()+dist_keys[id]+'_raw_moments.pdf' $
+        filename = save_path+path_sep()+dist_keys[id]+'_raw_moments.pdf' $
      else $
-        filename = path+path_sep()+dist_keys[id]+'_moments.pdf'
+        filename = save_path+path_sep()+dist_keys[id]+'_moments.pdf'
 
      frame_save, plt,filename=filename,lun=lun
      plt = !NULL
@@ -205,13 +210,13 @@ pro plot_moments, moments, $
 
         ;;==Calculate the global min and max values
         idata = reform(m_dict[ivar.data[0]])
-        ymin = min(idata[nt/4:*])
-        ymax = max(idata[nt/4:*])
+        ymin = min(idata[nt/2:*])
+        ymax = max(idata[nt/2:*])
         for iv=1,n_var-1 do begin
            idata = reform(m_dict[ivar.data[iv]])
            if n_elements(idata) eq 1 then idata = idata[0] + 0.0*tvec
-           ymin = min([ymin,min(idata[nt/4:*])])
-           ymax = max([ymax,max(idata[nt/4:*])])
+           ymin = min([ymin,min(idata[nt/2:*])])
+           ymax = max([ymax,max(idata[nt/2:*])])
         endfor
         pad = (ymin lt 0) ? 1.1 : 0.9
         ymin *= pad
@@ -230,7 +235,7 @@ pro plot_moments, moments, $
                        xtitle = xtitle, $
                        ytitle = v_keys[ip], $
                        name = ivar.name[0])
-        txt = text(0.5,0.0,path, $
+        txt = text(0.5,0.0,save_path, $
                    alignment = 0.5, $
                    target = img, $
                    font_name = 'Times', $
@@ -243,7 +248,7 @@ pro plot_moments, moments, $
                             ivar.format[iv], $
                             /overplot, $
                             name = ivar.name[iv])
-           txt = text(0.5,0.0,path, $
+           txt = text(0.5,0.0,save_path, $
                       alignment = 0.5, $
                       target = img, $
                       font_name = 'Times', $
@@ -257,7 +262,7 @@ pro plot_moments, moments, $
   endfor
 
   ;;==Save
-  frame_save, plt,filename=path+path_sep()+'common_moments.pdf',lun=lun
+  frame_save, plt,filename=save_path+path_sep()+'common_moments.pdf',lun=lun
   plt = !NULL
 
 end

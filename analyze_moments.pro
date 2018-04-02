@@ -254,7 +254,10 @@ function analyze_moments, path=path, $
                                 ; Create structs ; 
                                 ;----------------;
 
-     dist0 = {vx_m1:reform(moments0[1,*]), $
+     dist0 = {vx_m1_start:params.vx0d0, $
+              vy_m1_start:params.vy0d0, $
+              vz_m1_start:params.vz0d0, $
+              vx_m1:reform(moments0[1,*]), $
               vx_m2:reform(moments0[2,*]), $
               vx_m3:reform(moments0[3,*]), $
               vx_m4:reform(moments0[4,*]), $
@@ -286,7 +289,10 @@ function analyze_moments, path=path, $
               Ty:Ty0, $
               Tz:Tz0, $
               T:T0}
-     dist1 = {vx_m1:reform(moments1[1,*]), $
+     dist1 = {vx_m1_start:params.vx0d1, $
+              vy_m1_start:params.vy0d1, $
+              vz_m1_start:params.vz0d1, $
+              vx_m1:reform(moments1[1,*]), $
               vx_m2:reform(moments1[2,*]), $
               vx_m3:reform(moments1[3,*]), $
               vx_m4:reform(moments1[4,*]), $
