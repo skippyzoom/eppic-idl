@@ -8,24 +8,24 @@
 ; Created by Matt Young.
 ;------------------------------------------------------------------------------
 ;                                 **PARAMETERS**
-; DATA_NAME (required)
-;    The name of the data quantity for which to set up keywords.
+; CONTEXT (optional)
+;    String indicating keyword preferences for graphics.
+;    The user can separate context elements by '-' or '_' but
+;    the first element must be the data_name.
 ; DATA (optional)
-;    An array containing the data. If the user supplies the data
+;    Array containing the data. If the user supplies the data
 ;    array, this function will use it to calculate keywords like
 ;    min/max color values.
-; CONTEXT (default: 'spatial')
-;    This keywords selects between keywords for spatial or spectral
-;    graphics.
 ; <return>
 ;    Dictionaries of graphics keywords for image, colorbar, and
 ;    text functions.
 ;-
-function set_graphics_kw, data_name,data, $
-                          context=context
+function set_graphics_kw, context=context, $
+                          data=data
 
-  ;;==Defaults and guards
-  if n_elements(context) eq 0 then context = 'spatial'
+  ;;==Split context into components
+  ctx = strsplit(context,'-_')
+  data_name = ctx[0]
 
   ;;==Get data array dimensions
   if n_elements(data) ne 0 then begin
@@ -46,7 +46,7 @@ function set_graphics_kw, data_name,data, $
   ;; ytickvalues = ny*indgen(ymajor)/(ymajor-1)
 
   ;;==Set x and y titles
-  if strcmp(context,'spectral') then begin
+  if where(strmatch(context,'fft')) ge 0 then begin
      xtitle = '$k_{Zon}$ [m$^{-1}$]'
      ytitle = '$k_{Ver}$ [m$^{-1}$]'
      ;; xtickname = strarr(xmajor)
@@ -173,7 +173,7 @@ function set_graphics_kw, data_name,data, $
      image_kw['rgb_table'] = [[ct.r],[ct.g],[ct.b]]
      colorbar_kw['title'] = '$tan^{-1}(\delta E_y,\delta E_x)$ [rad.]'
   endif
-  if strcmp(context,'spectral') then begin
+  if where(strmatch(context,'fft')) ge 0 then begin
      image_kw['min_value'] = -30
      image_kw['max_value'] = 0
      image_kw['rgb_table'] = 39
