@@ -8,9 +8,10 @@
 ; Created by Matt Young.
 ;------------------------------------------------------------------------------
 ;                                 **PARAMETERS**
-; XDATA (optional)
-; MOVDATA (required)
-;    A (1+1)-D array from which to make plot frames.
+; ARG1 (optional)
+;    1-D array of x-axis points.
+; ARG2 (required)
+;    (1+1)-D array from which to make plot frames.
 ; LUN (default: -1)
 ;    Logical unit number for printing runtime messages.
 ; LOG (default: unset)
@@ -60,7 +61,7 @@
 ;    with the exception that this routine will automatically set 
 ;    target = plt. See also the IDL help page for legend.pro.
 ; TEXT_POS (default: [0.0, 0.0, 0.0])
-;    An array containing the x, y, and z positions for text.pro.
+;    Array containing the x, y, and z positions for text.pro.
 ;    See also the IDL help page for text.pro.
 ; TEXT_STRING (default: none)
 ;    The string or string array to print with text.pro. The 
@@ -70,11 +71,11 @@
 ;    step, or an array of strings with length equal to the number
 ;    of time steps. See also the IDL help page for text.pro.
 ; TEXT_FORMAT (default: 'k')
-;    A string that sets the text color using short tokens. See
+;    String that sets the text color using short tokens. See
 ;    also the IDL help page for text.pro.
 ; TEXT_KW (default: none)
-;   Dictionary of keyword properties accepted by IDL's text.pro. 
-;   See also the IDL help page for text.pro.
+;    Dictionary of keyword properties accepted by IDL's text.pro. 
+;    See also the IDL help page for text.pro.
 ;------------------------------------------------------------------------------
 ;                                   **NOTES**
 ; -- This routine assumes the final dimension of movdata 
@@ -90,7 +91,7 @@
 ;    sets it to [nx,ny], where nx and ny are derived from the 
 ;    input data arrays.
 ;-
-pro plot_graphics, xdata,movdata, $
+pro plot_graphics, arg1,arg2, $
                    lun=lun, $
                    log=log, $
                    alog_base=alog_base, $
@@ -104,6 +105,17 @@ pro plot_graphics, xdata,movdata, $
                    text_string=text_string, $
                    text_format=text_format, $
                    text_kw=text_kw
+
+  ;;==Check for x-axis data
+  if n_elements(arg2) eq 0 then begin
+     movdata = arg1
+     msize = size(movdata)
+     xdata = lindgen(msize[1])
+  endif $
+  else begin
+     xdata = arg1
+     movdata = arg2
+  endelse
 
   ;;==Get data size
   xsize = size(xdata)
@@ -188,8 +200,8 @@ pro plot_graphics, xdata,movdata, $
   ;;==Write data to video stream at each time step
   for it=0,nt-1 do begin
      ydata = movdata[*,it]
+     plot_kw['title'] = title[it]
      plt = plot_frame(xdata,ydata, $
-                      title=title, $
                       plot_kw=plot_kw, $
                       legend_kw=legend_kw, $
                       add_legend=add_legend, $

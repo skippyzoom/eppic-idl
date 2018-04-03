@@ -11,7 +11,9 @@
 ; MOVDATA (required)
 ;    A (2+1)-D array from which to make image frames.
 ; XDATA (optional)
+;    A 1-D array of x-axis points.
 ; YDATA (optional)
+;    A 1-D array of y-axis points.
 ; LUN (default: -1)
 ;    Logical unit number for printing runtime messages.
 ; LOG (default: unset)
