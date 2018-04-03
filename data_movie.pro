@@ -149,8 +149,7 @@ pro data_movie, arg1,arg2,arg3, $
                           text_string=text_string, $
                           text_format=text_format, $
                           text_kw=text_kw, $
-                          /make_movie, $
-                          _EXTRA=ex
+                          /make_movie
 
         endif $
         else call_seq_err = 1B
@@ -172,8 +171,7 @@ pro data_movie, arg1,arg2,arg3, $
                        text_string=text_string, $
                        text_format=text_format, $
                        text_kw=text_kw, $
-                       /make_movie, $
-                       _EXTRA=ex
+                       /make_movie
 
      end
      3: begin
@@ -197,8 +195,7 @@ pro data_movie, arg1,arg2,arg3, $
                               text_string=text_string, $
                               text_format=text_format, $
                               text_kw=text_kw, $
-                              /make_movie, $
-                              _EXTRA=ex
+                              /make_movie
 
            end
            (size2[0] eq 0 and size3[0] eq 0): begin
@@ -219,8 +216,7 @@ pro data_movie, arg1,arg2,arg3, $
                               text_string=text_string, $
                               text_format=text_format, $
                               text_kw=text_kw, $
-                              /make_movie, $
-                              _EXTRA=ex
+                              /make_movie
 
            end
            else: call_seq_err = 1B
