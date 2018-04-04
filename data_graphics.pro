@@ -95,7 +95,7 @@ pro data_graphics, fdata,xdata,ydata, $
                 frame_name+frame_info+'-'+time.index+frame_type
 
      ;;==Set up graphics preferences
-     kw = set_graphics_kw(data_name,fdata, $
+     kw = set_graphics_kw(data = fdata, $
                           context = context)
      if time.haskey('stamp') then begin
         text_pos = [0.05,0.85]
@@ -133,7 +133,7 @@ pro data_graphics, fdata,xdata,ydata, $
                 movie_name+movie_info+movie_type
 
      ;;==Set up graphics preferences
-     kw = set_graphics_kw(data_name,fdata, $
+     kw = set_graphics_kw(data = fdata, $
                           context = context)
      if time.haskey('stamp') then begin
         text_pos = [0.05,0.85]
