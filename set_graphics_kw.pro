@@ -8,7 +8,7 @@
 ; Created by Matt Young.
 ;------------------------------------------------------------------------------
 ;                                 **PARAMETERS**
-; CONTEXT (optional)
+; CONTEXT (default: '')
 ;    String indicating keyword preferences for graphics.
 ;    The user can separate context elements by '-' or '_' but
 ;    the first element must be the data_name.
@@ -23,8 +23,11 @@
 function set_graphics_kw, context=context, $
                           data=data
 
+  ;;==Defaults and guards
+  if n_elements(context) eq 0 then context = ''
+
   ;;==Split context into components
-  ctx = strsplit(context,'-_')
+  ctx = strsplit(context,'-_',/extract)
   data_name = ctx[0]
 
   ;;==Get data array dimensions
@@ -33,7 +36,12 @@ function set_graphics_kw, context=context, $
      nx = dsize[1]
      ny = dsize[2]
      data_aspect = float(ny)/nx
-  endif
+  endif $
+  else begin
+     nx = 1
+     ny = 1
+     data_aspect = 1.0
+  endelse
 
   ;;==Set number of x and y ticks
   xmajor = 5
@@ -45,34 +53,34 @@ function set_graphics_kw, context=context, $
   ;; xtickvalues = nx*indgen(xmajor)/(xmajor-1)
   ;; ytickvalues = ny*indgen(ymajor)/(ymajor-1)
 
-  ;;==Set x and y titles
-  if where(strmatch(context,'fft')) ge 0 then begin
-     xtitle = '$k_{Zon}$ [m$^{-1}$]'
-     ytitle = '$k_{Ver}$ [m$^{-1}$]'
-     ;; xtickname = strarr(xmajor)
-     ;; inds = strcompress(1+indgen(xmajor/2),/remove_all)
-     ;; if xmajor mod 2 then begin
-     ;;    xtickname[xmajor/2] = '0'
-     ;;    for ix=1,xmajor/2 do begin
-     ;;       xtickname[xmajor/2-ix] = '-'+inds[ix-1]+'$\pi$'
-     ;;       xtickname[xmajor/2+ix] = '+'+inds[ix-1]+'$\pi$'
-     ;;    endfor
-     ;; endif $
-     ;; else begin
-     ;;    for ix=0,xmajor-1 do begin
-     ;;       xtickname[ix] = '-'+inds[ix]+'$\pi$'
-     ;;       xtickname[xmajor-ix] = '+'+inds[ix]+'$\pi$'
-     ;;    endfor
-     ;; endelse
-  endif else begin
-     xtitle = 'Zonal [m]'
-     ytitle = 'Vertical [m]'
-  endelse
+  ;; ;;==Set x and y titles
+  ;; if where(strmatch(context,'fft')) ge 0 then begin
+  ;;    xtitle = '$k_{Zon}$ [m$^{-1}$]'
+  ;;    ytitle = '$k_{Ver}$ [m$^{-1}$]'
+  ;;    ;; xtickname = strarr(xmajor)
+  ;;    ;; inds = strcompress(1+indgen(xmajor/2),/remove_all)
+  ;;    ;; if xmajor mod 2 then begin
+  ;;    ;;    xtickname[xmajor/2] = '0'
+  ;;    ;;    for ix=1,xmajor/2 do begin
+  ;;    ;;       xtickname[xmajor/2-ix] = '-'+inds[ix-1]+'$\pi$'
+  ;;    ;;       xtickname[xmajor/2+ix] = '+'+inds[ix-1]+'$\pi$'
+  ;;    ;;    endfor
+  ;;    ;; endif $
+  ;;    ;; else begin
+  ;;    ;;    for ix=0,xmajor-1 do begin
+  ;;    ;;       xtickname[ix] = '-'+inds[ix]+'$\pi$'
+  ;;    ;;       xtickname[xmajor-ix] = '+'+inds[ix]+'$\pi$'
+  ;;    ;;    endfor
+  ;;    ;; endelse
+  ;; endif else begin
+  ;;    xtitle = 'Zonal [m]'
+  ;;    ytitle = 'Vertical [m]'
+  ;; endelse
 
   ;;==Set colorbar tickmarks
   ;;-->Use plusminus_labels.pro
 
-  ;;==Set graphics preferences
+  ;;==Set default graphics preferences
   img_pos = [0.10,0.10,0.80,0.80]
   clr_pos = [0.82,0.10,0.84,0.80]
   image_kw = dictionary('axis_style', 1, $
@@ -112,6 +120,8 @@ function set_graphics_kw, context=context, $
                        'vertical_alignment', 0.0, $
                        'fill_background', 1B, $
                        'fill_color', 'powder blue')
+
+  ;;==Update properties for specific contexts
   if strcmp(data_name,'den',3) then begin
      if n_elements(data) ne 0 then begin
         image_kw['min_value'] = -max(abs(data[*,*,1:*]))
@@ -119,6 +129,8 @@ function set_graphics_kw, context=context, $
      endif
      image_kw['rgb_table'] = 5
      colorbar_kw['title'] = '$\delta n/n_0$'
+     xtitle = 'Zonal [m]'
+     ytitle = 'Vertical [m]'
   endif
   if strcmp(data_name,'phi') then begin
      if n_elements(data) ne 0 then begin
@@ -128,6 +140,8 @@ function set_graphics_kw, context=context, $
      ct = get_custom_ct(1)
      image_kw['rgb_table'] = [[ct.r],[ct.g],[ct.b]]
      colorbar_kw['title'] = '$\phi$ [V]'
+     xtitle = 'Zonal [m]'
+     ytitle = 'Vertical [m]'
   endif
   if strcmp(data_name,'Ex') || $
      strcmp(data_name,'efield_x') then begin
@@ -137,6 +151,8 @@ function set_graphics_kw, context=context, $
      endif
      image_kw['rgb_table'] = 5
      colorbar_kw['title'] = '$\delta E_x$ [V/m]'
+     xtitle = 'Zonal [m]'
+     ytitle = 'Vertical [m]'
   endif
   if strcmp(data_name,'Ey') || $
      strcmp(data_name,'efield_y') then begin
@@ -146,6 +162,8 @@ function set_graphics_kw, context=context, $
      endif
      image_kw['rgb_table'] = 5
      colorbar_kw['title'] = '$\delta E_y$ [V/m]'
+     xtitle = 'Zonal [m]'
+     ytitle = 'Vertical [m]'
   endif
   if strcmp(data_name,'Ez') || $
      strcmp(data_name,'efield_z') then begin
@@ -155,6 +173,8 @@ function set_graphics_kw, context=context, $
      endif
      image_kw['rgb_table'] = 5
      colorbar_kw['title'] = '$\delta E_z$ [V/m]'
+     xtitle = 'Zonal [m]'
+     ytitle = 'Vertical [m]'
   endif
   if strcmp(data_name,'Er') || $
      strcmp(data_name,'efield_r',strlen('efield_r')) || $
@@ -164,6 +184,8 @@ function set_graphics_kw, context=context, $
         image_kw['max_value'] = max(data[*,*,1:*])
      image_kw['rgb_table'] = 3
      colorbar_kw['title'] = '$|\delta E|$ [V/m]'
+     xtitle = 'Zonal [m]'
+     ytitle = 'Vertical [m]'
   endif
   if strcmp(data_name,'Et') || $
      strcmp(data_name,'efield_t',strlen('efield_t')) then begin
@@ -172,12 +194,16 @@ function set_graphics_kw, context=context, $
      ct = get_custom_ct(2)
      image_kw['rgb_table'] = [[ct.r],[ct.g],[ct.b]]
      colorbar_kw['title'] = '$tan^{-1}(\delta E_y,\delta E_x)$ [rad.]'
+     xtitle = 'Zonal [m]'
+     ytitle = 'Vertical [m]'
   endif
-  if where(strmatch(context,'fft')) ge 0 then begin
+  if where(strmatch(ctx,'fft')) ge 0 then begin
      image_kw['min_value'] = -30
      image_kw['max_value'] = 0
      image_kw['rgb_table'] = 39
      colorbar_kw['title'] = 'Power [dB]'
+     xtitle = '$k_{Zon}$ [m$^{-1}$]'
+     ytitle = '$k_{Ver}$ [m$^{-1}$]'
   endif
 
   return, dictionary('image',image_kw, $
