@@ -201,7 +201,6 @@ pro image_graphics, movdata,xdata,ydata, $
   for it=0,nt-1 do begin
      fdata = movdata[*,*,it]
      img = image_frame(fdata,xdata,ydata, $
-                       title=title, $
                        image_kw=image_kw, $
                        colorbar_kw=colorbar_kw, $
                        add_colorbar=add_colorbar, $
