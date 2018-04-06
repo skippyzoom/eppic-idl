@@ -30,10 +30,10 @@
 ;    in each dimension.
 ;-
 function calc_grad_xyzt, data, $
-                           dx=dx,dy=dy,dz=dz, $
-                           scale=scale, $
-                           verbose=verbose, $
-                           lun=lun
+                         dx=dx,dy=dy,dz=dz, $
+                         scale=scale, $
+                         verbose=verbose, $
+                         lun=lun
   ;;==Set default scale
   if n_elements(scale) eq 0 then scale = 1.0
 
@@ -68,14 +68,14 @@ function calc_grad_xyzt, data, $
      ;;==Echo parameters
      if keyword_set(verbose) then begin
         printf, lun,"[CALC_GRAD_XYZT] Calculating F = c*Grad[f] ", $
-               "(dx = ",strcompress(string(dx,format='(e10.4)'), $
-                                    /remove_all), $
-               ",", $
-               " dy = ",strcompress(string(dy,format='(e10.4)'), $
-                                    /remove_all), $
-               ",", $
-               " dz = ",strcompress(string(dy,format='(e10.4)'), $
-                                    /remove_all),")"
+                "(dx = ",strcompress(string(dx,format='(e10.4)'), $
+                                     /remove_all), $
+                ",", $
+                " dy = ",strcompress(string(dy,format='(e10.4)'), $
+                                     /remove_all), $
+                ",", $
+                " dz = ",strcompress(string(dy,format='(e10.4)'), $
+                                     /remove_all),")"
      endif
 
      ;;==Calculate F = c*Grad[f]
