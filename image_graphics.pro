@@ -200,6 +200,7 @@ pro image_graphics, movdata,xdata,ydata, $
   ;;==Write data to video stream at each time step
   for it=0,nt-1 do begin
      fdata = movdata[*,*,it]
+     if n_elements(title) ne 0 then image_kw['title'] = title[it]
      img = image_frame(fdata,xdata,ydata, $
                        image_kw=image_kw, $
                        colorbar_kw=colorbar_kw, $
