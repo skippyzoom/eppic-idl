@@ -26,14 +26,14 @@
 ;    any string starting with 'e', any string whose first 3 letters
 ;    are 'nat', or the value exp(1) for base-e (alog). Setting this
 ;    parameter will set log = 1B
-; FILENAME (default: 'data_movie.mp4')
-;    Name of resultant movie file, including extension. IDL will 
-;    use the extension to determine the video type. The user can
-;    call 
+; FILENAME (default: 'data_movie.mp4' or 'data_frame.pdf')
+;    Name of resultant graphics file, including extension. 
+;    IDL will use the extension to determine the file type. 
+;    For videos, the user can call 
 ;    IDL> idlffvideowrite.getformats()
 ;    or
 ;    IDL> idlffvideowrite.getformats(/long_names)
-;    for more information on available video formats. See also the 
+;    for more information on available formats. See also the 
 ;    IDL help page for idlffvideowrite.
 ; FRAMERATE (default: 20)
 ;    Movie frame rate.
@@ -129,7 +129,7 @@ pro image_graphics, movdata,xdata,ydata, $
   if n_elements(alog_base) eq 0 then alog_base = '10'
   if n_elements(filename) eq 0 then begin
      if keyword_set(make_movie) then filename = 'data_movie.mp4'
-     if keyword_set(make_image) then filename = 'data_image.pdf'
+     if keyword_set(make_frame) then filename = 'data_frame.pdf'
   endif
   if keyword_set(make_frame) && n_elements(filename) eq 1 then $
      filename = make_array(nt,value=filename)
