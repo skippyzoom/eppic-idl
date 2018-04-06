@@ -15,7 +15,7 @@
 ; LUN (default: -1)
 ;    Logical unit number for printing runtime messages.
 ; LOG (default: unset)
-;    Take the logarithm of each frame before creating an image.
+;    Take the logarithm of each frame before creating a plot.
 ;    The value of alog_base sets the logarithmic base.
 ; ALOG_BASE (default: 10)
 ;    String or number indicating the logarithmic base to use when 
@@ -24,14 +24,14 @@
 ;    any string starting with 'e', any string whose first 3 letters
 ;    are 'nat', or the value exp(1) for base-e (alog). Setting this
 ;    parameter will set log = 1B
-; FILENAME (default: 'data_movie.mp4')
-;    Name of resultant movie file, including extension. IDL will 
-;    use the extension to determine the video type. The user can
-;    call 
+; FILENAME (default: 'data_movie.mp4' or 'data_frame.pdf')
+;    Name of resultant graphics file, including extension. 
+;    IDL will use the extension to determine the file type. 
+;    For videos, the user can call 
 ;    IDL> idlffvideowrite.getformats()
 ;    or
 ;    IDL> idlffvideowrite.getformats(/long_names)
-;    for more information on available video formats. See also the 
+;    for more information on available formats. See also the 
 ;    IDL help page for idlffvideowrite.
 ; FRAMERATE (default: 20)
 ;    Movie frame rate.
@@ -132,9 +132,11 @@ pro plot_graphics, arg1,arg2, $
   if n_elements(alog_base) eq 0 then alog_base = '10'
   if n_elements(filename) eq 0 then begin
      if keyword_set(make_movie) then filename = 'data_movie.mp4'
-     if keyword_set(make_image) then filename = 'data_image.pdf'
+     if keyword_set(make_frame) then filename = 'data_frame.pdf'
   endif
-  if keyword_set(make_frame) && n_elements(filename) eq 1 then $
+  if keyword_set(make_frame) && $
+     n_elements(filename) eq 1 && $
+     ~plot_kw.haskey('overplot') then $
      filename = make_array(nt,value=filename)
   if n_elements(framerate) eq 0 then framerate = 20
   if n_elements(xdata) eq 0 then xdata = indgen(nx)
@@ -158,6 +160,15 @@ pro plot_graphics, arg1,arg2, $
         else: title = !NULL
      endcase
      plot_kw.remove, 'title'
+  endif
+  if plot_kw.haskey('color') then begin
+     case n_elements(plot_kw.color) of
+        0: color = make_array(nt,value='black')
+        1: color = make_array(nt,value=plot_kw.color)
+        nt: color = plot_kw.color
+        else: color = !NULL
+     endcase
+     plot_kw.remove, 'color'
   endif
   if keyword_set(add_legend) then begin
      if isa(add_legend,/number) && $
@@ -203,6 +214,7 @@ pro plot_graphics, arg1,arg2, $
   for it=0,nt-1 do begin
      ydata = movdata[*,it]
      if n_elements(title) ne 0 then plot_kw['title'] = title[it]
+     if n_elements(color) ne 0 then plot_kw['color'] = color[it]
      plt = plot_frame(xdata,ydata, $
                       plot_kw=plot_kw, $
                       legend_kw=legend_kw, $
@@ -214,7 +226,7 @@ pro plot_graphics, arg1,arg2, $
         plt.close
      endif
      if keyword_set(make_frame) then begin
-        if ~keyword_set(multi_page) then $
+        if ~keyword_set(multi_page) && ~plot_kw.haskey('overplot') then $
            frame_save, plt, $
                        filename = filename[it], $
                        lun = lun
@@ -222,7 +234,11 @@ pro plot_graphics, arg1,arg2, $
   endfor
   if keyword_set(make_frame) then begin
      if keyword_set(multi_page) then $
-        frame_save, img, $
+        frame_save, plt, $
+                    filename = filename, $
+                    lun = lun
+     if plot_kw.haskey('overplot') then $
+        frame_save, plt, $
                     filename = filename, $
                     lun = lun
   endif
