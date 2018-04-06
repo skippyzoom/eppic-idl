@@ -82,6 +82,10 @@
 ;                                   **NOTES**
 ; -- This routine assumes the final dimension of movdata 
 ;    is the time-step dimension. 
+; -- This routine makes local copies of image_kw, colobar_kw, and
+;    text_kw so it can make local changes to dictionary members
+;    while preserving the input dictionaries between subsequent
+;    calls.
 ; -- This routine automatically sets the buffer keyword 
 ;    to 1B to ensure that the current frame goes to a 
 ;    buffer instead of printing to the screen. The latter 
@@ -109,6 +113,11 @@ pro image_graphics, movdata,xdata,ydata, $
                     text_kw=text_kw, $
                     make_movie=make_movie, $
                     make_frame=make_frame
+
+  ;;==Copy input dictionaries
+  if keyword_set(image_kw) then i_kw = image_kw[*]
+  if keyword_set(colorbar_kw) then c_kw = colorbar_kw[*]
+  if keyword_set(text_kw) then t_kw = text_kw[*]
 
   ;;==Make sure target directory exists for movies
   if keyword_set(make_movie) then begin
@@ -138,24 +147,24 @@ pro image_graphics, movdata,xdata,ydata, $
   if n_elements(ydata) eq 0 then ydata = indgen(ny)
   if n_elements(resize) eq 0 then resize = [1.0, 1.0]
   if n_elements(resize) eq 1 then resize = [resize, resize]
-  if n_elements(image_kw) eq 0 then begin
-     if n_elements(ex) ne 0 then image_kw = ex $
-     else image_kw = dictionary()
+  if n_elements(i_kw) eq 0 then begin
+     if n_elements(ex) ne 0 then i_kw = ex $
+     else i_kw = dictionary()
   endif
-  if isa(image_kw,'struct') then image_kw = dictionary(image_kw,/extract)
-  if ~image_kw.haskey('dimensions') then $
-     image_kw['dimensions'] = [nx,ny]
-  tmp = [image_kw.dimensions[0]*resize[0], $
-         image_kw.dimensions[1]*resize[1]]
-  image_kw.dimensions = tmp
-  if image_kw.haskey('title') then begin
-     case n_elements(image_kw.title) of
+  if isa(i_kw,'struct') then i_kw = dictionary(i_kw,/extract)
+  if ~i_kw.haskey('dimensions') then $
+     i_kw['dimensions'] = [nx,ny]
+  tmp = [i_kw.dimensions[0]*resize[0], $
+         i_kw.dimensions[1]*resize[1]]
+  i_kw.dimensions = tmp
+  if i_kw.haskey('title') then begin
+     case n_elements(i_kw.title) of
         0: title = make_array(nt,value='')
-        1: title = make_array(nt,value=image_kw.title)
-        nt: title = image_kw.title
+        1: title = make_array(nt,value=i_kw.title)
+        nt: title = i_kw.title
         else: title = !NULL
      endcase
-     image_kw.remove, 'title'
+     i_kw.remove, 'title'
   endif
   if keyword_set(add_colorbar) then begin
      if isa(add_colorbar,/number) && $
@@ -186,26 +195,26 @@ pro image_graphics, movdata,xdata,ydata, $
      end
   endcase
   if n_elements(text_format) eq 0 then text_format = 'k'
-  if n_elements(text_kw) eq 0 then text_kw = dictionary()
+  if n_elements(t_kw) eq 0 then t_kw = dictionary()
 
   ;;==Open video stream
   if keyword_set(make_movie) then begin
      printf, lun,"[IMAGE_GRAPHICS] Creating ",filename,"..."
      video = idlffvideowrite(filename)
-     stream = video.addvideostream(image_kw.dimensions[0], $
-                                   image_kw.dimensions[1], $
+     stream = video.addvideostream(i_kw.dimensions[0], $
+                                   i_kw.dimensions[1], $
                                    framerate)
   endif
 
   ;;==Write data to video stream at each time step
   for it=0,nt-1 do begin
      fdata = movdata[*,*,it]
-     if n_elements(title) ne 0 then image_kw['title'] = title[it]
+     if n_elements(title) ne 0 then i_kw['title'] = title[it]
      img = image_frame(fdata,xdata,ydata, $
-                       image_kw=image_kw, $
-                       colorbar_kw=colorbar_kw, $
+                       image_kw=i_kw, $
+                       colorbar_kw=c_kw, $
                        add_colorbar=add_colorbar, $
-                       text_kw=text_kw)
+                       text_kw=t_kw)
      if keyword_set(make_movie) then begin
         frame = img.copywindow()
         !NULL = video.put(stream,frame)

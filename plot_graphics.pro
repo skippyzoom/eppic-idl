@@ -80,6 +80,10 @@
 ;                                   **NOTES**
 ; -- This routine assumes the final dimension of movdata 
 ;    is the time-step dimension. 
+; -- This routine makes local copies of plot_kw, legend_kw, and
+;    text_kw so it can make local changes to dictionary members
+;    while preserving the input dictionaries between subsequent
+;    calls.
 ; -- This routine automatically sets the buffer keyword 
 ;    to 1B to ensure that the current frame goes to a 
 ;    buffer instead of printing to the screen. The latter 
@@ -107,6 +111,11 @@ pro plot_graphics, arg1,arg2, $
                    text_kw=text_kw, $
                    make_movie=make_movie, $
                    make_frame=make_frame
+
+  ;;==Copy input dictionaries
+  if keyword_set(plot_kw) then p_kw = plot_kw[*]
+  if keyword_set(legend_kw) then l_kw = legend_kw[*]
+  if keyword_set(text_kw) then t_kw = text_kw[*]
 
   ;;==Check for x-axis data
   if n_elements(arg2) eq 0 then begin
@@ -136,39 +145,39 @@ pro plot_graphics, arg1,arg2, $
   endif
   if keyword_set(make_frame) && $
      n_elements(filename) eq 1 && $
-     ~plot_kw.haskey('overplot') then $
+     ~p_kw.haskey('overplot') then $
      filename = make_array(nt,value=filename)
   if n_elements(framerate) eq 0 then framerate = 20
   if n_elements(xdata) eq 0 then xdata = indgen(nx)
   if n_elements(resize) eq 0 then resize = [1.0, 1.0]
   if n_elements(resize) eq 1 then resize = [resize, resize]
-  if n_elements(plot_kw) eq 0 then begin
-     if n_elements(ex) ne 0 then plot_kw = ex $
-     else plot_kw = dictionary()
+  if n_elements(p_kw) eq 0 then begin
+     if n_elements(ex) ne 0 then p_kw = ex $
+     else p_kw = dictionary()
   endif
-  if isa(plot_kw,'struct') then plot_kw = dictionary(plot_kw,/extract)
-  if ~plot_kw.haskey('dimensions') then $
-     plot_kw['dimensions'] = [nx,ny]
-  tmp = [plot_kw.dimensions[0]*resize[0], $
-         plot_kw.dimensions[1]*resize[1]]
-  plot_kw.dimensions = tmp
-  if plot_kw.haskey('title') then begin
-     case n_elements(plot_kw.title) of
+  if isa(p_kw,'struct') then p_kw = dictionary(p_kw,/extract)
+  if ~p_kw.haskey('dimensions') then $
+     p_kw['dimensions'] = [nx,ny]
+  tmp = [p_kw.dimensions[0]*resize[0], $
+         p_kw.dimensions[1]*resize[1]]
+  p_kw.dimensions = tmp
+  if p_kw.haskey('title') then begin
+     case n_elements(p_kw.title) of
         0: title = make_array(nt,value='')
-        1: title = make_array(nt,value=plot_kw.title)
-        nt: title = plot_kw.title
+        1: title = make_array(nt,value=p_kw.title)
+        nt: title = p_kw.title
         else: title = !NULL
      endcase
-     plot_kw.remove, 'title'
+     p_kw.remove, 'title'
   endif
-  if plot_kw.haskey('color') then begin
-     case n_elements(plot_kw.color) of
+  if p_kw.haskey('color') then begin
+     case n_elements(p_kw.color) of
         0: color = make_array(nt,value='black')
-        1: color = make_array(nt,value=plot_kw.color)
-        nt: color = plot_kw.color
+        1: color = make_array(nt,value=p_kw.color)
+        nt: color = p_kw.color
         else: color = !NULL
      endcase
-     plot_kw.remove, 'color'
+     p_kw.remove, 'color'
   endif
   if keyword_set(add_legend) then begin
      if isa(add_legend,/number) && $
@@ -199,34 +208,34 @@ pro plot_graphics, arg1,arg2, $
      end
   endcase
   if n_elements(text_format) eq 0 then text_format = 'k'
-  if n_elements(text_kw) eq 0 then text_kw = dictionary()
+  if n_elements(t_kw) eq 0 then t_kw = dictionary()
 
   ;;==Open video stream
   if keyword_set(make_movie) then begin
      printf, lun,"[PLOT_GRAPHICS] Creating ",filename,"..."
      video = idlffvideowrite(filename)
-     stream = video.addvideostream(plot_kw.dimensions[0], $
-                                   plot_kw.dimensions[1], $
+     stream = video.addvideostream(p_kw.dimensions[0], $
+                                   p_kw.dimensions[1], $
                                    framerate)
   endif
 
   ;;==Write data to video stream at each time step
   for it=0,nt-1 do begin
      ydata = movdata[*,it]
-     if n_elements(title) ne 0 then plot_kw['title'] = title[it]
-     if n_elements(color) ne 0 then plot_kw['color'] = color[it]
+     if n_elements(title) ne 0 then p_kw['title'] = title[it]
+     if n_elements(color) ne 0 then p_kw['color'] = color[it]
      plt = plot_frame(xdata,ydata, $
-                      plot_kw=plot_kw, $
-                      legend_kw=legend_kw, $
+                      plot_kw=p_kw, $
+                      legend_kw=l_kw, $
                       add_legend=add_legend, $
-                      text_kw=text_kw)
+                      text_kw=t_kw)
      if keyword_set(make_movie) then begin
         frame = plt.copywindow()
         !NULL = video.put(stream,frame)
         plt.close
      endif
      if keyword_set(make_frame) then begin
-        if ~keyword_set(multi_page) && ~plot_kw.haskey('overplot') then $
+        if ~keyword_set(multi_page) && ~p_kw.haskey('overplot') then $
            frame_save, plt, $
                        filename = filename[it], $
                        lun = lun
@@ -237,7 +246,7 @@ pro plot_graphics, arg1,arg2, $
         frame_save, plt, $
                     filename = filename, $
                     lun = lun
-     if plot_kw.haskey('overplot') then $
+     if p_kw.haskey('overplot') then $
         frame_save, plt, $
                     filename = filename, $
                     lun = lun
