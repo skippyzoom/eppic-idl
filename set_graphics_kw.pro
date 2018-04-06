@@ -85,8 +85,6 @@ function set_graphics_kw, context=context, $
   clr_pos = [0.82,0.10,0.84,0.80]
   image_kw = dictionary('axis_style', 1, $
                         'position', img_pos, $
-                        'xtitle', xtitle, $
-                        'ytitle', ytitle, $
                         'xstyle', 1, $
                         'ystyle', 1, $
                         'xmajor', xmajor, $
@@ -119,7 +117,7 @@ function set_graphics_kw, context=context, $
                        'alignment', 0.0, $
                        'vertical_alignment', 0.0, $
                        'fill_background', 1B, $
-                       'fill_color', 'powder blue')
+                       'fill_color', 'white')
 
   ;;==Update properties for specific contexts
   if strcmp(data_name,'den',3) then begin
@@ -128,9 +126,9 @@ function set_graphics_kw, context=context, $
         image_kw['max_value'] = +max(abs(data[*,*,1:*]))
      endif
      image_kw['rgb_table'] = 5
+     image_kw['xtitle'] = 'Zonal [m]'
+     image_kw['ytitle'] = 'Vertical [m]'
      colorbar_kw['title'] = '$\delta n/n_0$'
-     xtitle = 'Zonal [m]'
-     ytitle = 'Vertical [m]'
   endif
   if strcmp(data_name,'phi') then begin
      if n_elements(data) ne 0 then begin
@@ -139,9 +137,9 @@ function set_graphics_kw, context=context, $
      endif
      ct = get_custom_ct(1)
      image_kw['rgb_table'] = [[ct.r],[ct.g],[ct.b]]
+     image_kw['xtitle'] = 'Zonal [m]'
+     image_kw['ytitle'] = 'Vertical [m]'
      colorbar_kw['title'] = '$\phi$ [V]'
-     xtitle = 'Zonal [m]'
-     ytitle = 'Vertical [m]'
   endif
   if strcmp(data_name,'Ex') || $
      strcmp(data_name,'efield_x') then begin
@@ -150,9 +148,9 @@ function set_graphics_kw, context=context, $
         image_kw['max_value'] = +max(abs(data[*,*,1:*]))
      endif
      image_kw['rgb_table'] = 5
+     image_kw['xtitle'] = 'Zonal [m]'
+     image_kw['ytitle'] = 'Vertical [m]'
      colorbar_kw['title'] = '$\delta E_x$ [V/m]'
-     xtitle = 'Zonal [m]'
-     ytitle = 'Vertical [m]'
   endif
   if strcmp(data_name,'Ey') || $
      strcmp(data_name,'efield_y') then begin
@@ -161,9 +159,9 @@ function set_graphics_kw, context=context, $
         image_kw['max_value'] = +max(abs(data[*,*,1:*]))
      endif
      image_kw['rgb_table'] = 5
+     image_kw['xtitle'] = 'Zonal [m]'
+     image_kw['ytitle'] = 'Vertical [m]'
      colorbar_kw['title'] = '$\delta E_y$ [V/m]'
-     xtitle = 'Zonal [m]'
-     ytitle = 'Vertical [m]'
   endif
   if strcmp(data_name,'Ez') || $
      strcmp(data_name,'efield_z') then begin
@@ -172,20 +170,21 @@ function set_graphics_kw, context=context, $
         image_kw['max_value'] = +max(abs(data[*,*,1:*]))
      endif
      image_kw['rgb_table'] = 5
+     image_kw['xtitle'] = 'Zonal [m]'
+     image_kw['ytitle'] = 'Vertical [m]'
      colorbar_kw['title'] = '$\delta E_z$ [V/m]'
-     xtitle = 'Zonal [m]'
-     ytitle = 'Vertical [m]'
   endif
   if strcmp(data_name,'Er') || $
      strcmp(data_name,'efield_r',strlen('efield_r')) || $
      strcmp(data_name,'efield') then begin
         image_kw['min_value'] = 0
-     if n_elements(data) ne 0 then $
+     if n_elements(data) ne 0 then begin
         image_kw['max_value'] = max(data[*,*,1:*])
+     endif
      image_kw['rgb_table'] = 3
+     image_kw['xtitle'] = 'Zonal [m]'
+     image_kw['ytitle'] = 'Vertical [m]'
      colorbar_kw['title'] = '$|\delta E|$ [V/m]'
-     xtitle = 'Zonal [m]'
-     ytitle = 'Vertical [m]'
   endif
   if strcmp(data_name,'Et') || $
      strcmp(data_name,'efield_t',strlen('efield_t')) then begin
@@ -193,17 +192,21 @@ function set_graphics_kw, context=context, $
      image_kw['max_value'] = +!pi
      ct = get_custom_ct(2)
      image_kw['rgb_table'] = [[ct.r],[ct.g],[ct.b]]
+     image_kw['xtitle'] = 'Zonal [m]'
+     image_kw['ytitle'] = 'Vertical [m]'
      colorbar_kw['title'] = '$tan^{-1}(\delta E_y,\delta E_x)$ [rad.]'
-     xtitle = 'Zonal [m]'
-     ytitle = 'Vertical [m]'
   endif
   if where(strmatch(ctx,'fft')) ge 0 then begin
      image_kw['min_value'] = -30
      image_kw['max_value'] = 0
      image_kw['rgb_table'] = 39
+     image_kw['xtitle'] = '$k_{Zon}$ [m$^{-1}$]'
+     image_kw['ytitle'] = '$k_{Ver}$ [m$^{-1}$]'     
+     ;; if n_elements(data) ne 0 then begin
+     ;;    max_dim = max([nx,ny])
+     ;;    image_kw['image_dimensions'] = 2*[max_dim,max_dim]
+     ;; endif
      colorbar_kw['title'] = 'Power [dB]'
-     xtitle = '$k_{Zon}$ [m$^{-1}$]'
-     ytitle = '$k_{Ver}$ [m$^{-1}$]'
   endif
 
   return, dictionary('image',image_kw, $
