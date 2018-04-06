@@ -104,7 +104,9 @@ pro plot_graphics, arg1,arg2, $
                    text_pos=text_pos, $
                    text_string=text_string, $
                    text_format=text_format, $
-                   text_kw=text_kw
+                   text_kw=text_kw, $
+                   make_movie=make_movie, $
+                   make_frame=make_frame
 
   ;;==Check for x-axis data
   if n_elements(arg2) eq 0 then begin
@@ -200,7 +202,7 @@ pro plot_graphics, arg1,arg2, $
   ;;==Write data to video stream at each time step
   for it=0,nt-1 do begin
      ydata = movdata[*,it]
-     plot_kw['title'] = title[it]
+     if n_elements(title) ne 0 then plot_kw['title'] = title[it]
      plt = plot_frame(xdata,ydata, $
                       plot_kw=plot_kw, $
                       legend_kw=legend_kw, $
