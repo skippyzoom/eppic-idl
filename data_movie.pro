@@ -228,11 +228,11 @@ pro data_movie, arg1,arg2,arg3, $
      printf, lun,"[DATA_MOVIE] Calling sequence may be either"
      printf, lun,"             > data_movie, xdata[,ydata][,kw/prop]"
      printf, lun,"             with 1-D xdata and (1+1)-D ydata"
-     printf, lun,"             for a movie of plot frames"
+     printf, lun,"             for plot frames"
      printf, lun,"                         OR"
      printf, lun,"             > data_movie, fdata[,xdata][,ydata][,kw/prop]"
      printf, lun,"             with (2+1)-D fdata, 1-D xdata, and 1-D ydata"
-     printf, lun,"             for a movie of image frames"
+     printf, lun,"             for image frames"
   endif
 
 end

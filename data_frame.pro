@@ -13,7 +13,7 @@
 ;    or a (1+1)-D array from which to make plots when arg1
 ;    is a 1-D array of x-axis points.
 ; ARG3 (optional)
-;    A 1-D array of y-axis points for making images.
+;    1-D array of y-axis points for making images.
 ; LUN (default: -1)
 ;    Logical unit number for printing runtime messages.
 ; LOG (default: unset)
@@ -226,13 +226,13 @@ pro data_frame, arg1,arg2,arg3, $
   endcase
   if call_seq_err then begin
      printf, lun,"[DATA_FRAME] Calling sequence may be either"
-     printf, lun,"             IDL> data_frame, xdata,ydata,[kw/prop]"
+     printf, lun,"             > data_frame, xdata[,ydata][,kw/prop]"
      printf, lun,"             with 1-D xdata and (1+1)-D ydata"
-     printf, lun,"             for a movie of plot frames"
+     printf, lun,"             for plot frames"
      printf, lun,"                         OR"
-     printf, lun,"             IDL> data_frame, fdata,xdata,ydata,[kw/prop]"
+     printf, lun,"             > data_frame, fdata[,xdata][,ydata][,kw/prop]"
      printf, lun,"             with (2+1)-D fdata, 1-D xdata, and 1-D ydata"
-     printf, lun,"             for a movie of image frames"
+     printf, lun,"             for image frames"
   endif
 
 end

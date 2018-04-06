@@ -19,7 +19,6 @@
 ;    is a 1-D array of x-axis points.
 ; YDATA (optional)
 ;    A 1-D array of y-axis points for making images.
-; DATA_NAME ()
 ; TIME (default: see below)
 ;    The struct or dictionary containing time-step information
 ;    (e.g., time indices). Typically, the top-level routine or
@@ -55,18 +54,17 @@
 ; CONTEXT (default: 'spatial')
 ;    The graphics context to pass to set_graphics_kw.pro
 ;-
-pro data_graphics, fdata,xdata,ydata, $
-                   data_name, $
-                   time=time, $
-                   frame_name=frame_name, $
-                   frame_path=frame_path, $
-                   frame_type=frame_type, $
-                   frame_info=frame_info, $
-                   movie_name=movie_name, $
-                   movie_path=movie_path, $
-                   movie_type=movie_type, $
-                   movie_info=movie_info, $
-                   context=context
+pro graphics_wrapper, fdata,xdata,ydata, $
+                      time=time, $
+                      frame_name=frame_name, $
+                      frame_path=frame_path, $
+                      frame_type=frame_type, $
+                      frame_info=frame_info, $
+                      movie_name=movie_name, $
+                      movie_path=movie_path, $
+                      movie_type=movie_type, $
+                      movie_info=movie_info, $
+                      context=context
 
   ;;==Get dimensions of data plane
   fsize = size(fdata)
