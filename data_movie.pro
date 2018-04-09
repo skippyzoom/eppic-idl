@@ -82,7 +82,7 @@
 ;    Dictionary of keyword properties accepted by IDL's legend.pro,
 ;    with the exception that this routine will automatically set 
 ;    target = plt. See also the IDL help page for legend.pro.
-; TEXT_POS (default: [0.0, 0.0, 0.0])
+; TEXT_XYZ (default: [0.0, 0.0, 0.0])
 ;    An array containing the x, y, and z positions for text.pro.
 ;    See also the IDL help page for text.pro.
 ; TEXT_STRING (default: none)
@@ -117,7 +117,7 @@ pro data_movie, arg1,arg2,arg3, $
                 add_legend=add_legend, $
                 colorbar_kw=colorbar_kw, $
                 legend_kw=legend_kw, $
-                text_pos=text_pos, $
+                text_xyz=text_xyz, $
                 text_string=text_string, $
                 text_format=text_format, $
                 text_kw=text_kw, $
@@ -145,7 +145,7 @@ pro data_movie, arg1,arg2,arg3, $
                           plot_kw=plot_kw, $
                           add_legend=add_legend, $
                           legend_kw=legend_kw, $
-                          text_pos=text_pos, $
+                          text_xyz=text_xyz, $
                           text_string=text_string, $
                           text_format=text_format, $
                           text_kw=text_kw, $
@@ -167,7 +167,7 @@ pro data_movie, arg1,arg2,arg3, $
                        plot_kw=plot_kw, $
                        add_legend=add_legend, $
                        legend_kw=legend_kw, $
-                       text_pos=text_pos, $
+                       text_xyz=text_xyz, $
                        text_string=text_string, $
                        text_format=text_format, $
                        text_kw=text_kw, $
@@ -191,7 +191,7 @@ pro data_movie, arg1,arg2,arg3, $
                               image_kw=image_kw, $
                               add_colorbar=add_colorbar, $
                               colorbar_kw=colorbar_kw, $
-                              text_pos=text_pos, $
+                              text_xyz=text_xyz, $
                               text_string=text_string, $
                               text_format=text_format, $
                               text_kw=text_kw, $
@@ -212,7 +212,7 @@ pro data_movie, arg1,arg2,arg3, $
                               image_kw=image_kw, $
                               add_colorbar=add_colorbar, $
                               colorbar_kw=colorbar_kw, $
-                              text_pos=text_pos, $
+                              text_xyz=text_xyz, $
                               text_string=text_string, $
                               text_format=text_format, $
                               text_kw=text_kw, $

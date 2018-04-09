@@ -56,7 +56,7 @@
 ;    Dictionary of keyword properties accepted by IDL's colorbar.pro,
 ;    with the exception that this routine will automatically set 
 ;    target = img. See also the IDL help page for colorbar.pro.
-; TEXT_POS (default: [0.0, 0.0, 0.0])
+; TEXT_XYZ (default: [0.0, 0.0, 0.0])
 ;    An array containing the x, y, and z positions for text.pro.
 ;    See also the IDL help page for text.pro.
 ; TEXT_STRING (default: none)
@@ -92,7 +92,7 @@ pro data_image, imgdata,xdata,ydata, $
                 image_kw=image_kw, $
                 add_colorbar=add_colorbar, $
                 colorbar_kw=colorbar_kw, $
-                text_pos=text_pos, $
+                text_xyz=text_xyz, $
                 text_string=text_string, $
                 text_format=text_format, $
                 text_kw=text_kw, $
@@ -160,9 +160,9 @@ pro data_image, imgdata,xdata,ydata, $
            add_colorbar = 0B
         endelse
      endif
-     if n_elements(text_pos) eq 0 then text_pos = [0.0, 0.0, 0.0] $
-     else if n_elements(text_pos) eq 2 then $
-        text_pos = [text_pos[0], text_pos[1], 0.0]
+     if n_elements(text_xyz) eq 0 then text_xyz = [0.0, 0.0, 0.0] $
+     else if n_elements(text_xyz) eq 2 then $
+        text_xyz = [text_xyz[0], text_xyz[1], 0.0]
      case n_elements(text_string) of
         0: make_text = 0B
         1: begin
@@ -206,7 +206,7 @@ pro data_image, imgdata,xdata,ydata, $
            clr = colorbar(target = img, $
                           orientation = orientation)
         if n_elements(text_string) ne 0 then begin
-           txt = text(text_pos[0],text_pos[1],text_pos[2], $
+           txt = text(text_xyz[0],text_xyz[1],text_xyz[2], $
                       text_string[it], $
                       text_format, $
                       _EXTRA = text_kw.tostruct())

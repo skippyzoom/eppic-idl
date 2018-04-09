@@ -228,7 +228,7 @@ pro eppic_movie, data_name, $
      colorbar_kw = dictionary('orientation', 1, $
                               'textpos', 1, $
                               'position', clr_pos)
-     text_pos = [0.05,0.85]
+     text_xyz = [0.05,0.85]
      text_string = time_stamps
      text_format = 'k'
      text_kw = dictionary('font_name', 'Times', $
@@ -299,7 +299,7 @@ pro eppic_movie, data_name, $
                  filename = filename, $
                  image_kw = image_kw, $
                  colorbar_kw = colorbar_kw, $
-                 text_pos = text_pos, $
+                 text_xyz = text_xyz, $
                  text_string = text_string, $
                  text_format = text_format, $
                  text_kw = text_kw
