@@ -1,14 +1,14 @@
 ;+
-; Routine for producing movies of image frames of data.
+; Routine for producing image frames or movies from EPPIC data.
 ;
-; This routine steps through a (2+1)-D array, captures an 
-; image frame at each time step, then writes that frame to 
-; a video stream.
+; This routine steps through a (2+1)-D array, captures an image frame at
+; each step, then either writes that frame to an open video stream or
+; saves it to a file.
 ;
 ; Created by Matt Young.
 ;------------------------------------------------------------------------------
 ;                                 **PARAMETERS**
-; MOVDATA (required)
+; IMGDATA (required)
 ;    A (2+1)-D array from which to make image frames.
 ; XDATA (optional)
 ;    A 1-D array of x-axis points.
@@ -80,7 +80,7 @@
 ;   See also the IDL help page for text.pro.
 ;------------------------------------------------------------------------------
 ;                                   **NOTES**
-; -- This routine assumes the final dimension of movdata 
+; -- This routine assumes the final dimension of imgdata 
 ;    is the time-step dimension. 
 ; -- This routine makes local copies of image_kw, colobar_kw, and
 ;    text_kw so it can make local changes to dictionary members
@@ -97,7 +97,7 @@
 ;    sets it to [nx,ny], where nx and ny are derived from the 
 ;    input data array.
 ;-
-pro image_graphics, movdata,xdata,ydata, $
+pro image_graphics, imgdata,xdata,ydata, $
                     lun=lun, $
                     log=log, $
                     alog_base=alog_base, $
@@ -126,7 +126,7 @@ pro image_graphics, movdata,xdata,ydata, $
   endif
 
   ;;==Get data size
-  data_size = size(movdata)
+  data_size = size(imgdata)
   n_dims = data_size[0]
   nt = data_size[n_dims]
   nx = data_size[1]
@@ -208,7 +208,7 @@ pro image_graphics, movdata,xdata,ydata, $
 
   ;;==Write data to video stream at each time step
   for it=0,nt-1 do begin
-     fdata = movdata[*,*,it]
+     fdata = imgdata[*,*,it]
      if n_elements(title) ne 0 then i_kw['title'] = title[it]
      img = image_frame(fdata,xdata,ydata, $
                        image_kw=i_kw, $

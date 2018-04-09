@@ -1,9 +1,9 @@
 ;+
-; Routine for producing movies of plot frames of data.
+; Routine for producing plot frames or movies from EPPIC data.
 ;
-; This routine steps through a (1+1)-D array, captures a
-; plot frame at each time step, then writes that frame to 
-; a video stream.
+; This routine steps through a (1+1)-D array, captures a plot frame at
+; each step, then either writes that frame to an open video stream or
+; saves it to a file.
 ;
 ; Created by Matt Young.
 ;------------------------------------------------------------------------------
