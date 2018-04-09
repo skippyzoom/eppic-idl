@@ -41,6 +41,19 @@
 ;    or 'vert'), to create a legend with the corresponding orientation.
 ;    This routine will ignore this keyword if the user passes a 
 ;    dictionary for legend_kw.
+; TEXT_XYZ (default: [0.0, 0.0, 0.0])
+;    An array containing the x, y, and z positions for text.pro.
+;    See also the IDL help page for text.pro.
+; TEXT_STRING (default: none)
+;    The string or string array to print with text.pro. The 
+;    presence or absence of this string determines whether or 
+;    not this routine calls text(). This routine currently only
+;    supports a single string, which it will use at each time 
+;    step, or an array of strings with length equal to the number
+;    of time steps. See also the IDL help page for text.pro.
+; TEXT_FORMAT (default: 'k')
+;    A string that sets the text color using short tokens. See
+;    also the IDL help page for text.pro.
 ; TEXT_KW
 ;    Dictionary of keyword properties accepted by IDL's text.pro. 
 ;    See also the IDL help page for text.pro.
@@ -53,7 +66,7 @@ function plot_frame, arg1,arg2, $
                      plot_kw=plot_kw, $
                      legend_kw=legend_kw, $
                      add_legend=add_legend, $
-                     text_pos=text_pos, $
+                     text_xyz=text_xyz, $
                      text_string=text_string, $
                      text_format=text_format, $
                      text_kw=text_kw
@@ -81,6 +94,31 @@ function plot_frame, arg1,arg2, $
         exp(1): ydata = alog(ydata)
      endcase
   endif
+  if keyword_set(add_legend) then begin
+     if isa(add_legend,/number) && $
+        add_legend eq 1 then orientation = 0 $
+     else if strcmp(add_legend,'h',1) then orientation = 1 $
+     else if strcmp(add_legend,'v',1) then orientation = 0 $
+     else begin 
+        printf, lun,"[PLOT_GRAPHICS] Did not recognize value of add_legend"
+        add_legend = 0B
+     endelse
+  endif
+  if n_elements(text_xyz) ne 3 then begin
+     case n_elements(text_xyz) of 
+        0: text_xyz = [0.0, 0.0, 0.0]
+        2: text_xyz = [text_xyz[0], text_xyz[1], 0.0]
+        else: begin
+           cr = (!d.name eq 'WIN') ? string([13B,10B]) : string(10B)
+           err_msg = "[IMAGE_FRAME] Inappropriate number of elements "+ $
+                     "in text_xyz."+cr+ $
+                     "              Using default ([0.0, 0.0, 0.0])"   
+           printf, lun,err_msg
+        end
+     endcase
+  endif
+  if n_elements(text_format) eq 0 then text_format = 'k'
+  if n_elements(text_kw) eq 0 then text_kw = dictionary()
 
   ;;==Create plot handle
   plt = plot(xdata,ydata, $
@@ -97,8 +135,8 @@ function plot_frame, arg1,arg2, $
 
   ;;==Attach text, if requested
   if n_elements(text_string) ne 0 then begin
-     txt = text(text_pos[0],text_pos[1],text_pos[2], $
-                text_string[it], $
+     txt = text(text_xyz[0],text_xyz[1],text_xyz[2], $
+                text_string, $
                 text_format, $
                 _EXTRA = text_kw.tostruct())
   endif

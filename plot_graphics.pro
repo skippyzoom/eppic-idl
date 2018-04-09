@@ -60,7 +60,7 @@
 ;    Dictionary of keyword properties accepted by IDL's legend.pro,
 ;    with the exception that this routine will automatically set 
 ;    target = plt. See also the IDL help page for legend.pro.
-; TEXT_POS (default: [0.0, 0.0, 0.0])
+; TEXT_XYZ (default: [0.0, 0.0, 0.0])
 ;    Array containing the x, y, and z positions for text.pro.
 ;    See also the IDL help page for text.pro.
 ; TEXT_STRING (default: none)
@@ -105,17 +105,18 @@ pro plot_graphics, arg1,arg2, $
                    plot_kw=plot_kw, $
                    add_legend=add_legend, $
                    legend_kw=legend_kw, $
-                   text_pos=text_pos, $
+                   text_xyz=text_xyz, $
                    text_string=text_string, $
                    text_format=text_format, $
                    text_kw=text_kw, $
                    make_movie=make_movie, $
                    make_frame=make_frame
 
-  ;;==Copy input dictionaries
+  ;;==Copy input quantities that may change
   if keyword_set(plot_kw) then p_kw = plot_kw[*]
   if keyword_set(legend_kw) then l_kw = legend_kw[*]
   if keyword_set(text_kw) then t_kw = text_kw[*]
+  if keyword_set(text_string) then t_string = text_string
 
   ;;==Check for x-axis data
   if n_elements(arg2) eq 0 then begin
@@ -136,9 +137,6 @@ pro plot_graphics, arg1,arg2, $
   nt = ysize[2]
 
   ;;==Defaults and guards
-  if ~keyword_set(log) && n_elements(alog_base) ne 0 then $
-     log = 1B
-  if n_elements(alog_base) eq 0 then alog_base = '10'
   if n_elements(filename) eq 0 then begin
      if keyword_set(make_movie) then filename = 'data_movie.mp4'
      if keyword_set(make_frame) then filename = 'data_frame.pdf'
@@ -179,36 +177,8 @@ pro plot_graphics, arg1,arg2, $
      endcase
      p_kw.remove, 'color'
   endif
-  if keyword_set(add_legend) then begin
-     if isa(add_legend,/number) && $
-        add_legend eq 1 then orientation = 0 $
-     else if strcmp(add_legend,'h',1) then orientation = 1 $
-     else if strcmp(add_legend,'v',1) then orientation = 0 $
-     else begin 
-        printf, lun,"[PLOT_GRAPHICS] Did not recognize value of add_legend"
-        add_legend = 0B
-     endelse
-  endif
-  if n_elements(text_pos) eq 0 then text_pos = [0.0, 0.0, 0.0] $
-  else if n_elements(text_pos) eq 2 then $
-     text_pos = [text_pos[0], text_pos[1], 0.0]
-  case n_elements(text_string) of
-     0: make_text = 0B
-     1: begin
-        text_string = make_array(nt,value=text_string)
-        make_text = 1B
-     end
-     nt: make_text = 1B
-     else: begin
-        printf, lun,"[PLOT_GRAPHICS] Cannot use text_string for text."
-        printf, lun,"                Please provide a single string"
-        printf, lun,"                or an array with one element per"
-        printf, lun,"                time step."
-        make_text = 0B
-     end
-  endcase
-  if n_elements(text_format) eq 0 then text_format = 'k'
-  if n_elements(t_kw) eq 0 then t_kw = dictionary()
+  if n_elements(t_string) eq 1 then $
+     t_string = make_array(nt,value=t_string)
 
   ;;==Open video stream
   if keyword_set(make_movie) then begin
@@ -224,12 +194,14 @@ pro plot_graphics, arg1,arg2, $
      ydata = movdata[*,it]
      if n_elements(title) ne 0 then p_kw['title'] = title[it]
      if n_elements(color) ne 0 then p_kw['color'] = color[it]
+     if n_elements(t_string) ne 0 then $
+        tmp_str = t_string[it]
      plt = plot_frame(xdata,ydata, $
                       plot_kw=p_kw, $
                       legend_kw=l_kw, $
                       add_legend=add_legend, $
-                      text_pos=text_pos, $
-                      text_string=text_string, $
+                      text_xyz=text_xyz, $
+                      text_string=tmp_str, $
                       text_format=text_format, $
                       text_kw=t_kw)
      if keyword_set(make_movie) then begin

@@ -62,7 +62,7 @@
 ;    Dictionary of keyword properties accepted by IDL's colorbar.pro,
 ;    with the exception that this routine will automatically set 
 ;    target = img. See also the IDL help page for colorbar.pro.
-; TEXT_POS (default: [0.0, 0.0, 0.0])
+; TEXT_XYZ (default: [0.0, 0.0, 0.0])
 ;    An array containing the x, y, and z positions for text.pro.
 ;    See also the IDL help page for text.pro.
 ; TEXT_STRING (default: none)
@@ -107,17 +107,18 @@ pro image_graphics, imgdata,xdata,ydata, $
                     image_kw=image_kw, $
                     add_colorbar=add_colorbar, $
                     colorbar_kw=colorbar_kw, $
-                    text_pos=text_pos, $
+                    text_xyz=text_xyz, $
                     text_string=text_string, $
                     text_format=text_format, $
                     text_kw=text_kw, $
                     make_movie=make_movie, $
                     make_frame=make_frame
 
-  ;;==Copy input dictionaries
+  ;;==Copy input quantities that may change
   if keyword_set(image_kw) then i_kw = image_kw[*]
   if keyword_set(colorbar_kw) then c_kw = colorbar_kw[*]
   if keyword_set(text_kw) then t_kw = text_kw[*]
+  if keyword_set(text_string) then t_string = text_string
 
   ;;==Make sure target directory exists for movies
   if keyword_set(make_movie) then begin
@@ -133,9 +134,6 @@ pro image_graphics, imgdata,xdata,ydata, $
   ny = data_size[2]
 
   ;;==Defaults and guards
-  if ~keyword_set(log) && n_elements(alog_base) ne 0 then $
-     log = 1B
-  if n_elements(alog_base) eq 0 then alog_base = '10'
   if n_elements(filename) eq 0 then begin
      if keyword_set(make_movie) then filename = 'data_movie.mp4'
      if keyword_set(make_frame) then filename = 'data_frame.pdf'
@@ -166,36 +164,8 @@ pro image_graphics, imgdata,xdata,ydata, $
      endcase
      i_kw.remove, 'title'
   endif
-  if keyword_set(add_colorbar) then begin
-     if isa(add_colorbar,/number) && $
-        add_colorbar eq 1 then orientation = 0 $
-     else if strcmp(add_colorbar,'h',1) then orientation = 0 $
-     else if strcmp(add_colorbar,'v',1) then orientation = 1 $
-     else begin 
-        printf, lun,"[IMAGE_GRAPHICS] Did not recognize value of add_colorbar"
-        add_colorbar = 0B
-     endelse
-  endif
-  if n_elements(text_pos) eq 0 then text_pos = [0.0, 0.0, 0.0] $
-  else if n_elements(text_pos) eq 2 then $
-     text_pos = [text_pos[0], text_pos[1], 0.0]
-  case n_elements(text_string) of
-     0: make_text = 0B
-     1: begin
-        text_string = make_array(nt,value=text_string)
-        make_text = 1B
-     end
-     nt: make_text = 1B
-     else: begin
-        printf, lun,"[IMAGE_GRAPHICS] Cannot use text_string for text."
-        printf, lun,"                 Please provide a single string"
-        printf, lun,"                 or an array with one element per"
-        printf, lun,"                 time step."
-        make_text = 0B
-     end
-  endcase
-  if n_elements(text_format) eq 0 then text_format = 'k'
-  if n_elements(t_kw) eq 0 then t_kw = dictionary()
+  if n_elements(text_string) eq 1 then $
+     t_string = make_array(nt,value=text_string)
 
   ;;==Open video stream
   if keyword_set(make_movie) then begin
@@ -210,12 +180,14 @@ pro image_graphics, imgdata,xdata,ydata, $
   for it=0,nt-1 do begin
      fdata = imgdata[*,*,it]
      if n_elements(title) ne 0 then i_kw['title'] = title[it]
+     if n_elements(t_string) ne 0 then $
+        tmp_str = t_string[it]
      img = image_frame(fdata,xdata,ydata, $
                        image_kw=i_kw, $
                        colorbar_kw=c_kw, $
                        add_colorbar=add_colorbar, $
-                       text_pos=text_pos, $
-                       text_string=text_string, $
+                       text_xyz=text_xyz, $
+                       text_string=tmp_str, $
                        text_format=text_format, $
                        text_kw=t_kw)
      if keyword_set(make_movie) then begin
