@@ -187,7 +187,7 @@ pro eppic_movie, data_name, $
         Ey = fltarr(size(fdata,/dim))
         for it=0,nts-1 do begin
            gradf = gradient(fdata[*,*,it], $
-                            dx=plane.dx, dy=plane.dy)
+                            dx=dx, dy=dy)
            Ex[*,*,it] = -1.0*gradf.x
            Ey[*,*,it] = -1.0*gradf.y
         endfor
