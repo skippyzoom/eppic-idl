@@ -228,6 +228,9 @@ pro plot_graphics, arg1,arg2, $
                       plot_kw=p_kw, $
                       legend_kw=l_kw, $
                       add_legend=add_legend, $
+                      text_pos=text_pos, $
+                      text_string=text_string, $
+                      text_format=text_format, $
                       text_kw=t_kw)
      if keyword_set(make_movie) then begin
         frame = plt.copywindow()

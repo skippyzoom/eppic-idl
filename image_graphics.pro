@@ -214,6 +214,9 @@ pro image_graphics, imgdata,xdata,ydata, $
                        image_kw=i_kw, $
                        colorbar_kw=c_kw, $
                        add_colorbar=add_colorbar, $
+                       text_pos=text_pos, $
+                       text_string=text_string, $
+                       text_format=text_format, $
                        text_kw=t_kw)
      if keyword_set(make_movie) then begin
         frame = img.copywindow()

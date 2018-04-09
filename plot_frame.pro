@@ -53,6 +53,9 @@ function plot_frame, arg1,arg2, $
                      plot_kw=plot_kw, $
                      legend_kw=legend_kw, $
                      add_legend=add_legend, $
+                     text_pos=text_pos, $
+                     text_string=text_string, $
+                     text_format=text_format, $
                      text_kw=text_kw
 
   ;;==Check for x-axis data

@@ -43,6 +43,19 @@
 ;    or 'vert'), to create a colorbar with the corresponding orientation.
 ;    This routine will ignore this keyword if the user passes a 
 ;    dictionary for colorbar_kw.
+; TEXT_POS (default: [0.0, 0.0, 0.0])
+;    An array containing the x, y, and z positions for text.pro.
+;    See also the IDL help page for text.pro.
+; TEXT_STRING (default: none)
+;    The string or string array to print with text.pro. The 
+;    presence or absence of this string determines whether or 
+;    not this routine calls text(). This routine currently only
+;    supports a single string, which it will use at each time 
+;    step, or an array of strings with length equal to the number
+;    of time steps. See also the IDL help page for text.pro.
+; TEXT_FORMAT (default: 'k')
+;    A string that sets the text color using short tokens. See
+;    also the IDL help page for text.pro.
 ; TEXT_KW
 ;    Dictionary of keyword properties accepted by IDL's text.pro. 
 ;    See also the IDL help page for text.pro.
@@ -55,6 +68,9 @@ function image_frame, fdata,xdata,ydata, $
                       image_kw=image_kw, $
                       colorbar_kw=colorbar_kw, $
                       add_colorbar=add_colorbar, $
+                      text_pos=text_pos, $
+                      text_string=text_string, $
+                      text_format=text_format, $
                       text_kw=text_kw
 
   if n_elements(title) ne 0 then image_kw['title'] = title[it]
