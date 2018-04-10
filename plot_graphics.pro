@@ -129,6 +129,12 @@ pro plot_graphics, arg1,arg2, $
      movdata = arg2
   endelse
 
+  ;;==Make sure target directory exists for movies
+  if keyword_set(make_movie) then begin
+     if ~file_test(file_dirname(filename),/directory) then $
+        spawn, 'mkdir -p '+file_dirname(filename)
+  endif
+
   ;;==Get data size
   xsize = size(xdata)
   nx = xsize[1]
