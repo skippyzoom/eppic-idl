@@ -93,11 +93,11 @@ function time_strings, timestep, $
         else: begin
            printf, lun,"[TIME_STRINGS] Could not understand width."
            printf, lun,"               Using default ( '(i06)' ) instead."
-           width = '(i06)'
+           str_fmt = '(i06)'
         end
      endcase
   endif $
-  else width = '(i06)'
+  else str_fmt = '(i06)'
 
   ;;==Create array of indices
   time_index = strcompress(string(timestep, $
