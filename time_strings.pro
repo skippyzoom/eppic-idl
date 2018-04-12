@@ -14,6 +14,9 @@
 ;    the unit prefix to use for time stamps.
 ; PRECISION (default: 0)
 ;    Floating-point precision to use for time steps.
+; WIDTH (default: '(i06)')
+;    Integer width to which to pad time index, or 'auto' to compute
+;    the maximum necessary width from TIMESTEP.
 ; LUN (default: -1)
 ;    Logical unit number for printing runtime messages.
 ;-
@@ -21,6 +24,7 @@ function time_strings, timestep, $
                        dt=dt, $
                        scale=scale, $
                        precision=precision, $
+                       width=width, $
                        lun=lun
 
   ;;==Defaults and guards
@@ -78,8 +82,22 @@ function time_strings, timestep, $
   time_stamp = "t = "+str_time+" "+unit
 
   ;;==Calculate width for time-step indices
-  nt_oom = fix(alog10(timestep[nt-1]))
-  str_fmt = '(i0'+strcompress(nt_oom+1,/remove_all)+')'
+  if keyword_set(width) then begin
+     case 1B of
+        isa(width,/integer): $
+           str_fmt = '(i0'+strcompress(width,/remove_all)+')'
+        strcmp(width,'auto'): begin
+           nt_oom = fix(alog10(timestep[nt-1]))
+           str_fmt = '(i0'+strcompress(nt_oom+1,/remove_all)+')'
+        end
+        else: begin
+           printf, lun,"[TIME_STRINGS] Could not understand width."
+           printf, lun,"               Using default ( '(i06)' ) instead."
+           width = '(i06)'
+        end
+     endcase
+  endif $
+  else width = '(i06)'
 
   ;;==Create array of indices
   time_index = strcompress(string(timestep, $
