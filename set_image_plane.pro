@@ -46,6 +46,7 @@ function set_image_plane, fdata, $
                           rotate=rotate, $
                           path=path, $
                           params=params
+
   ;;==Defaults and guards
   if n_elements(zero_point) eq 0 then zero_point = 0
   if n_elements(axes) eq 0 then axes = 'xy'
@@ -76,10 +77,13 @@ function set_image_plane, fdata, $
   ;;==Get dimensions of data array
   fsize = size(fdata)
   ndim = fsize[0]
+  if ndim eq 2 then nt = 1 $
+  else nt = fsize[ndim]
   nx = fsize[1]
   ny = fsize[2]
-  if ndim eq 4 then nz = fsize[3]
-  nt = fsize[ndim]
+  if ndim eq 4 then nz = fsize[3] $
+  else nz = 1
+  if ndim ne 4 then fdata = reform(fdata,nx,ny,nz,nt)
 
   ;;==Declare the output dictionary
   plane = dictionary()
@@ -91,27 +95,26 @@ function set_image_plane, fdata, $
         plane['dy'] = params.dy*params.nout_avg
         plane['x'] = plane.dx*(x0 + indgen(nx))
         plane['y'] = plane.dy*(y0 + indgen(ny))
-        if ndim eq 4 then fdata = reform(fdata[*,*,zero_point,*])
+        ;; if ndim eq 4 then fdata = reform(fdata[*,*,zero_point,*])
+        fdata = reform(fdata[*,*,zero_point,*],nx,ny,nt)
      end
      strcmp(axes,'xz'): begin
         plane['dx'] = params.dx*params.nout_avg
         plane['dy'] = params.dz*params.nout_avg
         plane['x'] = plane.dx*(x0 + indgen(nx))
         plane['y'] = plane.dz*(z0 + indgen(nz))
-        if ndim eq 4 then fdata = reform(fdata[*,zero_point,*,*])
+        ;; if ndim eq 4 then fdata = reform(fdata[*,zero_point,*,*])
+        fdata = reform(fdata[*,*,zero_point,*],nx,nz,nt)
      end
      strcmp(axes,'yz'): begin
         plane['dx'] = params.dy*params.nout_avg
         plane['dy'] = params.dz*params.nout_avg
         plane['x'] = plane.dy*(y0 + indgen(ny))
         plane['y'] = plane.dz*(z0 + indgen(nz))
-        if ndim eq 4 then fdata = reform(fdata[zero_point,*,*,*])
+        ;; if ndim eq 4 then fdata = reform(fdata[zero_point,*,*,*])
+        fdata = reform(fdata[*,*,zero_point,*],ny,nz,nt)
      end
   endcase
-
-  ;;==Retain singular time dimension
-  if nt eq 1 then fdata = reform(fdata, $
-                                 [size(fdata,/dim),1])
 
   ;;==Rotate data, if requested
   if rotate gt 0 then begin
