@@ -69,7 +69,10 @@ function time_strings, timestep, $
   ts_phys = scale*dt*timestep
 
   ;;==Calculate width for physical time steps
-  ts_oom = fix(alog10(ts_phys[nt-1]))
+  if ts_phys[nt-1] gt 0 then $
+     ts_oom = fix(alog10(ts_phys[nt-1])) $
+  else $
+     ts_oom = 1
   str_fmt = '(f'+ $
             strcompress(ts_oom+1+precision+1,/remove_all)+ $
             '.'+strcompress(precision,/remove_all)+')'
