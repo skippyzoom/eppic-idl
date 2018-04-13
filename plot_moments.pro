@@ -30,6 +30,10 @@ pro plot_moments, moments, $
   if n_elements(lun) eq 0 then lun = -1
   if n_elements(save_path) eq 0 then save_path = './'
 
+  ;;==Ensure that save_path exists
+  if ~file_test(save_path,/directory) then $
+     spawn, 'mkdir -p '+save_path
+
   ;;==Convert moments struct to dictionary
   if isa(moments,'struct') then m_dict = dictionary(moments,/extract)
 
