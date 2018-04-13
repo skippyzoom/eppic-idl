@@ -1,5 +1,5 @@
 ;+
-; This routine plots quantities calculated by analyze_moments.pro
+; This routine plots quantities calculated by read_moments.pro
 ; (e.g., collision frequencies and temperatures).
 ;
 ; Created by Matt Young.
@@ -7,7 +7,7 @@
 ;                                 **PARAMETERS**
 ; MOMENTS (required)
 ;    Struct or dictionary containing moments data, such as returned by
-;    analyze_moments.pro.
+;    read_moments.pro.
 ; LUN (default: -1)
 ;    Logical unit number for printing runtime messages.
 ; PARAMS (default: none)

@@ -36,7 +36,7 @@
 ;    corresponding to physical axes y & -x)
 ;-
 
-function analyze_moments, path=path, $
+function read_moments, path=path, $
                           lun=lun
 
   ;;==Defaults and guards
@@ -332,7 +332,7 @@ function analyze_moments, path=path, $
      return, moment_struct
   endif $
   else begin
-     printf, lun,"[ANALYZE_MOMENTS] Could not read parameter file"
+     printf, lun,"[READ_MOMENTS] Could not read parameter file"
      return, !NULL
   endelse
 end
