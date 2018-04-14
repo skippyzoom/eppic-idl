@@ -69,20 +69,29 @@ function read_ph5, data_name, $
   nout_avg = params.nout_avg
   ndim_space = params.ndim_space
 
-  ;;==Check input ranges
-  ranges_in = ranges
-  ranges = set_ranges(ranges,params=params,path=path)
+  ;; ;;==Check input ranges
+  ;; ranges_in = ranges
+  ;; ranges = set_ranges(ranges,params=params,path=path)
 
-  ;;==Extract x, y, and z ranges
-  x0 = ranges.x0
-  xf = ranges.xf
-  y0 = ranges.y0
-  yf = ranges.yf
-  z0 = ranges.z0
-  zf = ranges.zf
+  ;; ;;==Extract x, y, and z ranges
+  ;; x0 = ranges.x0
+  ;; xf = ranges.xf
+  ;; y0 = ranges.y0
+  ;; yf = ranges.yf
+  ;; z0 = ranges.z0
+  ;; zf = ranges.zf
 
-  ;;==Restore input
-  ranges = ranges_in
+  ;; ;;==Restore input
+  ;; ranges = ranges_in
+
+  ;;==Extract input ranges, for convenience
+  if n_elements(ranges) eq 4 then ranges = [ranges,0,1]
+  x0 = ranges[0]
+  xf = ranges[1]
+  y0 = ranges[2]
+  yf = ranges[3]
+  z0 = ranges[4]
+  zf = ranges[5]
 
   ;;==Trim the dot from file extension pattern
   if strcmp(strmid(ext,0,1),'.') then $
@@ -129,12 +138,6 @@ function read_ph5, data_name, $
   endif
   if dims_eq then begin
      n_dim = ndim_space 
-     ;; x0 = ranges.x0
-     ;; xf = ranges.xf
-     ;; y0 = ranges.y0
-     ;; yf = ranges.yf
-     ;; z0 = ranges.z0
-     ;; zf = ranges.zf
      nxp = xf-x0
      nyp = yf-y0
      nzp = zf-z0

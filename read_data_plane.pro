@@ -102,7 +102,8 @@ function read_data_plane, data_name, $
                    data_isft = data_isft, $
                    data_path = data_path, $
                    info_path = info_path, $
-                   ranges = phys_ranges, $
+                   ;; ranges = phys_ranges, $
+                   ranges = [x0,xf,y0,yf,z0,zf], $
                    /verbose)
 
   ;;==Check dimensions
