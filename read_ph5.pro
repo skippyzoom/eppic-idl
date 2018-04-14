@@ -69,21 +69,6 @@ function read_ph5, data_name, $
   nout_avg = params.nout_avg
   ndim_space = params.ndim_space
 
-  ;; ;;==Check input ranges
-  ;; ranges_in = ranges
-  ;; ranges = set_ranges(ranges,params=params,path=path)
-
-  ;; ;;==Extract x, y, and z ranges
-  ;; x0 = ranges.x0
-  ;; xf = ranges.xf
-  ;; y0 = ranges.y0
-  ;; yf = ranges.yf
-  ;; z0 = ranges.z0
-  ;; zf = ranges.zf
-
-  ;; ;;==Restore input
-  ;; ranges = ranges_in
-
   ;;==Extract input ranges, for convenience
   if n_elements(ranges) eq 4 then ranges = [ranges,0,1]
   x0 = ranges[0]
