@@ -183,6 +183,15 @@ pro plot_graphics, arg1,arg2, $
      endcase
      p_kw.remove, 'color'
   endif
+  if p_kw.haskey('overplot') then begin
+     case n_elements(p_kw.overplot) of
+        0: overplot = make_array(nt,value=0)
+        1: overplot = make_array(nt,value=p_kw.overplot)
+        nt: overplot = p_kw.overplot
+        else: overplot = !NULL
+     endcase
+     p_kw.remove, 'overplot'
+  endif
   if n_elements(t_string) eq 1 then $
      t_string = make_array(nt,value=t_string)
 
@@ -198,8 +207,12 @@ pro plot_graphics, arg1,arg2, $
   ;;==Write data to video stream at each time step
   for it=0,nt-1 do begin
      ydata = movdata[*,it]
-     if n_elements(title) ne 0 then p_kw['title'] = title[it]
-     if n_elements(color) ne 0 then p_kw['color'] = color[it]
+     if n_elements(title) ne 0 then $
+        p_kw['title'] = title[it]
+     if n_elements(color) ne 0 then $
+        p_kw['color'] = color[it]
+     if n_elements(overplot) ne 0 then $
+        p_kw['overplot'] = overplot[it]
      if n_elements(t_string) ne 0 then $
         tmp_str = t_string[it]
      plt = plot_frame(xdata,ydata, $
