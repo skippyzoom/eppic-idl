@@ -92,8 +92,17 @@ function read_ph5_plane, data_name, $
   ndim_space = params.ndim_space
 
   ;;==Default ranges (requires simulation dimensions)
-  if n_elements(ranges) eq 0 then ranges = [0,nx/nout_avg, $
-                                            0,ny/nout_avg]
+  if n_elements(ranges) eq 0 then begin
+     case 1B of
+        strcmp(axes,'xy') || strcmp(axes,'yx'): $
+           ranges = [0,params.nx*params.nsubdomains,0,params.ny]
+        strcmp(axes,'xz') || strcmp(axes,'zx'): $
+           ranges = [0,params.nx*params.nsubdomains,0,params.nz]
+        strcmp(axes,'yz') || strcmp(axes,'zy'): $
+           ranges = [0,params.ny,0,params.nz]
+     endcase
+     if ~keyword_set(data_isft) then ranges /= params.nout_avg
+  endif
   if ranges[1] lt ranges[0] then $
      message, "Must have ranges[0] ("+string(ranges[1])+ $
               ") < ranges[1] ("+string(ranges[0])+")"
@@ -143,80 +152,22 @@ function read_ph5_plane, data_name, $
 
   if n_elements(tmp) ne 0 && ndim_full eq ndim_space then begin
      n_dim = 2
-     case 1B of
-        strcmp(axes,'xy') || strcmp(axes,'yx'): begin
-           if keyword_set(normal) then begin
-              x0 = ranges[0]*nx
-              xf = ranges[1]*nx
-              y0 = ranges[2]*ny
-              yf = ranges[3]*ny
-           endif $
-           else begin
-              x0 = ranges[0]
-              xf = ranges[1]
-              y0 = ranges[2]
-              yf = ranges[3]
-           endelse
-           ind_x = 0
-           ind_y = 1
-           nx = params.nx*params.nsubdomains
-           ny = params.ny
-           h5_start = [x0,y0,0]
-           h5_count = reverse([xf,yf,1])
-        end
-        strcmp(axes,'xz') || strcmp(axes,'zx'): begin
-           if keyword_set(normal) then begin
-              x0 = ranges[0]*nx
-              xf = ranges[1]*nx
-              y0 = ranges[2]*nz
-              yf = ranges[3]*nz
-           endif $
-           else begin
-              x0 = ranges[0]
-              xf = ranges[1]
-              y0 = ranges[2]
-              yf = ranges[3]
-           endelse
-           ind_x = 0
-           ind_y = 2
-           nx = params.nx*params.nsubdomains
-           ny = params.nz
-           h5_start = [x0,0,y0]
-           h5_count = reverse([xf,1,yf])
-        end
-        strcmp(axes,'yz') || strcmp(axes,'zy'): begin
-           if keyword_set(normal) then begin
-              x0 = ranges[0]*ny
-              xf = ranges[1]*ny
-              y0 = ranges[2]*nz
-              yf = ranges[3]*nz
-           endif $
-           else begin
-              x0 = ranges[0]
-              xf = ranges[1]
-              y0 = ranges[2]
-              yf = ranges[3]
-           endelse
-           ind_x = 1
-           ind_y = 2
-           nx = params.ny
-           ny = params.nz
-           h5_start = [0,x0,y0]
-           h5_count = reverse([1,xf,yf])
-        end
-     endcase
+     plane = build_reference_plane(axes, $
+                                   ranges = ranges, $
+                                   params = params, $
+                                   normal = normal)
 
      if keyword_set(data_isft) then begin
         ft_template = {ikx:0, iky:0, val:complex(0)}
      endif $
      else begin
-        nx /= nout_avg
-        ny /= nout_avg
+        plane.nx /= nout_avg
+        plane.ny /= nout_avg
      endelse
-     x0 = fix(x0)
-     xf = fix(xf)
-     y0 = fix(y0)
-     yf = fix(yf)
+     x0 = fix(plane.x0)
+     xf = fix(plane.xf)
+     y0 = fix(plane.y0)
+     yf = fix(plane.yf)
      nxp = xf-x0
      nyp = yf-y0
      data = make_array(nxp,nyp,nt,type=data_type)
@@ -252,8 +203,8 @@ function read_ph5_plane, data_name, $
               ;;==Assign to intermediate struct
               ft_struct = replicate(ft_template,tmp_len)
               ft_struct.val = reform(tmp_cplx)
-              ft_struct.iky = reform(tmp_ind[ind_x,*])
-              ft_struct.ikx = reform(tmp_ind[ind_y,*])              
+              ft_struct.iky = reform(tmp_ind[plane.ind_x,*])
+              ft_struct.ikx = reform(tmp_ind[plane.ind_y,*])              
               ;;==Free temporary variables
               tmp_data = !NULL
               tmp_ind = !NULL
@@ -271,7 +222,7 @@ function read_ph5_plane, data_name, $
                  ft_array = reform(ft_array,ft_size[1],1)
               ft_size = size(ft_array)
               ft_struct = !NULL
-              full_array = complexarr(nx,ny)
+              full_array = complexarr(plane.nx,plane.ny)
               full_array[0:ft_size[2]-1,0:ft_size[1]-1] = $
                  transpose(ft_array,[1,0])
               ft_array = !NULL              
@@ -286,8 +237,8 @@ function read_ph5_plane, data_name, $
            ;;==Read data set
            tmp = get_h5_data(h5_file[it],data_name, $
                              lun = lun, $
-                             start = h5_start, $
-                             count = h5_count)
+                             start = plane.h5_start, $
+                             count = plane.h5_count)
            ;;==Assign to return array
            if n_elements(tmp) ne 0 then begin
               data[*,*,it] = (transpose(tmp,[1,0]))[x0:xf-1,y0:yf-1]
@@ -303,6 +254,7 @@ function read_ph5_plane, data_name, $
                 strcompress(nt,/remove_all)," files."
 
      if n_elements(data) eq 0 then data = !NULL
+     plane = !NULL
      return, data
 
   endif $                       ;n_dims eq 2 or 3
