@@ -148,9 +148,11 @@ pro plot_graphics, arg1,arg2, $
      if keyword_set(make_frame) then filename = 'data_frame.pdf'
   endif
   if keyword_set(make_frame) && $
-     n_elements(filename) eq 1 && $
-     ~p_kw.haskey('overplot') then $
-     filename = make_array(nt,value=filename)
+     ~p_kw.haskey('overplot') && $
+     n_elements(filename) eq 1 && nt gt 1 then $
+        filename = strip_extension(filename)+ $
+                   '-'+strcompress(sindgen(nt),/remove_all)+ $
+                   '.'+get_extension(filename)
   if n_elements(framerate) eq 0 then framerate = 20
   if n_elements(xdata) eq 0 then xdata = indgen(nx)
   if n_elements(resize) eq 0 then resize = [1.0, 1.0]

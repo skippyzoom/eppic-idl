@@ -138,8 +138,11 @@ pro image_graphics, imgdata,xdata,ydata, $
      if keyword_set(make_movie) then filename = 'data_movie.mp4'
      if keyword_set(make_frame) then filename = 'data_frame.pdf'
   endif
-  if keyword_set(make_frame) && n_elements(filename) eq 1 then $
-     filename = make_array(nt,value=filename)
+  if keyword_set(make_frame) && $
+     n_elements(filename) eq 1 && nt gt 1 then $
+        filename = strip_extension(filename)+ $
+                   '-'+strcompress(sindgen(nt),/remove_all)+ $
+                   '.'+get_extension(filename)
   if n_elements(framerate) eq 0 then framerate = 20
   if n_elements(xdata) eq 0 then xdata = indgen(nx)
   if n_elements(ydata) eq 0 then ydata = indgen(ny)
