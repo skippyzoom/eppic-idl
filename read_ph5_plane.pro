@@ -18,10 +18,12 @@
 ;    The name of the data quantity to read. If the data
 ;    does not exist, read_ph5_plane.pro will return 0
 ;    and this routine will exit gracefully.
+; TIMESTEP (default: all available files)
+;    Simulation time steps at which to read data. Even though this
+;    function doesn't set an explicit default, its default
+;    behavior (via file_search) is to read all available time steps.
 ; EXT (default: 'h5')
 ;    File extension of data to read.
-; TIMESTEP (default: none)
-;    Simulation time steps at which to read data.
 ; AXES (default: 'xy')
 ;    Simulation axes to extract from HDF data. If the
 ;    simulation is 2 D, read_ph5_plane.pro will ignore
@@ -86,9 +88,6 @@ function read_ph5_plane, data_name, $
   params = set_eppic_params(path=info_path)
 
   ;;==Extract global dimensions from parameters
-  ;; nx = params.nx*params.nsubdomains
-  ;; ny = params.ny
-  ;; nz = params.nz
   nout_avg = params.nout_avg
   ndim_space = params.ndim_space
 
@@ -162,6 +161,8 @@ function read_ph5_plane, data_name, $
            ind_y = 1
            nx = params.nx*params.nsubdomains
            ny = params.ny
+           h5_start = [x0,y0,0]
+           h5_count = reverse([xf,yf,1])
         end
         strcmp(axes,'xz') || strcmp(axes,'zx'): begin
            if keyword_set(normal) then begin
@@ -180,6 +181,8 @@ function read_ph5_plane, data_name, $
            ind_y = 2
            nx = params.nx*params.nsubdomains
            ny = params.nz
+           h5_start = [x0,0,y0]
+           h5_count = reverse([xf,1,yf])
         end
         strcmp(axes,'yz') || strcmp(axes,'zy'): begin
            if keyword_set(normal) then begin
@@ -198,21 +201,15 @@ function read_ph5_plane, data_name, $
            ind_y = 2
            nx = params.ny
            ny = params.nz
+           h5_start = [0,x0,y0]
+           h5_count = reverse([1,xf,yf])
         end
      endcase
 
      if keyword_set(data_isft) then begin
-        ;; if ndim_space eq 2 then $
-        ;;    ft_template = {ikx:0, iky:0, val:complex(0)} $
-        ;; else $
-        ;;    ft_template = {ikx:0, iky:0, ikz:0, val:complex(0)}
         ft_template = {ikx:0, iky:0, val:complex(0)}
      endif $
      else begin
-        ;; x0 /= nout_avg
-        ;; xf /= nout_avg
-        ;; y0 /= nout_avg
-        ;; yf /= nout_avg
         nx /= nout_avg
         ny /= nout_avg
      endelse
@@ -255,11 +252,6 @@ function read_ph5_plane, data_name, $
               ;;==Assign to intermediate struct
               ft_struct = replicate(ft_template,tmp_len)
               ft_struct.val = reform(tmp_cplx)
-              ;; switch n_dim of 
-              ;;    3: ft_struct.ikz = reform(tmp_ind[2,*])
-              ;;    2: ft_struct.iky = reform(tmp_ind[1,*])
-              ;;    1: ft_struct.ikx = reform(tmp_ind[0,*])
-              ;; endswitch
               ft_struct.iky = reform(tmp_ind[ind_x,*])
               ft_struct.ikx = reform(tmp_ind[ind_y,*])              
               ;;==Free temporary variables
@@ -272,25 +264,6 @@ function read_ph5_plane, data_name, $
                  tmp_range[id,1] = max(ft_struct.(id))
               endfor
               ft_array = complexarr(tmp_range[*,1]-tmp_range[*,0]+1)
-              ;; case ndim_space of 
-              ;;    3: begin
-              ;;       ft_array[ft_struct.ikx,ft_struct.iky,ft_struct.ikz] = $
-              ;;          ft_struct.val
-              ;;       ft_size = size(ft_array)
-              ;;       if ft_size[0] eq 2 then $
-              ;;          ft_array = reform(ft_array,ft_size[1],ft_size[2],1) $
-              ;;       else if ft_size[0] eq 1 then $
-              ;;          ft_array = reform(ft_array,ft_size[1],1,1)
-              ;;    end
-              ;;    2: begin
-              ;;       ft_array[ft_struct.ikx,ft_struct.iky] = $
-              ;;          ft_struct.val
-              ;;       ft_size = size(ft_array)
-              ;;       if ft_size[0] eq 1 then $
-              ;;          ft_array = reform(ft_array,ft_size[1],1)
-              ;;    end
-              ;;    1: ft_array[ft_struct.ikx] = ft_struct.val
-              ;; endcase
               ft_array[ft_struct.ikx,ft_struct.iky] = $
                  ft_struct.val
               ft_size = size(ft_array)
@@ -298,38 +271,6 @@ function read_ph5_plane, data_name, $
                  ft_array = reform(ft_array,ft_size[1],1)
               ft_size = size(ft_array)
               ft_struct = !NULL
-              ;; full_size = [ndim_space,nx,ny,nz]
-              ;; case ndim_space of
-              ;;    2: begin
-              ;;       full_array = complexarr(full_size[1], $
-              ;;                               full_size[2])
-              ;;       full_array[0:ft_size[1]-1,0:ft_size[2]-1] = ft_array
-              ;;       ft_array = !NULL              
-              ;;       full_array = shift(full_array,[1,1])
-              ;;       full_array = conj(full_array)
-              ;;       data[*,*,it] = full_array[x0:xf-1,y0:yf-1]
-              ;;    end
-              ;;    3: begin
-              ;;       full_array = complexarr(full_size[1], $
-              ;;                               full_size[2],full_size[3])
-              ;;       full_array[0:ft_size[1]-1, $
-              ;;                  0:ft_size[2]-1,0:ft_size[3]-1] = ft_array
-              ;;       ft_array = !NULL                 
-              ;;       full_array = shift(full_array,[1,1,0])
-              ;;       full_array = conj(full_array)
-              ;;       case 1B of 
-              ;;          strcmp(axes,'xy') || strcmp(axes,'yx'): $
-              ;;             data[*,*,it] = $
-              ;;             reform(full_array[x0:xf-1,y0:yf-1,zero_point])
-              ;;          strcmp(axes,'xz') || strcmp(axes,'zx'): $
-              ;;             data[*,*,it] = $
-              ;;             reform(full_array[x0:xf-1,zero_point,y0:yf-1])
-              ;;          strcmp(axes,'yz') || strcmp(axes,'zy'): $
-              ;;             data[*,*,it] = $
-              ;;             reform(full_array[zero_point,x0:xf-1,y0:yf-1])
-              ;;       endcase
-              ;;    end
-              ;; endcase              ;data dimensions
               full_array = complexarr(nx,ny)
               full_array[0:ft_size[2]-1,0:ft_size[1]-1] = $
                  transpose(ft_array,[1,0])
@@ -343,27 +284,13 @@ function read_ph5_plane, data_name, $
      else begin
         for it=0,nt-1 do begin
            ;;==Read data set
-           tmp = get_h5_data(h5_file[it],data_name)
+           tmp = get_h5_data(h5_file[it],data_name, $
+                             lun = lun, $
+                             start = h5_start, $
+                             count = h5_count)
            ;;==Assign to return array
            if n_elements(tmp) ne 0 then begin
-              case ndim_space of
-                 2: data[*,*,it] = $
-                    (transpose(tmp,[1,0]))[x0:xf-1,y0:yf-1]
-                 3: begin
-                    tmp = transpose(tmp,[2,1,0])
-                    case 1B of 
-                       strcmp(axes,'xy') || strcmp(axes,'yx'): $
-                          data[*,*,it] = $
-                          reform(tmp[x0:xf-1,y0:yf-1,zero_point])
-                       strcmp(axes,'xz') || strcmp(axes,'zx'): $
-                          data[*,*,it] = $
-                          reform(tmp[x0:xf-1,zero_point,y0:yf-1])
-                       strcmp(axes,'yz') || strcmp(axes,'zy'): $
-                          data[*,*,it] = $
-                          reform(tmp[zero_point,x0:xf-1,y0:yf-1])
-                    endcase                    
-                 end
-              endcase
+              data[*,*,it] = (transpose(tmp,[1,0]))[x0:xf-1,y0:yf-1]
            endif else null_count++ ;tmp_data exists?
            tmp = !NULL             ;time step loop
         endfor
