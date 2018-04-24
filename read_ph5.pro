@@ -70,6 +70,9 @@ function read_ph5, data_name, $
   ndim_space = params.ndim_space
 
   ;;==Extract input ranges, for convenience
+  if n_elements(ranges) eq 0 then ranges = [0,nx/nout_avg, $
+                                            0,ny/nout_avg, $
+                                            0,nz/nout_avg]
   if n_elements(ranges) eq 4 then ranges = [ranges,0,1]
   x0 = ranges[0]
   xf = ranges[1]
