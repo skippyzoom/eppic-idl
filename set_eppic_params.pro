@@ -34,6 +34,7 @@ function set_eppic_params, path=path
      if ~params.haskey('coll_rate0') then params.coll_rate0 = 0.0
      if ~params.haskey('coll_rate1') then params.coll_rate1 = 0.0
      if ~params.haskey('hdf_output_arrays') then params.hdf_output_arrays = 0
+     if ~params.haskey('full_array_nout') then params.full_array_nout = 0
      if ~params.haskey('efield_algorithm') then params.efield_algorithm = 0
      if ~params.haskey('Ex0_external') then params.Ex0_external = 0.0
      if ~params.haskey('Ey0_external') then params.Ey0_external = 0.0
