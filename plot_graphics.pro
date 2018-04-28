@@ -162,11 +162,13 @@ pro plot_graphics, arg1,arg2, $
      else p_kw = dictionary()
   endif
   if isa(p_kw,'struct') then p_kw = dictionary(p_kw,/extract)
-  if ~p_kw.haskey('dimensions') then $
-     p_kw['dimensions'] = [nx,ny]
-  tmp = [p_kw.dimensions[0]*resize[0], $
-         p_kw.dimensions[1]*resize[1]]
-  p_kw.dimensions = tmp
+  if keyword_set(make_movie) then begin
+     if ~p_kw.haskey('dimensions') then $
+        p_kw['dimensions'] = [nx,ny]
+     tmp = [p_kw.dimensions[0]*resize[0], $
+            p_kw.dimensions[1]*resize[1]]
+     p_kw.dimensions = tmp
+  endif
   if p_kw.haskey('title') then begin
      case n_elements(p_kw.title) of
         0: title = make_array(nt,value='')
