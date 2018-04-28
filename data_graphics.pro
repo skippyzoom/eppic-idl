@@ -37,7 +37,7 @@ pro data_graphics, arg1,arg2,arg3, $
         size2 = size(arg2)
         if size2[0] eq 2 then begin
 
-           ;;==Make movie from plot frames
+           ;;==Make graphics from plot frames
            plot_graphics, arg1,arg2, $
                           lun=lun, $
                           _EXTRA=ex
@@ -47,7 +47,7 @@ pro data_graphics, arg1,arg2,arg3, $
      end
      2: begin
 
-        ;;==Make movie from plot frames
+        ;;==Make graphics from plot frames
         plot_graphics, arg1, $
                        lun=lun, $
                        _EXTRA=ex
@@ -59,7 +59,7 @@ pro data_graphics, arg1,arg2,arg3, $
         case 1B of
            (size2[0] eq 1 and size3[0] eq 1): begin
 
-              ;;==Make movie from image frames
+              ;;==Make graphics from image frames
               image_graphics, arg1,arg2,arg3, $
                               lun=lun, $
                               _EXTRA=ex
@@ -67,7 +67,7 @@ pro data_graphics, arg1,arg2,arg3, $
            end
            (size2[0] eq 0 and size3[0] eq 0): begin
 
-              ;;==Make movie from image frames
+              ;;==Make graphics from image frames
               movdata = arg1
               image_graphics, movdata, $
                               lun=lun, $
