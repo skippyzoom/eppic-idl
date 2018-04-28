@@ -153,17 +153,14 @@ function read_ph5_plane, data_name, $
   if n_elements(tmp) ne 0 && ndim_full eq ndim_space then begin
      n_dim = 2
      plane = build_reference_plane(axes, $
+                                   ndim_space, $
+                                   data_isft = data_isft, $
                                    ranges = ranges, $
                                    params = params, $
                                    normal = normal)
 
-     if keyword_set(data_isft) then begin
+     if keyword_set(data_isft) then $
         ft_template = {ikx:0, iky:0, val:complex(0)}
-     endif $
-     else begin
-        plane.nx /= nout_avg
-        plane.ny /= nout_avg
-     endelse
      x0 = fix(plane.x0)
      xf = fix(plane.xf)
      y0 = fix(plane.y0)
@@ -226,7 +223,7 @@ function read_ph5_plane, data_name, $
               full_array[0:ft_size[2]-1,0:ft_size[1]-1] = $
                  transpose(ft_array,[1,0])
               ft_array = !NULL              
-              full_array = shift(full_array,[1,1])
+              ;; full_array = shift(full_array,[1,1])
               full_array = conj(full_array)
               data[*,*,it] = full_array[x0:xf-1,y0:yf-1]
            endif else null_count++ ;tmp_data exists?
