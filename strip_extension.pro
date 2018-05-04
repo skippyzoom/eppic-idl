@@ -11,6 +11,9 @@
 ; NAME (required)
 ;    String file name or array of string file names from which to
 ;    strip extension.
+; <return>
+;    String file name or array of string file names without a trailing
+;    extension.
 ;------------------------------------------------------------------------------
 ;                                   **NOTES**
 ; -- This function will return NAME unmodified if it does not find an
