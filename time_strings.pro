@@ -82,7 +82,7 @@ function time_strings, timestep, $
                                 format=str_fmt),/remove_all)
 
   ;;==Create array of time stamps
-  time_stamp = "t = "+str_time+" "+unit
+  time_stamp = str_time+" "+unit
 
   ;;==Calculate width for time-step indices
   if keyword_set(width) then begin
