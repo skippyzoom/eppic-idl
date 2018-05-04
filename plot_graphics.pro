@@ -78,7 +78,7 @@
 ;    See also the IDL help page for text.pro.
 ;------------------------------------------------------------------------------
 ;                                   **NOTES**
-; -- This routine assumes the final dimension of movdata 
+; -- This routine assumes the final dimension of pltdata 
 ;    is the time-step dimension. 
 ; -- This routine makes local copies of plot_kw, legend_kw, and
 ;    text_kw so it can make local changes to dictionary members
@@ -120,13 +120,13 @@ pro plot_graphics, arg1,arg2, $
 
   ;;==Check for x-axis data
   if n_elements(arg2) eq 0 then begin
-     movdata = arg1
-     msize = size(movdata)
+     pltdata = arg1
+     msize = size(pltdata)
      xdata = lindgen(msize[1])
   endif $
   else begin
      xdata = arg1
-     movdata = arg2
+     pltdata = arg2
   endelse
 
   ;;==Make sure target directory exists for movies
@@ -138,7 +138,7 @@ pro plot_graphics, arg1,arg2, $
   ;;==Get data size
   xsize = size(xdata)
   nx = xsize[1]
-  ysize = size(movdata)
+  ysize = size(pltdata)
   ny = ysize[1]
   nt = ysize[2]
 
@@ -210,7 +210,7 @@ pro plot_graphics, arg1,arg2, $
 
   ;;==Write data to video stream at each time step
   for it=0,nt-1 do begin
-     ydata = movdata[*,it]
+     ydata = pltdata[*,it]
      if n_elements(title) ne 0 then $
         p_kw['title'] = title[it]
      if n_elements(color) ne 0 then $
