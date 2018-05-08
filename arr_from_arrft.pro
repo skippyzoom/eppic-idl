@@ -9,7 +9,7 @@
 ;    The EPPIC FT array to invert.
 ; LUN (default: -1)
 ;    Logical unit number for printing informational messages.
-; ROTATE
+; ROTATE (default: 0)
 ;    Integer multiple of 90 degrees by which to rotate the transformed
 ;    array (with optional transpose). See the man page for
 ;    IDL's rotate() for more information.
