@@ -1,11 +1,9 @@
 ;+
-; Attempts to determine how many time steps are 
-; available for a simulation run. Designed to 
-; handle typical PPIC3D or EPPIC runs.
+; Attempts to determine how many time steps are available for a
+; simulation run. Designed to handle typical PPIC3D or EPPIC runs.
 ;
-; The CASE structure is designed to test the most 
-; common cases first, for the sake of efficiency,
-; but the speed-up may be negligible.
+; The CASE structure is designed to test the most common cases first,
+; for the sake of efficiency, but the speed-up may be negligible.
 ;
 ; Created by Matt Young.
 ;------------------------------------------------------------------------------
