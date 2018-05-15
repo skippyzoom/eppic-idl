@@ -40,6 +40,11 @@
 ;    This parameter can be a scalar, in which case this routine
 ;    will apply the same value to both axes, or it can be a vector
 ;    with one value for each axis. 
+; OVERPLOT (default: unset)
+;    Setting this keyword causes frames after the first frame to be
+;    over-plot onto the first frame. It is equivalent to setting
+;    plot_kw['overplot'] = [0,1,1,...,1]. Setting this keyword will
+;    overwrite the value of plot_kw['overplot'] if one exists.
 ; PLOT_KW (default: none)
 ;    Dictionary of keyword properties accepted by IDL's plot.pro.
 ;    Unlike plot.pro, the 'title' parameter may consist of one
@@ -102,6 +107,7 @@ pro plot_graphics, arg1,arg2, $
                    filename=filename, $
                    framerate=framerate, $
                    resize=resize, $
+                   overplot=overplot, $
                    plot_kw=plot_kw, $
                    add_legend=add_legend, $
                    legend_kw=legend_kw, $
@@ -146,6 +152,12 @@ pro plot_graphics, arg1,arg2, $
   if n_elements(filename) eq 0 then begin
      if keyword_set(make_movie) then filename = 'data_movie.mp4'
      if keyword_set(make_frame) then filename = 'data_frame.pdf'
+  endif
+  if keyword_set(overplot) then begin
+     tmp = make_array(nt,value = 1B)
+     tmp[0] = 0B
+     p_kw['overplot'] = tmp
+     tmp = !NULL
   endif
   if keyword_set(make_frame) && $
      ~p_kw.haskey('overplot') && $
