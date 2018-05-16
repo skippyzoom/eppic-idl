@@ -129,6 +129,7 @@ function image_frame, fdata,xdata,ydata, $
      txt = text(text_xyz[0],text_xyz[1],text_xyz[2], $
                 text_string, $
                 text_format, $
+                target = plt, $
                 _EXTRA = text_kw.tostruct())
   endif
 
