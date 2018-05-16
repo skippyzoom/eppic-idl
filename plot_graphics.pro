@@ -191,7 +191,8 @@ pro plot_graphics, arg1,arg2, $
      p_kw.remove, 'title'
   endif
   if p_kw.haskey('color') then begin
-     case n_elements(p_kw.color) of
+     csize = size(p_kw.color)
+     case csize[1] of
         0: color = make_array(nt,value='black')
         1: color = make_array(nt,value=p_kw.color)
         nt: color = p_kw.color
@@ -207,6 +208,15 @@ pro plot_graphics, arg1,arg2, $
         else: overplot = !NULL
      endcase
      p_kw.remove, 'overplot'
+  endif
+  if p_kw.haskey('name') then begin
+     case n_elements(p_kw.name) of
+        0: name = make_array(nt,value='')
+        1: name = make_array(nt,value=p_kw.name)
+        nt: name = p_kw.name
+        else: name = !NULL
+     endcase
+     p_kw.remove, 'name'
   endif
   if n_elements(t_string) eq 1 then $
      t_string = make_array(nt,value=t_string)
@@ -226,9 +236,11 @@ pro plot_graphics, arg1,arg2, $
      if n_elements(title) ne 0 then $
         p_kw['title'] = title[it]
      if n_elements(color) ne 0 then $
-        p_kw['color'] = color[it]
+        p_kw['color'] = transpose(color[it,*])
      if n_elements(overplot) ne 0 then $
         p_kw['overplot'] = overplot[it]
+     if n_elements(name) ne 0 then $
+        p_kw['name'] = name[it]
      if n_elements(t_string) ne 0 then $
         tmp_str = t_string[it]
      plt = plot_frame(xdata,ydata, $
