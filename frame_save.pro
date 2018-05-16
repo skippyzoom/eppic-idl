@@ -13,12 +13,21 @@
 ;                                 **PARAMETERS**
 ; FRAME (required)
 ;    The object reference returned by a call to image() or plot().
-; FILENAME (default: 'new_frame.png')
-;    The name that the resultant graphics file will have.
 ; LUN (default: -1)
 ;    Logical unit number for printing runtime messages.
+; FILENAME (default: 'new_frame.png')
+;    The name that the resultant graphics file will have.
 ;-
-pro frame_save, frame,filename=filename,lun=lun,_EXTRA=ex
+pro frame_save, frame, $
+                lun=lun, $
+                filename=filename, $
+                ;; time_stamp=time_stamp, $
+                ;; path_stamp=path_stamp, $
+                text_xyz=text_xyz, $
+                text_string=text_string, $
+                text_format=text_format, $
+                text_kw=text_kw, $
+                _EXTRA=ex
 
   ;;==List IDL-supported file types
   types = ['bmp', $                ;Windows bitmap
@@ -38,6 +47,11 @@ pro frame_save, frame,filename=filename,lun=lun,_EXTRA=ex
   ;;==Defaults and guards
   if n_elements(lun) eq 0 then lun = -1
   if n_elements(filename) eq 0 then filename = 'new_frame.png'
+  if keyword_set(time_stamp) || keyword_set(path_stamp) then begin
+     if n_elements(text_xyz) eq 0 then text_xyz = [0,0,0]
+     ;; if n_elements(text_string) eq 0 then text_string = ''
+     if n_elements(text_format) eq 0 then text_format = 'k'
+  endif
 
   ;;==Make sure target directory exists
   if ~file_test(file_dirname(filename),/directory) then $
@@ -59,6 +73,17 @@ pro frame_save, frame,filename=filename,lun=lun,_EXTRA=ex
         printf, lun,"             Did not save ",filename,"."
      end
      1: begin
+        ;; if keyword_set(path_stamp) then $
+        ;;    !NULL = text(text_xyz[0],text_xyz[1],text_xyz[2], $
+        ;;                 path_stamp,text_format, $
+        ;;                )
+        if n_elements(text_string) ne 0 then begin
+           txt = text(text_xyz[0],text_xyz[1],text_xyz[2], $
+                      text_string, $
+                      text_format, $
+                      target = frame, $
+                      _EXTRA = text_kw.tostruct())
+        endif
         printf, lun,"[FRAME_SAVE] Saving ",filename,"..."
         frame.save, filename,_EXTRA=ex
         if strcmp(ext,'pdf') || strcmp(ext,'gif') then frame.close
