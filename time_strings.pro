@@ -19,6 +19,9 @@
 ;    the maximum necessary width from TIMESTEP.
 ; LUN (default: -1)
 ;    Logical unit number for printing runtime messages.
+; <return>
+;    Struct containing an array of time-step strings with an
+;    appropriate unit and an array of zero-padded time-index strings.
 ;-
 function time_strings, timestep, $
                        dt=dt, $
