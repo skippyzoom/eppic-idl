@@ -84,6 +84,12 @@ function read_ph5_plane, data_name, $
                         strpos(data_path,'parallel',/reverse_search))
   if n_elements(lun) eq 0 then lun = -1
 
+  ;;==Echo data path
+  if keyword_set(verbose) then begin
+     printf, lun,"[READ_PH5_PLANE] Data path: "
+     printf, lun,"                 "+data_path
+  endif
+
   ;;==Read in run parameters
   params = set_eppic_params(path=info_path)
 
