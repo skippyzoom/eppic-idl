@@ -87,7 +87,7 @@ function read_ph5_plane, data_name, $
   ;;==Echo data path
   if keyword_set(verbose) then begin
      printf, lun,"[READ_PH5_PLANE] Data path: "
-     printf, lun,"                 "+data_path
+     printf, lun,"                 "+expand_path(data_path)
   endif
 
   ;;==Read in run parameters
