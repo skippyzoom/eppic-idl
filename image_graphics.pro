@@ -134,6 +134,7 @@ pro image_graphics, imgdata,xdata,ydata, $
   ny = data_size[2]
 
   ;;==Defaults and guards
+  if n_elements(lun) eq 0 then lun = -1
   if n_elements(filename) eq 0 then begin
      if keyword_set(make_movie) then filename = 'data_movie.mp4'
      if keyword_set(make_frame) then filename = 'data_frame.pdf'
