@@ -31,7 +31,8 @@ function weighted_moments, values,weights, $
 
   ;;==Check size of values and weights
   if n_elements(values) ne n_elements(weights) then begin
-     printf, lun, "Must have same number of values and weights."
+     printf, lun, "[WEIGHTED_MOMENTS] Error: Must have same number of "+ $
+             "values and weights."
      return, !NULL
   endif $
   else begin
@@ -84,4 +85,6 @@ function weighted_moments, values,weights, $
      ;;==Return array of moments
      return, wm
 
-  end
+  endelse
+
+end
