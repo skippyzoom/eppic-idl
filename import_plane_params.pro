@@ -23,6 +23,8 @@
 ; DATA_ISFT (default: unset)
 ;    Boolean keyword indicating whether or not the target data is
 ;    EPPIC Fourier-transformed output.
+; <return>
+;    Struct containing imported parameters.
 ;-
 function import_plane_params, path=path, $
                               lun=lun, $
