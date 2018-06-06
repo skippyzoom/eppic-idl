@@ -10,6 +10,8 @@
 ;                                 **PARAMETERS**
 ; PATH (default: './')
 ;    Path in which to search for files used to compute nt_max.
+; LUN (default: -1)
+;    Logical unit number for printing runtime messages.
 ; VERBOSE (default: unset)
 ;    Print runtime information.
 ; <return>
@@ -21,7 +23,9 @@
 ;    when only transfering a subset of files from another
 ;    system (e.g. Stampede).
 ;-
-function calc_timesteps, path=path,verbose=verbose
+function calc_timesteps, path=path, $
+                         lun=lun, $
+                         verbose=verbose
   
   ;;==Set default path
   if n_elements(path) eq 0 then path = './'
@@ -35,33 +39,38 @@ function calc_timesteps, path=path,verbose=verbose
      file_test(expand_path(path+path_sep()+'moments1.out')): begin
         nt_max = file_lines(expand_path(path+path_sep()+'moments1.out'))-1
         if keyword_set(verbose) then $
-           print, "[CALC_TIMESTEPS] Computed max time steps from moments1.out"
+           printf, lun, $
+                   "[CALC_TIMESTEPS] Computed max time steps from moments1.out"
      end
      file_test(expand_path(path+path_sep()+'moments0.out')): begin
         nt_max = file_lines(expand_path(path+path_sep()+'moments0.out'))-1
         if keyword_set(verbose) then $
-           print, "[CALC_TIMESTEPS] Computed max time steps from moments0.out"
+           printf, lun, $
+                   "[CALC_TIMESTEPS] Computed max time steps from moments0.out"
      end
      file_test(expand_path(path+path_sep()+'domain000/moments1.out')): begin
         nt_max = file_lines(expand_path(path+path_sep()+ $
                                         'domain000/moments1.out'))-1
         if keyword_set(verbose) then $
-           print, "[CALC_TIMESTEPS] Computed max time steps from "+ $
-                  "domain000/moments1.out"
+           printf, lun, $
+                   "[CALC_TIMESTEPS] Computed max time steps from "+ $
+                   "domain000/moments1.out"
      end
      file_test(expand_path(path+path_sep()+'domain000/moments0.out')): begin
         nt_max = file_lines(expand_path(path+path_sep()+ $
                                         'domain000/moments0.out'))-1
         if keyword_set(verbose) then $
-           print, "[CALC_TIMESTEPS] Computed max time steps from " +$
-                  "domain000/moments0.out"
+           printf, lun, $
+                   "[CALC_TIMESTEPS] Computed max time steps from " +$
+                   "domain000/moments0.out"
      end
      file_test(expand_path(path+path_sep()+'parallel'),/directory): begin
         !NULL = file_search(expand_path(path+path_sep()+ $
                                         'parallel/*.h5'),count=count)
         nt_max = count
         if keyword_set(verbose) then $
-           print, "[CALC_TIMESTEPS] Computed max time steps from parallel/*.h5"
+           printf, lun, $
+                   "[CALC_TIMESTEPS] Computed max time steps from parallel/*.h5"
      end
      file_test(expand_path(path+path_sep()+'den1.bin')): begin
         test_file = expand_path(path+path_sep()+'domain000')
@@ -71,7 +80,8 @@ function calc_timesteps, path=path,verbose=verbose
         nt_max = timesteps(expand_path(path+path_sep()+'den1.bin'), $
                            params.sizepertime,params.nsubdomains,basepath=bp)
         if keyword_set(verbose) then $
-           print, "[CALC_TIMESTEPS] Computed max time steps from den1.bin"
+           printf, lun, $
+                   "[CALC_TIMESTEPS] Computed max time steps from den1.bin"
      end
      file_test(expand_path(path+path_sep()+'phi.bin')): begin
         test_file = expand_path(path+path_sep()+'domain000')
@@ -81,7 +91,8 @@ function calc_timesteps, path=path,verbose=verbose
         nt_max = timesteps(expand_path(path+path_sep()+'phi.bin'), $
                            params.sizepertime,params.nsubdomains,basepath=bp)
         if keyword_set(verbose) then $
-           print, "[CALC_TIMESTEPS] Computed max time steps from phi.bin"
+           printf, lun, $
+                   "[CALC_TIMESTEPS] Computed max time steps from phi.bin"
      end
      file_test(expand_path(path+path_sep()+'den0.bin')): begin
         test_file = expand_path(path+path_sep()+'domain000')
@@ -91,11 +102,13 @@ function calc_timesteps, path=path,verbose=verbose
         nt_max = timesteps(expand_path(path+path_sep()+'den0.bin'), $
                            params.sizepertime,params.nsubdomains,basepath=bp)
         if keyword_set(verbose) then $
-           print, "[CALC_TIMESTEPS] Computed max time steps from 'den0.bin'"
+           printf, lun, $
+                   "[CALC_TIMESTEPS] Computed max time steps from 'den0.bin'"
      end
      else: begin
         if keyword_set(verbose) then $
-           print, "[CALC_TIMESTEPS] Could not compute max time steps"
+           printf, lun, $
+                   "[CALC_TIMESTEPS] Could not compute max time steps"
      end
   endcase
 
