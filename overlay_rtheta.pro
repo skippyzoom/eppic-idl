@@ -39,6 +39,10 @@ function overlay_rtheta, img,r,theta, $
                          theta_thick=theta_thick, $
                          theta_linestyle=theta_linestyle
 
+  ;;==Preserve input arrays
+  r_in = r
+  theta_in = theta
+
   ;;==Defaults and guards
   if n_elements(lun) eq 0 then lun = -1
   if n_elements(r_color) eq 0 then r_color = 'black'
@@ -80,6 +84,10 @@ function overlay_rtheta, img,r,theta, $
                     color=theta_color, $
                     linestyle=theta_linestyle, $
                     thick=theta_thick)
+
+  ;;==Restore original input arrays
+  r = r_in
+  theta = theta_in
 
   ;;==Return the image handle
   return, img
