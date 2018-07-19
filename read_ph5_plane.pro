@@ -148,13 +148,13 @@ function read_ph5_plane, data_name, $
 
   ;;==Declare the reference file
   h5_file_ref = expand_path(data_path+path_sep()+'parallel000000.h5')
-  
+
   ;;==Select a subset of time steps, if requested
   if n_elements(timestep) ne 0 then h5_file = h5_file[timestep/nout]
 
   ;;==Remove non-existant time steps
   if ~keyword_set(no_remove) then $
-     h5_file[where(timestep/nout gt n_files)] = ''
+     h5_file[where(timestep/nout gt n_files,/null)] = ''
 
   ;;==Get the size of the subset
   nt = n_elements(h5_file)
