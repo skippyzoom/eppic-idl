@@ -51,6 +51,13 @@
 ;    file (ppic3d.i or eppic.i).
 ; DATA_PATH (default: './')
 ;    Fully qualified path to the simulation data.
+; NO_REMOVE (default: unset)
+;    The default behavior is for this function to the file name of any
+;    missing time step to the null string (''). Setting this keyword
+;    prevents that behavior. In that case, IDL's default
+;    behavior (as of version 8.6.0) for the operation h5_file =
+;    h5_file[timestep/nout] sets all entries in h5_file beyond the
+;    last available time step to the last available time step.
 ; LUN (default: -1)
 ;    Logical unit number for printing runtime messages.
 ; VERBOSE (default: unset)
@@ -69,10 +76,12 @@ function read_ph5_plane, data_name, $
                          data_isft=data_isft, $
                          info_path=info_path, $
                          data_path=data_path, $
+                         no_remove=no_remove, $
                          lun=lun, $
                          verbose=verbose
 
   ;;==Defaults and guards
+  if n_elements(lun) eq 0 then lun = -1
   if n_elements(ext) eq 0 then ext = 'h5'
   if n_elements(data_type) eq 0 then data_type = 4
   if n_elements(data_path) eq 0 then data_path = './'
@@ -82,7 +91,6 @@ function read_ph5_plane, data_name, $
   if n_elements(info_path) eq 0 then $
      info_path = strmid(data_path,0, $
                         strpos(data_path,'parallel',/reverse_search))
-  if n_elements(lun) eq 0 then lun = -1
 
   ;;==Echo data path
   if keyword_set(verbose) then begin
@@ -125,6 +133,7 @@ function read_ph5_plane, data_name, $
 
   ;;==Search for available files...
   h5_file = file_search(data_path+'*.'+ext,count=n_files)
+
   if n_files ne 0 then begin
      ;;...If files exist, derive nout for subsetting (below)
      h5_base = file_basename(h5_file)
@@ -142,6 +151,10 @@ function read_ph5_plane, data_name, $
   
   ;;==Select a subset of time steps, if requested
   if n_elements(timestep) ne 0 then h5_file = h5_file[timestep/nout]
+
+  ;;==Remove non-existant time steps
+  if ~keyword_set(no_remove) then $
+     h5_file[where(timestep/nout gt n_files)] = ''
 
   ;;==Get the size of the subset
   nt = n_elements(h5_file)
@@ -173,7 +186,7 @@ function read_ph5_plane, data_name, $
      yf = fix(plane.yf)
      nxp = xf-x0
      nyp = yf-y0
-     data = make_array(nxp,nyp,nt,type=data_type)
+     data = make_array(nxp,nyp,nt,type=data_type,value=0)
      tmp = !NULL
 
   endif else n_dim = 0
