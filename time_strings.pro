@@ -109,5 +109,10 @@ function time_strings, timestep, $
   time_index = strcompress(string(timestep, $
                                   format=str_fmt),/remove_all)
 
-  return, {stamp:time_stamp, index:time_index}
+  return, {stamp:time_stamp, $
+           index:time_index, $
+           dt:dt, $
+           scale:scale, $
+           precision:precision, $
+           width:width}
 end
