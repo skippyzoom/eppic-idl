@@ -113,6 +113,5 @@ function time_strings, timestep, $
            index:time_index, $
            dt:dt, $
            scale:scale, $
-           precision:precision, $
-           width:width}
+           precision:precision}
 end
