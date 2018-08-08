@@ -79,25 +79,25 @@ function calc_grad_xyzt, data, $
      endif
 
      ;;==Calculate F = c*Grad[f]
-     for it=0L,nt-1 do begin
-        case n_dims of
-           3: begin
+     case n_dims of
+        3: begin
+           for it=0L,nt-1 do begin
               gradf = gradient(data[*,*,it],dx=dx,dy=dy)
               Fx[*,*,it] = scale*gradf.x
               Fy[*,*,it] = scale*gradf.y
-              ;; vecF = dictionary('x',Fx,'y',Fy)
-              vecF = {x:Fx, y:Fy}
-           end
-           4: begin
+           endfor
+           vecF = {x:Fx, y:Fy}
+        end
+        4: begin
+           for it=0L,nt-1 do begin
               gradf = gradient(data[*,*,*,it],dx=dx,dy=dy,dz=dz)
               Fx[*,*,*,it] = scale*gradf.x
               Fy[*,*,*,it] = scale*gradf.y
               Fz[*,*,*,it] = scale*gradf.z
-              ;; vecF = dictionary('x',Fx,'y',Fy,'z',Fz)
-              vecF = {x:Fx, y:Fy, z:Fz}
-           end
-        endcase
-     endfor
+           endfor
+           vecF = {x:Fx, y:Fy, z:Fz}
+        end
+     endcase
 
      return, vecF
 
