@@ -46,13 +46,14 @@ function gradient, f, $
         use_xyz = 1B
      end
      else: begin
-        if n_elements(dx) ne fsize[0] then begin
-           dq = fltarr(size(f,/n_dim))
+        if n_elements(dx) eq fsize[0] then dq = dx $
+        else begin
+           dq = fltarr(fsize[0])
            dq[0:n_elements(dx)-1] = dx
            dq[n_elements(dx):*] = 1.0
            if keyword_set(verbose) then $
               print, "[GRADIENT] Set remaining entries of dq to 1.0"
-        endif
+        endelse
      end
   endcase
 
