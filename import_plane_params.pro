@@ -76,6 +76,12 @@ function import_plane_params, path=path, $
      dy_out *= params.nout_avg
   endif
 
+  ;;==Rescale nx and ny if not FT data
+  if ~keyword_set(data_isft) then begin
+     nx_out /= params.nout_avg
+     ny_out /= params.nout_avg
+  endif
+
   ;;==Build x- and y-axis vectors
   if n_elements(ranges) ne 4 then ranges = [0,nx_out,0,ny_out]
   x_out = dx_out*(ranges[0] + indgen(nx_out))
