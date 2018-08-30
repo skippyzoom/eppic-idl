@@ -33,7 +33,7 @@ function import_plane_data, data_name, $
                          _EXTRA = ex)
 
   ;;==Rotate data, if requested
-  if ~keyword_set(data_isft) then begin
+  ;; if ~keyword_set(data_isft) then begin
      if rotate gt 0 then begin
         fsize = size(f_out)
         if rotate mod 2 then begin
@@ -44,7 +44,7 @@ function import_plane_data, data_name, $
         else for it=0,fsize[3]-1 do $
            f_out[*,*,it] = rotate(f_out[*,*,it],rotate)
      endif
-  endif
+  ;; endif
 
   return, f_out
 end
