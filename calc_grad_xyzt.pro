@@ -46,24 +46,22 @@ function calc_grad_xyzt, data, $
      if n_elements(dy) eq 0 then dy = 1.0
      if n_elements(dz) eq 0 then dz = 1.0
 
-     ;;==Get dimensions
-     data = reform(data)
+     ;;==Check for single time step
      dsize = size(data)
-     n_dims = dsize[0]
-     nt = dsize[dsize[0]]
+     single_ts = 0B
+     if dsize[dsize[0]] eq 1 then single_ts = 1B
 
-     ;;==Set up component arrays
-     switch n_dims of
-        3: Fz = make_array(size(data,/dim), $
-                           type = size(data,/type), $
-                           value = 0)
-        2: Fy = make_array(size(data,/dim), $
-                           type = size(data,/type), $
-                           value = 0)
-        1: Fx = make_array(size(data,/dim), $
-                           type = size(data,/type), $
-                           value = 0)
-     endswitch
+     ;;==Remove singular spatial dimensions
+     data = reform(data)
+     if single_ts then data = reform(data,[size(data,/dim),1])
+
+     ;;==Update dimensional info
+     n_dims = size(data,/n_dim)
+     d_dims = size(data,/dim)
+     d_type = size(data,/type)
+
+     ;;==Get number of time steps
+     nt = dsize[dsize[0]]
 
      ;;==Echo parameters
      if keyword_set(verbose) then begin
@@ -81,6 +79,12 @@ function calc_grad_xyzt, data, $
      ;;==Calculate F = c*Grad[f]
      case n_dims of
         3: begin
+           Fy = make_array(d_dims, $
+                           type = d_type, $
+                           value = 0)
+           Fx = make_array(d_dims, $
+                           type = d_type, $
+                           value = 0)
            for it=0L,nt-1 do begin
               gradf = gradient(data[*,*,it],dx=dx,dy=dy)
               Fx[*,*,it] = scale*gradf.x
@@ -89,6 +93,15 @@ function calc_grad_xyzt, data, $
            vecF = {x:Fx, y:Fy}
         end
         4: begin
+           Fz = make_array(d_dims, $
+                           type = d_type, $
+                           value = 0)
+           Fy = make_array(d_dims, $
+                           type = d_type, $
+                           value = 0)
+           Fx = make_array(d_dims, $
+                           type = d_type, $
+                           value = 0)
            for it=0L,nt-1 do begin
               gradf = gradient(data[*,*,*,it],dx=dx,dy=dy,dz=dz)
               Fx[*,*,*,it] = scale*gradf.x
