@@ -27,12 +27,12 @@ function build_reference_plane, axes, $
            y0 = ranges[2]
            yf = ranges[3]
         endelse
-        if ~keyword_set(data_isft) then begin
-           x0 /= params.nout_avg
-           xf /= params.nout_avg
-           y0 /= params.nout_avg
-           yf /= params.nout_avg
-        endif
+        ;; if ~keyword_set(data_isft) then begin
+        ;;    x0 /= params.nout_avg
+        ;;    xf /= params.nout_avg
+        ;;    y0 /= params.nout_avg
+        ;;    yf /= params.nout_avg
+        ;; endif
         ind_x = 0
         ind_y = 1
         h5_start = [x0,y0]
@@ -56,12 +56,12 @@ function build_reference_plane, axes, $
                  y0 = ranges[2]
                  yf = ranges[3]
               endelse
-              if ~keyword_set(data_isft) then begin
-                 x0 /= params.nout_avg
-                 xf /= params.nout_avg
-                 y0 /= params.nout_avg
-                 yf /= params.nout_avg
-              endif
+              ;; if ~keyword_set(data_isft) then begin
+              ;;    x0 /= params.nout_avg
+              ;;    xf /= params.nout_avg
+              ;;    y0 /= params.nout_avg
+              ;;    yf /= params.nout_avg
+              ;; endif
               ind_x = 0
               ind_y = 1
               h5_start = [x0,y0,0]
@@ -83,12 +83,12 @@ function build_reference_plane, axes, $
                  y0 = ranges[2]
                  yf = ranges[3]
               endelse
-              if ~keyword_set(data_isft) then begin
-                 x0 /= params.nout_avg
-                 xf /= params.nout_avg
-                 y0 /= params.nout_avg
-                 yf /= params.nout_avg
-              endif
+              ;; if ~keyword_set(data_isft) then begin
+              ;;    x0 /= params.nout_avg
+              ;;    xf /= params.nout_avg
+              ;;    y0 /= params.nout_avg
+              ;;    yf /= params.nout_avg
+              ;; endif
               ind_x = 0
               ind_y = 2
               h5_start = [x0,0,y0]
@@ -110,12 +110,12 @@ function build_reference_plane, axes, $
                  y0 = ranges[2]
                  yf = ranges[3]
               endelse
-              if ~keyword_set(data_isft) then begin
-                 x0 /= params.nout_avg
-                 xf /= params.nout_avg
-                 y0 /= params.nout_avg
-                 yf /= params.nout_avg
-              endif
+              ;; if ~keyword_set(data_isft) then begin
+              ;;    x0 /= params.nout_avg
+              ;;    xf /= params.nout_avg
+              ;;    y0 /= params.nout_avg
+              ;;    yf /= params.nout_avg
+              ;; endif
               ind_x = 1
               ind_y = 2
               h5_start = [0,x0,y0]
