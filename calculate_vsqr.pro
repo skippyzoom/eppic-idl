@@ -21,7 +21,7 @@
 ;                                   **NOTES**
 ; -- This function uses EPPIC den (zeroth moment) and nvsqr (second
 ;    moment) output quantities. It accepts a few options for v0 (first
-;    moment, or mean velocity).
+;    moment, a.k.a mean velocity).
 
 function calculate_vsqr, den, $
                          v0, $
@@ -38,6 +38,9 @@ function calculate_vsqr, den, $
   if size(den,/n_dim) eq 3 then den = reform(den, $
                                              [dsize[1],dsize[2],1,nt])
 
+  ;;==Reform v0 for 3D, if necessary
+  if size(v0,/n_dim) eq 3 then v0 = reform(v0, $
+                                           [dsize[1],dsize[2],1,nt])
   ;;==Reform nvsqr for 3D, if necessary
   if size(nvsqr,/n_dim) eq 3 then nvsqr = reform(nvsqr, $
                                                  [dsize[1],dsize[2],1,nt])
@@ -53,9 +56,9 @@ function calculate_vsqr, den, $
      end
      1: begin
         for it=0,nt-1 do $
-           vsqr[*,*,it] = (sqrt(nvsqr[*,*,it]/den[*,*,it]) - v0[it])^2
+           vsqr[*,*,*,it] = (sqrt(nvsqr[*,*,*,it]/den[*,*,*,it]) - v0[it])^2
      end
-     size(den,/dim): begin
+     size(den,/n_dim): begin
         vsqr = (sqrt(nvsqr/den) - v0)^2
      end
      else: begin
