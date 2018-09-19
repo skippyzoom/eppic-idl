@@ -257,6 +257,7 @@ function read_ph5_plane, data_name, $
                              count = plane.h5_count)
            ;;==Assign to return array
            if n_elements(tmp) ne 0 then begin
+              tmp = reform(tmp)
               data[*,*,it] = (transpose(tmp,[1,0]))[x0:xf-1,y0:yf-1]
            endif else null_count++ ;tmp_data exists?
            tmp = !NULL             ;time step loop
