@@ -20,8 +20,9 @@
 ; LUN (default: -1)
 ;    Logical unit number for printing runtime messages.
 ; <return>
-;    Struct containing an array of time-step strings with an
-;    appropriate unit and an array of zero-padded time-index strings.
+;    Dictionary containing an array of time-step strings with an
+;    appropriate unit, an array of zero-padded time-index strings, and
+;    auxiliary variables.
 ;-
 function time_strings, timestep, $
                        dt=dt, $
@@ -109,9 +110,10 @@ function time_strings, timestep, $
   time_index = strcompress(string(timestep, $
                                   format=str_fmt),/remove_all)
 
-  return, {stamp:time_stamp, $
-           index:time_index, $
-           dt:dt, $
-           scale:scale, $
-           precision:precision}
+  return, dictionary('stamp', time_stamp, $
+                     'index', time_index, $
+                     'nt', nt, $
+                     'dt', dt, $
+                     'scale', scale, $
+                     'precision', precision)
 end
