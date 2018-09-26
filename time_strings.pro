@@ -115,5 +115,6 @@ function time_strings, timestep, $
                      'nt', nt, $
                      'dt', dt, $
                      'scale', scale, $
+                     'unit', unit, $
                      'precision', precision)
 end
