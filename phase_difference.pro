@@ -10,6 +10,8 @@
 ;    The functions from which to calculate a phase difference.
 ; LUN (default: -1)
 ;    Logical unit number for printing runtime messages.
+; QUIET (default: unset)
+;    Do not print warning messages
 ; <return>
 ;    The floating point phase difference, if the function succeeded,
 ;    or !NULL if it didn't. Since !NULL has zero elements, the
@@ -22,7 +24,7 @@
 ;-
 function phase_difference, f1,f2, $
                            lun=lun, $
-                           verbose=verbose
+                           quiet=quiet
 
   ;;==Set the default LUN
   if n_elements(lun) eq 0 then lun = -1
@@ -54,10 +56,10 @@ function phase_difference, f1,f2, $
   else begin
 
      ;;==Let the user know of incorrect number of dimensions
-     if keyword_set(verbose) then $
+     if ~keyword_set(quiet) then $
         printf, lun,"[PHASE_DIFFERENCE] Both input arrays must be 2-D"
 
-     ;;==Return null
+     ;;==Return null value
      return, !NULL
   endelse
 
