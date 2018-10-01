@@ -14,6 +14,9 @@
 ;    Logical unit number for printing runtime messages.
 ; DEGREES (default: unset)
 ;    Boolean indicating that THETA is in degrees.
+; RADIANS (default: unset)
+;    Dummy boolean. This keyword exists to allow the function to
+;    proceed if the user sets '/radians' in place of '/degrees'. 
 ; R_COLOR (default: 'black')
 ;    String color of circles. See man page for IDL's ellipse().
 ; R_THICK (default: 1)
@@ -28,10 +31,16 @@
 ;    String line style of lines.  See man page for IDL's polyline().
 ; <return>
 ;    The updated image handle.
+;------------------------------------------------------------------------------
+;                                   **NOTES**
+; -- You can use R to control the length of the radial spokes to be
+;    drawn at the angle(s) given by THETA without drawing circles at
+;    the radii given by R by setting r_linestyle = 'none'
 ;-
 function overlay_rtheta, img,r,theta, $                         
                          lun=lun, $
                          degrees=degrees, $
+                         radians=radians, $
                          r_color=r_color, $
                          r_thick=r_thick, $
                          r_linestyle=r_linestyle, $
