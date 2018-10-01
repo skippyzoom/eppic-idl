@@ -11,9 +11,9 @@
 ; LUN (default: -1)
 ;    Logical unit number for printing runtime messages.
 ; QUIET (default: unset)
-;    Do not print warning messages
+;    Do not print runtime messages
 ; <return>
-;    A 2-element array of floating-point values giving the (x,y)
+;    Two-element array of floating-point values giving the (x,y)
 ;    coordinates of the center of mass, if the function succeeded, or
 ;    !NULL if it didn't.  Since !NULL has zero elements, the 
 ;    user can check the number of elements of the return value before 
