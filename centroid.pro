@@ -12,6 +12,9 @@
 ;    Logical unit number for printing runtime messages.
 ; QUIET (default: unset)
 ;    Do not print runtime messages
+; VARIANCE (default: unset)
+;    A named two-element vector that will contain the mean squared
+;    variance in the centroid
 ; <return>
 ;    Two-element array of floating-point values giving the (x,y)
 ;    coordinates of the center of mass, if the function succeeded, or
@@ -21,7 +24,8 @@
 ;-
 function centroid, array, $
                    lun=lun, $
-                   quiet=quiet
+                   quiet=quiet, $
+                   variance=variance
 
   ;;==Set the default LUN
   if n_elements(lun) eq 0 then lun = -1
@@ -34,12 +38,23 @@ function centroid, array, $
      nx = asize[1]
      ny = asize[2]
 
+     ;;==Create x and y vectors
+     x = indgen(x)
+     y = indgen(y)
+
      ;;==Calculate total mass
      total_mass = total(array)
 
      ;;==Approximate integrals for (x,y) of centroid
-     xcm = total(total(array,2)*indgen(nx))/total_mass
-     ycm = total(total(array,1)*indgen(ny))/total_mass
+     xcm = total(total(array,2)*x)/total_mass
+     ycm = total(total(array,1)*y)/total_mass
+
+     ;;==Approximate integrals for variance in centroid
+     if keyword_set(variance) then begin
+        s2x = total(total(array,2)*(x^2-xcm^2))/total_mass
+        s2y = total(total(array,1)*(y^2-ycm^2))/total_mass
+        variance = [s2x,s2y]
+     endif
 
      ;;==Return (x,y) of centroid
      return, [xcm,ycm]
