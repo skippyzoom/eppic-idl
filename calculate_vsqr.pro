@@ -14,9 +14,10 @@
 ; NVSQR (required)
 ;    The nv^2 array. May be (2+1)-D or (3+1)-D
 ; LUN (default: -1)
-;    Logical unit number for printing runtime messages.
+;    Logical unit number for printing runtime messages
 ; <return>
-;    nt_max (long int) - Maximum number of available time steps.
+;    Mean squared velocity of the distribution. The returned array
+;    will have the same shape as den.
 ;------------------------------------------------------------------------------
 ;                                   **NOTES**
 ; -- This function uses EPPIC den (zeroth moment) and nvsqr (second
@@ -52,14 +53,18 @@ function calculate_vsqr, den, $
   ;;==Calculate vsqr
   case vdims of
      0: begin
-        vsqr = (sqrt(nvsqr/den) - v0)^2
+        ;; vsqr = (sqrt(nvsqr/den) - v0)^2
+        vsqr = nvsqr/den - v0^2
      end
      1: begin
+        ;; for it=0,nt-1 do $
+        ;;    vsqr[*,*,*,it] = (sqrt(nvsqr[*,*,*,it]/den[*,*,*,it]) - v0[it])^2
         for it=0,nt-1 do $
-           vsqr[*,*,*,it] = (sqrt(nvsqr[*,*,*,it]/den[*,*,*,it]) - v0[it])^2
+           vsqr[*,*,*,it] = nvsqr[*,*,*,it]/den[*,*,*,it] - v0[it]^2
      end
      size(den,/n_dim): begin
-        vsqr = (sqrt(nvsqr/den) - v0)^2
+        ;; vsqr = (sqrt(nvsqr/den) - v0)^2
+        vsqr = nvsqr/den - v0^2
      end
      else: begin
         printf, lun,"[CALCULATE_VSQR] Dimensions of v0 are incompatible"
