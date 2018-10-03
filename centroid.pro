@@ -39,8 +39,8 @@ function centroid, array, $
      ny = asize[2]
 
      ;;==Create x and y vectors
-     x = indgen(x)
-     y = indgen(y)
+     x = indgen(nx)
+     y = indgen(ny)
 
      ;;==Calculate total mass
      total_mass = total(array)
