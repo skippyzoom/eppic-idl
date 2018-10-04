@@ -38,17 +38,17 @@ function phase_difference, f1,f2, $
      ny = fsize[2]
 
      ;;==Calculate ACFs and CCF
+     f12_cc = convol_fft(f1,f2,/correlate)
      f1_acf = convol_fft(f1,f1,/auto_correlation)
      f2_acf = convol_fft(f2,f2,/auto_correlation)
-     f12_cc = convol_fft(f1,f2,/correlate)
 
      ;;==Extract values at zero lag
-     rxy = f12_cc[nx/2-1,ny/2-1]
-     rx = f1_acf[nx/2-1,ny/2-1]
-     ry = f2_acf[nx/2-1,ny/2-1]
+     r12 = f12_cc[nx/2-1,ny/2-1]
+     r1 = f1_acf[nx/2-1,ny/2-1]
+     r2 = f2_acf[nx/2-1,ny/2-1]
 
      ;;==Compute the phase difference
-     phi = acos(rxy/sqrt(rx*ry))
+     phi = acos(r12/sqrt(r1*r2))
 
      ;;==Return the computed phase difference
      return, phi
