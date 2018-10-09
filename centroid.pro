@@ -51,11 +51,10 @@ function centroid, array, $
 
      ;;==Approximate integrals for variance in centroid
      if keyword_set(variance) then begin
-        s2x = total(total(array,2)*(x^2-xcm^2))/total_mass
-        s2y = total(total(array,1)*(y^2-ycm^2))/total_mass
+        s2x = total(total(array,2)*(x-xcm)^2)/total_mass
+        s2y = total(total(array,1)*(y-ycm)^2)/total_mass
         variance = [s2x,s2y]
      endif
-
      ;;==Return (x,y) of centroid
      return, [xcm,ycm]
   endif $
