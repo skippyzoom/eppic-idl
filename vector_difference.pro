@@ -32,9 +32,13 @@ function vector_difference, v1x,v2x,v1y,v2y,v1z,v2z, $
                             lun=lun, $
                             quiet=quiet
 
+  ;;==Set default LUN
   if n_elements(lun) eq 0 then lun = -1
+
+  ;;==Determine number of dimensions
   ndim = 2+(n_elements(v1z) ne 0 && n_elements(v2z) ne 0)
 
+  ;;==Calculate vector difference and return component dictionary
   case ndim of
      2: begin
         vdx = v1x-v2x
