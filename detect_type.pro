@@ -41,7 +41,7 @@ function detect_type, var,convert=convert,double=double,long=long
         end
         ;;==This is an int
         else: begin
-           if keyword_set(long) then value = long(value) $
+           if keyword_set(long) then value = long(var) $
            else value = fix(var)
         end
      endcase
