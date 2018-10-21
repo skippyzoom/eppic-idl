@@ -29,11 +29,11 @@
 ;    proceeding.
 ;-
 function find_image_moments, image, $
-                              lun=lun, $
-                              mask_threshold=mask_threshold, $
-                              mask_value=mask_value, $
-                              mask_type=mask_type, $
-                              quiet=quiet
+                             lun=lun, $
+                             mask_threshold=mask_threshold, $
+                             mask_value=mask_value, $
+                             mask_type=mask_type, $
+                             quiet=quiet
 
   ;;==Set the default LUN
   if n_elements(lun) eq 0 then lun = -1
