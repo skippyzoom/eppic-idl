@@ -40,7 +40,7 @@ function read_parameter_file, path, $
         if eq_pos ge 0 then begin
            name = strcompress(strmid(line,0,eq_pos),/remove_all)
            value = strtrim(strmid(line,eq_pos+1,strlen(line)),2)
-           params[name] = detect_type(value,/convert)
+           params[name] = detect_type(value,/convert,/long,/double)
         endif
      endif
   endfor
