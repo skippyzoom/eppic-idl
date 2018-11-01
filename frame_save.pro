@@ -73,10 +73,6 @@ pro frame_save, frame, $
         printf, lun,"             Did not save ",filename,"."
      end
      1: begin
-        ;; if keyword_set(path_stamp) then $
-        ;;    !NULL = text(text_xyz[0],text_xyz[1],text_xyz[2], $
-        ;;                 path_stamp,text_format, $
-        ;;                )
         if n_elements(text_string) ne 0 then begin
            txt = text(text_xyz[0],text_xyz[1],text_xyz[2], $
                       text_string, $
