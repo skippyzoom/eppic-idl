@@ -14,8 +14,8 @@
 ;    Logical unit number for printing runtime messages.
 ; VERBOSE (default: unset)
 ;    Print runtime information.
-; <return>
-;    nt_max (long int) - Maximum number of available time steps.
+; <return> (long int)
+;    Maximum number of available time steps.
 ;------------------------------------------------------------------------------
 ;                                   **NOTES**
 ; -- The parallel HDF method assumes all *.h5 files are
