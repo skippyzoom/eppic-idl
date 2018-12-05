@@ -52,9 +52,9 @@
 ; DATA_PATH (default: './')
 ;    Fully qualified path to the simulation data.
 ; NO_REMOVE (default: unset)
-;    The default behavior is for this function to the file name of any
-;    missing time step to the null string (''). Setting this keyword
-;    prevents that behavior. In that case, IDL's default
+;    The default behavior is for this function to set the file name of
+;    any missing time step to the null string (''). Setting this
+;    keyword prevents that behavior. In that case, IDL's default 
 ;    behavior (as of version 8.6.0) for the operation h5_file =
 ;    h5_file[timestep/nout] sets all entries in h5_file beyond the
 ;    last available time step to the last available time step.
@@ -188,7 +188,6 @@ function read_ph5_plane, data_name, $
      nyp = yf-y0
      data = make_array(nxp,nyp,nt,type=data_type,value=0)
      tmp = !NULL
-
   endif else n_dim = 0
 
   if nt eq 1 then data = reform(data,[size(data,/dim),1])
@@ -242,7 +241,6 @@ function read_ph5_plane, data_name, $
               full_array[0:ft_size[2]-1,0:ft_size[1]-1] = $
                  transpose(ft_array,[1,0])
               ft_array = !NULL              
-              ;; full_array = shift(full_array,[1,1])
               full_array = conj(full_array)
               data[*,*,it] = full_array[x0:xf-1,y0:yf-1]
            endif else null_count++ ;tmp_data exists?
@@ -274,7 +272,7 @@ function read_ph5_plane, data_name, $
      plane = !NULL
      return, data
 
-  endif $                       ;n_dims eq 2 or 3
+  endif $                       ;n_dims eq 2
   else if n_dim eq 0 then $
      printf, lun,"[READ_PH5_PLANE] Could not read ",data_name $
   else begin
