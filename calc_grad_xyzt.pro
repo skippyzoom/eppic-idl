@@ -16,18 +16,16 @@
 ;    Print runtime messages.
 ; LUN (default: -1)
 ;    Logical unit number for printing runtime messages.
-; <return>
-;    A struct containing the components of the optionally scaled
-;    gradient of data.
+; <return> (struct)
+;    The components of the optionally scaled gradient of DATA.
 ;------------------------------------------------------------------------------
 ;                                   **NOTES**
 ; -- This function checks that 'scale' is not zero before 
 ;    proceeding, which allows the user to bypass this function
 ;    at runtime by providing scale = 0
 ; -- This function requires a gradient function. It currently
-;    uses ~/idl/pro/gradient.pro, which returns a dictionary
-;    with elements x, y, and z, representing the 1-D derivative
-;    in each dimension.
+;    uses ~/idl/eppic/gradient.pro, which returns a dictionary
+;    whose elements represent the 1-D derivative in each dimension.
 ;-
 function calc_grad_xyzt, data, $
                          dx=dx,dy=dy,dz=dz, $

@@ -19,6 +19,8 @@
 ;    each, this function will return a dictionary with keys (x[,y,z]);
 ;    if the user supplies a vector of differentials, this function
 ;    will return a dictionary with keys [x1,x2,...,xN].
+; <return> (dictionary)
+;    Components of the gradient of F.
 ;-
 function gradient, f, $
                    dx=dx,dy=dy,dz=dz, $
