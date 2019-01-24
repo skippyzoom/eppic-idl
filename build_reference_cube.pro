@@ -1,8 +1,42 @@
+;+
+; Builds a logically 2-D or 3-D object that read_ph5_cube.pro can use
+; to set dimensions for data reading.
+;
+; Created by Matt Young.
+;------------------------------------------------------------------------------
+;                                 **PARAMETERS**
+; NDIM_SPACE (required)
+;    Integer number of spatial dimensions. 
+; DATA_ISFT (default: 0)
+;    Boolean that represents whether the EPPIC data quantity is
+;    Fourier-transformed or not.
+; PATH (default: './')
+;    Path in which to search for EPPIC parameter file if not is supplied.
+; PARAMS (default: empty)
+;    Dictionary of EPPIC simulation parameters as returned by
+;    set_eppic_params().
+; RANGES (default: [0,nx,0,ny[,0,nz]])
+;    A four- or six-element array specifying logical x and y ranges
+;    to return. The elements are [x0,xf,y0,yf[,z0,zx]], where 
+;    x0 and xf are the bounds of the first dimension, y0 and yf are
+;    the bounds of the second dimension, and z0 and zf are the bounds
+;    of the third dimension, if applicable.
+; NORMAL (default: unset)
+;    If set, indicates that ranges are normalized to simulation dimensions.
+; <return> (dictionary)
+;    The reference dimensions and related information.
+;------------------------------------------------------------------------------
+;                                   **NOTES**
+; -- The 2-D case is identical to that in
+;    build_reference_plane.pro. It exists here because
+;    read_ph5_cube.pro is designed as a unified interface for EPPIC
+;    runs with 2 or 3 spatial dimensions. 
+;-
 function build_reference_cube, ndim_space, $
                                data_isft=data_isft, $
-                               ranges=ranges, $
                                path=path, $
                                params=params, $
+                               ranges=ranges, $
                                normal=normal
 
   if n_elements(path) eq 0 then path = './'
