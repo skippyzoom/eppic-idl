@@ -6,6 +6,9 @@
 ;                                 **PARAMETERS**
 ; PATH (default: './')
 ;    Path in which to search for parameter file.
+; <return> (dictionary)
+;    Simulation parameters from the EPPIC input file, plus default
+;    values of parameters that come up during analysis.
 ;-
 function set_eppic_params, path=path
 
