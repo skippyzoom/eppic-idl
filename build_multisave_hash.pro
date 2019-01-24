@@ -22,9 +22,8 @@
 ;    Logical unit number for printing runtime messages.
 ; VERBOSE (default: unset)
 ;    Print runtime information.
-; <return>
-;    Hash containing the target data quantities, keyed by their
-;    respective paths.
+; <return> (hash)
+;    The target data quantities, keyed by their respective paths.
 ;-
 function build_multisave_hash, filepath, $
                                filename, $
