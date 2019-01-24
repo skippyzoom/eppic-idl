@@ -112,9 +112,16 @@ function image_frame, fdata,xdata,ydata, $
   if n_elements(text_kw) eq 0 then text_kw = dictionary()
 
   ;;==Create image object
-  img = image(fdata,xdata,ydata, $
-              /buffer, $
-              _EXTRA=image_kw.tostruct())
+  if n_elements(xdata) ne 0 && n_elements(ydata) eq 0 then begin
+     img = image(fdata,xdata,ydata, $
+                 /buffer, $
+                 _EXTRA=image_kw.tostruct())
+  endif $
+  else begin
+     img = image(fdata, $
+                 /buffer, $
+                 _EXTRA=image_kw.tostruct())
+  endelse
 
   ;;==Attach colorbar, if requested
   if n_elements(colorbar_kw) ne 0 then $
