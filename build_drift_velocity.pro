@@ -16,12 +16,11 @@
 ;    Logical unit number for printing runtime messages.
 ; QUIET (default: unset)
 ;    Do not print runtime messages
-; <return>
-;    Dictionary containing the components returned from
-;    vector_difference.pro, if the function succeeded, or
-;    !NULL if it didn't.  Since !NULL has zero elements, the 
-;    user can check the number of elements of the return value before 
-;    proceeding.
+; <return> (dictionary)
+;    The components returned from vector_difference.pro, if the
+;    function succeeded, or !NULL if it didn't. Since !NULL
+;    has zero elements, the user can check the number of elements of
+;    the return value before proceeding.
 ; 
 function build_drift_velocity, d1,d2,ndim, $
                                lun=lun, $
