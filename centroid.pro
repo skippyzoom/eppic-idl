@@ -15,12 +15,11 @@
 ; VARIANCE (default: unset)
 ;    A named two-element vector that will contain the mean squared
 ;    variance in the centroid
-; <return>
-;    Two-element array of floating-point values giving the (x,y)
-;    coordinates of the center of mass, if the function succeeded, or
-;    !NULL if it didn't.  Since !NULL has zero elements, the 
-;    user can check the number of elements of the return value before 
-;    proceeding.
+; <return> (floating point array)
+;    Two values giving the (x,y) coordinates of the center of mass, if
+;    the function succeeded, or !NULL if it didn't.  Since
+;    !NULL has zero elements, the user can check the number of
+;    elements of the return value before proceeding. 
 ;-
 function centroid, array, $
                    lun=lun, $
