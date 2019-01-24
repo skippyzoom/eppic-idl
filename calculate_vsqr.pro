@@ -15,7 +15,7 @@
 ;    The nv^2 array. May be (2+1)-D or (3+1)-D
 ; LUN (default: -1)
 ;    Logical unit number for printing runtime messages
-; <return>
+; <return> (array of same type as DEN)
 ;    Mean squared velocity of the distribution. The returned array
 ;    will have the same shape as den.
 ;------------------------------------------------------------------------------
