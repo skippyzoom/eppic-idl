@@ -13,6 +13,8 @@
 ;    Integer multiple of 90 degrees by which to rotate the transformed
 ;    array (with optional transpose). See the man page for
 ;    IDL's rotate() for more information.
+; <return> (floating point array)
+;    The spectral inverse of ARRFT.
 ;-
 function arr_from_arrft, arrft, $
                          lun=lun, $
