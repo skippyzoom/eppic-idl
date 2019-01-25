@@ -27,8 +27,8 @@ function video, arg1,arg2,arg3, $
                 quiet=quiet, $
                 lun=lun, $
                 filename=filename, $
-                log=log, $
-                alog_base=alog_base, $
+                ;; log=log, $
+                ;; alog_base=alog_base, $
                 framerate=framerate, $
                 resize=resize, $
                 ;; overplot=overplot, $
@@ -136,54 +136,126 @@ function video, arg1,arg2,arg3, $
      endcase
   endif
 
-  ;;==Extract a dictionary of graphics keywords
-  if n_elements(ex) ne 0 then begin
-     dx = dictionary(ex,/extract)
-     if dx.haskey('dimensions') then dimensions = dx.dimensions
-  endif
-
-  ;; if n_elements(dimensions) eq 0 then dimensions
-STOP
   ;;==Determine image/plot mode from input dimensions
-  case size(arg1,/n_dim) of
+  sarg1 = size(arg1)
+  sarg2 = size(arg2)
+  sarg3 = size(arg3)
+  case sarg1[0] of
      1: begin
-        sarg2 = size(arg2)
         if sarg2[0] ne 0 then begin
            mode = 'plot'
+           axes_provided = 1B
            nx = n_elements(arg1)
            ny = sarg2[1]
-           axes_provided = 1B
+           nt = sarg2[2]
         endif else mode = 'error'
-        ;; mode = sarg2[0] ne 0 ? 'plot' : 'error'
      end
      2: begin
         mode = 'plot'
         axes_provided = 0B
+        ny = sarg1[1]
+        nx = ny
+        nt = sarg1[2]
      end
      3: begin
         mode = 'image'
-        axes_provided = size(arg2,/n_dim) eq 1 && size(arg3,/n_dim) eq 1
+        axes_provided = sarg2[0] eq 1 && sarg3[0] eq 1
+        nx = sarg1[1]
+        ny = sarg1[2]
+        nt = sarg1[3]
      end
      else: mode = 'error'
   endcase
+
+  ;;->Warn the user that idlffvideowrite::put will throw an error if
+  ;;either nx<30 or ny<30. Suggest that they use the RESIZE
+  ;;keyword. Is it worth adding an auto-resize capability?
+
+  ;;==If input is good, handle some graphics keywords
+  if ~strcmp(mode,'error') then begin
+
+     ;;==Extract a dictionary of graphics keywords
+     if n_elements(ex) ne 0 then dex = dictionary(ex,/extract) $
+     else dex = dictionary()
+
+     ;;==Ensure proper video-frame dimensions
+     if dex.haskey('dimensions') then dimensions = dex.dimensions $
+     else dimensions = [nx,ny]
+     dimensions = [dimensions[0]*resize[0], $
+                   dimensions[1]*resize[1]]
+     dex.dimensions = dimensions
+
+     ;;==Remove time-dependent keywords and reserve
+     if dex.haskey('title') then begin
+        case n_elements(dex.title) of 
+           0: title = make_array(nt,value='')
+           1: title = make_array(nt,value=dex.title)
+           nt: title = dex.title
+           else: !NULL
+        endcase
+        dex.remove, 'title'
+     endif
+     if n_elements(title) eq 0 then $
+        title = make_array(nt,value='')
+
+  endif
+
+  ;;->Handle TEXT here
 
   ;;==Create video or print error message
   case 1B of
      strcmp(mode,'plot'): begin        
         ;;==Open video stream
         printf, lun,"[VIDEO] Creating ",filename," in plot mode..."
-        ;; video = idlffvideowrite(filename)
-        ;; stream = video.addvideostream(dimensions[0], $
-        ;;                               dimensions[1], $
-        ;;                               framerate)
+        vobj = idlffvideowrite(filename)
+        stream = vobj.addvideostream(dex.dimensions[0], $
+                                     dex.dimensions[1], $
+                                     framerate)
+        if axes_provided then begin
+           for it=0,nt-1 do begin
+              dex.title = title[it]
+              arg2_it = arg2[*,it]
+              frm = video_plot_frame(arg1,arg2_it, $
+                                     _legend = legend, $
+                                     _text = text, $
+                                     _REF_EXTRA = dex.tostruct())
+              frame = frm.copywindow()
+              vtime = vobj.put(stream,frame)
+              frm.close
+           endfor
+        endif $
+        else begin
+           for it=0,nt-1 do begin
+              dex.title = title[it]
+              arg1_it = arg1[*,it]
+              frm = video_plot_frame(arg1_it, $
+                                     _legend = legend, $
+                                     _text = text, $
+                                     _REF_EXTRA = dex.tostruct())
+              frame = frm.copywindow()
+              vtime = vobj.put(stream,frame)
+              frm.close
+           endfor
+        endelse
+
+        ;;==Close video stream
+        vobj.cleanup
+        printf, lun,"[VIDEO_IMAGE] Finished"
      end
      strcmp(mode,'image'): begin
         ;;==Open video stream
         printf, lun,"[VIDEO] Creating ",filename," in image mode..."
-        ;; video = idlffvideowrite(filename)
-        ;; stream = video.addvideostream(dimensions[0], $
-        ;;                               dimensions[1], $
-        ;;                               framerate)
+        vobj = idlffvideowrite(filename)
+        stream = vobj.addvideostream(dimensions[0], $
+                                     dimensions[1], $
+                                     framerate)
+        ;;==Loop over frames
+        for it=0,nt-1 do begin
+
+        endfor
+        ;;==Close video stream
+        vobj.cleanup
+        printf, lun,"[VIDEO_IMAGE] Finished"
      end
      strcmp(mode,'error'): begin
         msg = "[VIDEO] Calling sequence may be either:"+cr+ $
@@ -201,10 +273,6 @@ STOP
         if ~keyword_set(quiet) then printf, lun,msg
      end
   endcase
-
-  ;;==Close video stream
-  video.cleanup
-  printf, lun,"[VIDEO_IMAGE] Finished"
 
   ;; ;;==Reset input quantities
   ;; if keyword_set(graphics_kw) then _graphics_kw_ = graphics_kw[*]
