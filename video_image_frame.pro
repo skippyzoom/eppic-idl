@@ -1,4 +1,4 @@
-function video_image_frame, arg1,arg2,arg3, $
+function video_image_frame, fin,xin,yin, $
                            _colorbar=_colorbar, $
                            _text=_text, $
                            _REF_EXTRA=ex
@@ -8,13 +8,13 @@ function video_image_frame, arg1,arg2,arg3, $
   if n_elements(_text) eq 0 then $
      _text = dictionary('add',0)
 
-  if n_elements(arg2) ne 0 && n_elements(arg3) ne 0 then begin
-     frm = image(arg1,arg2,arg3, $
+  if n_elements(xin) ne 0 && n_elements(yin) ne 0 then begin
+     frm = image(fin,xin,yin, $
                  /buffer, $
                  _STRICT_EXTRA = ex)
   endif $
   else begin
-     frm = image(arg1, $
+     frm = image(fin, $
                  /buffer, $
                  _STRICT_EXTRA = ex)
   endelse
