@@ -138,28 +138,26 @@ function video, arg1,arg2,arg3, $
 
   ;;==Determine image/plot mode from input dimensions
   sarg1 = size(arg1)
-  sarg2 = size(arg2)
-  sarg3 = size(arg3)
   case sarg1[0] of
      1: begin
+        arg1_is_x_axis = 1B
+        sarg2 = size(arg2)
         if sarg2[0] ne 0 then begin
            mode = 'plot'
-           axes_provided = 1B
            nx = n_elements(arg1)
            ny = sarg2[1]
            nt = sarg2[2]
         endif else mode = 'error'
      end
      2: begin
+        arg1_is_x_axis = 0B
         mode = 'plot'
-        axes_provided = 0B
         ny = sarg1[1]
         nx = ny
         nt = sarg1[2]
      end
      3: begin
         mode = 'image'
-        axes_provided = sarg2[0] eq 1 && sarg3[0] eq 1
         nx = sarg1[1]
         ny = sarg1[2]
         nt = sarg1[3]
@@ -202,11 +200,6 @@ function video, arg1,arg2,arg3, $
 
   ;;->Handle TEXT here
 
-  
-  ;;=>Strategy: 
-  ;;Avoid IFs within FOR loops. That makes for additional blocks,
-  ;;which we need to update consistently, but I suspect it will
-  ;;improve performance.
   ;;==Create video or print error message
   case 1B of
      strcmp(mode,'plot'): begin        
@@ -219,32 +212,24 @@ function video, arg1,arg2,arg3, $
                                      framerate)
 
         ;;==Add frames to video stream
-        if axes_provided then begin
-           for it=0,nt-1 do begin
-              dex.title = title[it]
-              arg2_it = arg2[*,it]
-              frm = video_plot_frame(arg1,arg2_it, $
-                                     _legend = legend, $
-                                     _text = text, $
-                                     _REF_EXTRA = dex.tostruct())
-              frame = frm.copywindow()
-              vtime = vobj.put(stream,frame)
-              frm.close
-           endfor
+        if arg1_is_x_axis then begin
+           xin = arg1
+           yin = arg2
         endif $
         else begin
-           for it=0,nt-1 do begin
-              dex.title = title[it]
-              arg1_it = arg1[*,it]
-              frm = video_plot_frame(arg1_it, $
-                                     _legend = legend, $
-                                     _text = text, $
-                                     _REF_EXTRA = dex.tostruct())
-              frame = frm.copywindow()
-              vtime = vobj.put(stream,frame)
-              frm.close
-           endfor
+           xin = !NULL
+           yin = arg1
         endelse
+        for it=0,nt-1 do begin
+           dex.title = title[it]
+           frm = video_plot_frame(xin,yin[*,it], $
+                                  _legend = legend, $
+                                  _text = text, $
+                                  _REF_EXTRA = dex.tostruct())
+           frame = frm.copywindow()
+           vtime = vobj.put(stream,frame)
+           frm.close
+        endfor
 
         ;;==Close video stream
         vobj.cleanup
@@ -263,8 +248,7 @@ function video, arg1,arg2,arg3, $
         ;;==Add frames to video stream
         for it=0,nt-1 do begin
            dex.title = title[it]
-           arg1_it = arg1[*,*,it]
-           frm = video_image_frame(arg1_it,arg2,arg3, $
+           frm = video_image_frame(arg1[*,*,it],arg2,arg3, $
                                    _colorbar = colorbar, $
                                    _text = text, $
                                    _REF_EXTRA = dex.tostruct())
