@@ -9,19 +9,19 @@ function video_plot_frame, arg1,arg2, $
      _text = dictionary('add',0)
 
   if n_elements(arg2) ne 0 then begin
-     plt = plot(arg1,arg2, $
+     frm = plot(arg1,arg2, $
                 /buffer, $
                 _STRICT_EXTRA = ex)
   endif $
   else begin
-     plt = plot(arg1, $
+     frm = plot(arg1, $
                 /buffer, $
                 _STRICT_EXTRA = ex)
   endelse
 
   if _legend.add then begin
      _legend.remove, 'add'
-     leg = legend(target = plt, $
+     leg = legend(target = frm, $
                   _EXTRA = _legend.tostruct())
   endif
 
@@ -33,9 +33,9 @@ function video_plot_frame, arg1,arg2, $
      tfmt = _text.format
      _text.remove, 'format'
      txt = text(txyz[0],txyz[1],txyz[2],tstr,tfmt, $
-                target = plt, $
+                target = frm, $
                 _EXTRA = _text.tostruct())
   endif
 
-  return, plt
+  return, frm
 end

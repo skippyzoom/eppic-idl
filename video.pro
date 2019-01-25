@@ -80,7 +80,7 @@ function video, arg1,arg2,arg3, $
   ;; if d_ex.haskey('colorbar_kw') then legend_kw = (d_ex.colorbar_kw)[*]
 
   
-  ;;==Strategy: 
+  ;;=>Strategy: 
   ;;Let the user provide optional graphics keywords (e.g., xtitle,
   ;;axis_style) directly, thereby passing them through _EXTRA. If the
   ;;user wants to add a simple legend in plot mode, they can set
@@ -202,15 +202,23 @@ function video, arg1,arg2,arg3, $
 
   ;;->Handle TEXT here
 
+  
+  ;;=>Strategy: 
+  ;;Avoid IFs within FOR loops. That makes for additional blocks,
+  ;;which we need to update consistently, but I suspect it will
+  ;;improve performance.
   ;;==Create video or print error message
   case 1B of
      strcmp(mode,'plot'): begin        
+
         ;;==Open video stream
         printf, lun,"[VIDEO] Creating ",filename," in plot mode..."
         vobj = idlffvideowrite(filename)
         stream = vobj.addvideostream(dex.dimensions[0], $
                                      dex.dimensions[1], $
                                      framerate)
+
+        ;;==Add frames to video stream
         if axes_provided then begin
            for it=0,nt-1 do begin
               dex.title = title[it]
@@ -240,22 +248,35 @@ function video, arg1,arg2,arg3, $
 
         ;;==Close video stream
         vobj.cleanup
-        printf, lun,"[VIDEO_IMAGE] Finished"
+        printf, lun,"[VIDEO] Finished"
+
      end
      strcmp(mode,'image'): begin
+
         ;;==Open video stream
         printf, lun,"[VIDEO] Creating ",filename," in image mode..."
         vobj = idlffvideowrite(filename)
-        stream = vobj.addvideostream(dimensions[0], $
-                                     dimensions[1], $
+        stream = vobj.addvideostream(dex.dimensions[0], $
+                                     dex.dimensions[1], $
                                      framerate)
-        ;;==Loop over frames
-        for it=0,nt-1 do begin
 
+        ;;==Add frames to video stream
+        for it=0,nt-1 do begin
+           dex.title = title[it]
+           arg1_it = arg1[*,*,it]
+           frm = video_image_frame(arg1_it,arg2,arg3, $
+                                   _colorbar = colorbar, $
+                                   _text = text, $
+                                   _REF_EXTRA = dex.tostruct())
+           frame = frm.copywindow()
+           vtime = vobj.put(stream,frame)
+           frm.close
         endfor
+
         ;;==Close video stream
         vobj.cleanup
-        printf, lun,"[VIDEO_IMAGE] Finished"
+        printf, lun,"[VIDEO] Finished"
+
      end
      strcmp(mode,'error'): begin
         msg = "[VIDEO] Calling sequence may be either:"+cr+ $
