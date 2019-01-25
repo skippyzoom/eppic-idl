@@ -1,4 +1,4 @@
-function video_plot_frame, arg1,arg2, $
+function video_plot_frame, xin,yin, $
                            _legend=_legend, $
                            _text=_text, $
                            _REF_EXTRA=ex
@@ -8,13 +8,13 @@ function video_plot_frame, arg1,arg2, $
   if n_elements(_text) eq 0 then $
      _text = dictionary('add',0)
 
-  if n_elements(arg2) ne 0 then begin
-     frm = plot(arg1,arg2, $
+  if n_elements(xin) ne 0 then begin
+     frm = plot(xin,yin, $
                 /buffer, $
                 _STRICT_EXTRA = ex)
   endif $
   else begin
-     frm = plot(arg1, $
+     frm = plot(yin, $
                 /buffer, $
                 _STRICT_EXTRA = ex)
   endelse
