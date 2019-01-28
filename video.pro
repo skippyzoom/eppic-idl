@@ -64,22 +64,6 @@ function video, arg1,arg2,arg3, $
   if ~file_test(file_dirname(filename),/directory) then $
      spawn, 'mkdir -p '+file_dirname(filename)
 
-  ;; ;;==Preserve input quantities
-  ;; if keyword_set(graphics_kw) then _graphics_kw_ = graphics_kw[*]
-  ;; if keyword_set(legend_kw) then _legend_kw_ = legend_kw[*]
-  ;; if keyword_set(text_xyz) then _text_xyz_ = text_xyz
-  ;; if keyword_set(text_string) then _text_string_ = text_string
-  ;; if keyword_set(text_format) then _text_format_ = text_format
-  ;; if keyword_set(text_kw) then _text_kw_ = text_kw[*]
-
-  ;; d_ex = dictionary(ex,/extract)
-  ;; if d_ex.haskey('graphics_kw') then graphics_kw = (d_ex.graphics_kw)[*]
-  ;; if d_ex.haskey('image_kw') then graphics_kw = (d_ex.image_kw)[*]
-  ;; if d_ex.haskey('plot_kw') then graphics_kw = (d_ex.plot_kw)[*]
-  ;; if d_ex.haskey('legend_kw') then legend_kw = (d_ex.legend_kw)[*]
-  ;; if d_ex.haskey('colorbar_kw') then legend_kw = (d_ex.colorbar_kw)[*]
-
-  
   ;;=>Strategy: 
   ;;Let the user provide optional graphics keywords (e.g., xtitle,
   ;;axis_style) directly, thereby passing them through _EXTRA. If the
@@ -89,52 +73,12 @@ function video, arg1,arg2,arg3, $
   ;;image mode. If the user wants to add text to the movie, they can
   ;;supply a dictionary containing parameters and keywords via
   ;;text. In that case, the user-supplied dictionary must contain a
-  ;;member called 'xyz' for position, a member called 'string' for the
-  ;;text string. It may also contain an optional member called
+  ;;member called 'xyz' for position and a member called 'string' for
+  ;;the text string. It may also contain an optional member called 
   ;;'format' for the text format. This naming convention is consistent
   ;;with the names of the two required and one optional parameters as
   ;;described on the IDL man page for text.pro.
   ;;three required parameter
-
-  ;;==Handle LEGEND (for plot movies)
-  if keyword_set(legend) then begin
-     case 1B of 
-        isa(legend,/number): legend = dictionary('add',1, $
-                                                 'orientation',0)
-        isa(legend,'dictionary'): legend['add'] = 1
-        else: begin
-           msg = "[VIDEO] LEGEND may be set as a boolean (/legend), "+cr+ $
-                 "        "+ $
-                 "a number (equivalent to setting /legend), or "+cr+ $
-                 "        "+ $
-                 "a dictionary of keywords. "+cr+ $
-                 "        "+ $
-                 "See the IDL help page for legend.pro for "+ $
-                 "acceptible keywords."
-           if ~keyword_set(quiet) then printf, lun,msg
-        end
-     endcase
-  endif
-
-  ;;==Handle COLORBAR (for image movies)
-  if keyword_set(colorbar) then begin
-     case 1B of 
-        isa(colorbar,/number): colorbar = dictionary('add',1, $
-                                                     'orientation',0)
-        isa(colorbar,'dictionary'): colorbar['add'] = 1
-        else: begin
-           msg = "[VIDEO] COLORBAR may be set as a boolean (/colorbar), "+cr+ $
-                 "        "+ $
-                 "a number (equivalent to setting /colorbar), or "+cr+ $
-                 "        "+ $
-                 "a dictionary of keywords. "+cr+ $
-                 "        "+ $
-                 "See the IDL help page for colorbar.pro for "+ $
-                 "acceptible keywords."
-           if ~keyword_set(quiet) then printf, lun,msg
-        end
-     endcase
-  endif
 
   ;;==Determine image/plot mode from input dimensions
   sarg1 = size(arg1)
@@ -196,11 +140,77 @@ function video, arg1,arg2,arg3, $
      if n_elements(title) eq 0 then $
         title = make_array(nt,value='')
 
+     ;;==Handle LEGEND (for plot movies)
+     if keyword_set(legend) then begin
+        case 1B of 
+           isa(legend,/number): legend = dictionary('add',1, $
+                                                    'orientation',0)
+           isa(legend,'dictionary'): legend['add'] = 1
+           else: begin
+              msg = "[VIDEO] LEGEND may be set as a boolean (/legend), "+cr+ $
+                    "        "+ $
+                    "a number (equivalent to setting /legend), or "+cr+ $
+                    "        "+ $
+                    "a dictionary of keywords. "+cr+ $
+                    "        "+ $
+                    "See the IDL help page for legend.pro for "+ $
+                    "acceptible keywords."
+              if ~keyword_set(quiet) then printf, lun,msg
+           end
+        endcase
+     endif
+
+     ;;==Handle COLORBAR (for image movies)
+     if keyword_set(colorbar) then begin
+        case 1B of 
+           isa(colorbar,/number): colorbar = dictionary('add',1, $
+                                                        'orientation',0)
+           isa(colorbar,'dictionary'): colorbar['add'] = 1
+           else: begin
+              msg = "[VIDEO] COLORBAR may be set as a boolean (/colorbar), "+cr+ $
+                    "        "+ $
+                    "a number (equivalent to setting /colorbar), or "+cr+ $
+                    "        "+ $
+                    "a dictionary of keywords. "+cr+ $
+                    "        "+ $
+                    "See the IDL help page for colorbar.pro for "+ $
+                    "acceptible keywords."
+              if ~keyword_set(quiet) then printf, lun,msg
+           end
+        endcase
+     endif
+
+     ;;==Handle TEXT
+     if keyword_set(text) then begin
+        if ~isa(text,'dictionary') then begin
+           if ~keyword_set(quiet) then $
+              printf, lun,'[VIDEO] TEXT must be a dictionary'
+           text = dictionary('add',0)
+        endif                
+        if ~text.haskey('add') then text.add = 1B
+        if ~text.haskey('xyz') then begin
+           if ~keyword_set(quiet) then $
+              printf, lun,'[VIDEO] TEXT requires an array of positions called XYZ'
+           text.add = 0B
+        endif
+        if ~text.haskey('string') then begin
+           if ~keyword_set(quiet) then $
+              printf, lun,'[VIDEO] TEXT requires a string called STRING'
+           text.add = 0B
+        endif $
+        else begin
+           case n_elements(text.string) of
+              0: tstr = make_array(nt,value='')
+              1: tstr = make_array(nt,value=text.string)
+              nt: tstr = text.string
+              else: tstr = !NULL
+           endcase
+        endelse
+     endif
+
   endif
 
-  ;;->Handle TEXT here
-
-  ;;==Create video or print error message
+  ;;==Create video or print error message and return
   case 1B of
      strcmp(mode,'plot'): begin        
 
@@ -222,9 +232,10 @@ function video, arg1,arg2,arg3, $
         endelse
         for it=0,nt-1 do begin
            dex.title = title[it]
+           text.string = tstr[it]
            frm = video_plot_frame(xin,yin[*,it], $
-                                  _legend = legend, $
-                                  _text = text, $
+                                  legend = legend, $
+                                  text = text, $
                                   _REF_EXTRA = dex.tostruct())
            frame = frm.copywindow()
            vtime = vobj.put(stream,frame)
@@ -247,10 +258,11 @@ function video, arg1,arg2,arg3, $
 
         ;;==Add frames to video stream
         for it=0,nt-1 do begin
-           dex.title = title[it]
+           dex.title = title[it]           
+           text.string = tstr[it]
            frm = video_image_frame(arg1[*,*,it],arg2,arg3, $
-                                   _colorbar = colorbar, $
-                                   _text = text, $
+                                   colorbar = colorbar, $
+                                   text = text, $
                                    _REF_EXTRA = dex.tostruct())
            frame = frm.copywindow()
            vtime = vobj.put(stream,frame)
@@ -278,14 +290,6 @@ function video, arg1,arg2,arg3, $
         if ~keyword_set(quiet) then printf, lun,msg
      end
   endcase
-
-  ;; ;;==Reset input quantities
-  ;; if keyword_set(graphics_kw) then _graphics_kw_ = graphics_kw[*]
-  ;; if keyword_set(legend_kw) then _legend_kw_ = legend_kw[*]
-  ;; if keyword_set(text_xyz) then _text_xyz_ = text_xyz
-  ;; if keyword_set(text_string) then _text_string_ = text_string
-  ;; if keyword_set(text_format) then _text_format_ = text_format
-  ;; if keyword_set(text_kw) then _text_kw_ = text_kw[*]
 
   return_info = dictionary('mode',mode, $
                            'filename',filename, $
