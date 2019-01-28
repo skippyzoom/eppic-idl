@@ -186,14 +186,14 @@ pro image_graphics, imgdata,xdata,ydata, $
      if n_elements(title) ne 0 then i_kw['title'] = title[it]
      if n_elements(t_string) ne 0 then $
         tmp_str = t_string[it]
-     img = image_frame(fdata,xdata,ydata, $
-                       image_kw=i_kw, $
-                       colorbar_kw=c_kw, $
-                       add_colorbar=add_colorbar, $
-                       text_xyz=text_xyz, $
-                       text_string=tmp_str, $
-                       text_format=text_format, $
-                       text_kw=t_kw)
+     img = image_frame_old(fdata,xdata,ydata, $
+                           image_kw=i_kw, $
+                           colorbar_kw=c_kw, $
+                           add_colorbar=add_colorbar, $
+                           text_xyz=text_xyz, $
+                           text_string=tmp_str, $
+                           text_format=text_format, $
+                           text_kw=t_kw)
      if keyword_set(make_movie) then begin
         frame = img.copywindow()
         !NULL = video.put(stream,frame)

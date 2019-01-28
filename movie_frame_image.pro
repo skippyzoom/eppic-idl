@@ -185,12 +185,12 @@ pro movie_frame_image, movdata,xdata,ydata, $
   ;;==Write data to video stream at each time step
   for it=0,nt-1 do begin
      fdata = movdata[*,*,it]
-     img = image_frame(fdata,xdata,ydata, $
-                       title=title, $
-                       image_kw=image_kw, $
-                       colorbar_kw=colobar_kw, $
-                       add_colorbar=add_colorbar, $
-                       text_kw=text_kw)
+     img = image_frame_old(fdata,xdata,ydata, $
+                           title=title, $
+                           image_kw=image_kw, $
+                           colorbar_kw=colobar_kw, $
+                           add_colorbar=add_colorbar, $
+                           text_kw=text_kw)
      frame = img.copywindow()
      !NULL = video.put(stream,frame)
      img.close
