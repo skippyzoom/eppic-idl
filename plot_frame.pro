@@ -1,7 +1,7 @@
-function video_plot_frame, xin,yin, $
-                           legend=lkw_in, $
-                           text=tkw_in, $
-                           _REF_EXTRA=ex
+function plot_frame, xin,yin, $
+                     legend=lkw_in, $
+                     text=tkw_in, $
+                     _REF_EXTRA=ex
 
   if n_elements(lkw_in) ne 0 then lkw = lkw_in[*]
   if n_elements(tkw_in) ne 0 then tkw = tkw_in[*]

@@ -192,7 +192,19 @@ function video, arg1,arg2,arg3, $
            if ~keyword_set(quiet) then $
               printf, lun,'[VIDEO] TEXT requires an array of positions called XYZ'
            text.add = 0B
-        endif
+        endif $
+        else begin
+           case n_elements(text.xyz) of
+              0: text.xyz = [0,0,0]
+              2: text.xyz = [text.xyz,0]
+              else: begin
+                 msg = "[VIDEO] TEXT.XYZ has an inappropriate number of elements. "+ $
+                       "Using [0,0,0]"
+                 if ~keyword_set(quiet) then printf, lun,msg
+                 text.xyz = [0,0,0]
+              end
+           endcase
+        endelse
         if ~text.haskey('string') then begin
            if ~keyword_set(quiet) then $
               printf, lun,'[VIDEO] TEXT requires a string called STRING'
@@ -233,10 +245,10 @@ function video, arg1,arg2,arg3, $
         for it=0,nt-1 do begin
            dex.title = title[it]
            text.string = tstr[it]
-           frm = video_plot_frame(xin,yin[*,it], $
-                                  legend = legend, $
-                                  text = text, $
-                                  _REF_EXTRA = dex.tostruct())
+           frm = plot_frame(xin,yin[*,it], $
+                            legend = legend, $
+                            text = text, $
+                            _REF_EXTRA = dex.tostruct())
            frame = frm.copywindow()
            vtime = vobj.put(stream,frame)
            frm.close
@@ -260,10 +272,10 @@ function video, arg1,arg2,arg3, $
         for it=0,nt-1 do begin
            dex.title = title[it]           
            text.string = tstr[it]
-           frm = video_image_frame(arg1[*,*,it],arg2,arg3, $
-                                   colorbar = colorbar, $
-                                   text = text, $
-                                   _REF_EXTRA = dex.tostruct())
+           frm = image_frame(arg1[*,*,it],arg2,arg3, $
+                             colorbar = colorbar, $
+                             text = text, $
+                             _REF_EXTRA = dex.tostruct())
            frame = frm.copywindow()
            vtime = vobj.put(stream,frame)
            frm.close

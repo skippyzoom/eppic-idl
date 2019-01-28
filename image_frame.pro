@@ -1,7 +1,7 @@
-function video_image_frame, fin,xin,yin, $
-                           colorbar=ckw_in, $
-                           text=tkw_in, $
-                           _REF_EXTRA=ex
+function image_frame, fin,xin,yin, $
+                      colorbar=ckw_in, $
+                      text=tkw_in, $
+                      _REF_EXTRA=ex
 
   if n_elements(ckw_in) ne 0 then ckw = ckw_in[*]
   if n_elements(tkw_in) ne 0 then tkw = tkw_in[*]
