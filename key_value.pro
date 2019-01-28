@@ -9,33 +9,37 @@
 ; Created by Matt Young.
 ;------------------------------------------------------------------------------
 ;                                 **PARAMETERS**
-; D (required)
+; OBJ (required)
 ;    The dictionary or hash to query.
-; K (required)
-;    The key within D to check.
-; V (required)
-;    The value against which to check K.
+; KEY (required)
+;    The key within OBJ to check.
+; VALUE (default: 1B)
+;    The value against which to check KEY. The default value allows
+;    the user to call this function to work like keyword_set().
 ; LUN (default: -1)
 ;    Logical unit number for printing runtime messages.
 ; <return> (boolean)
 ;    Truth value of query.
 ;-
-function key_value, d,k,v,lun=lun
+function key_value, obj,key,value=value,lun=lun
 
   ;;==Set default lun
   if n_elements(lun) eq 0 then lun = -1
 
+  ;;==Set default reference value to 1 (true)
+  if n_elements(value) eq 0 then value = 1B
+
   ;;==Set default return value to false
-  r = 0B
+  ret = 0B
   
-  ;;==If d is a dictionary or hash, check k against v;
+  ;;==If obj is a dictionary or hash, check key against value;
   ;;  otherwise, issue a warning message
-  if isa(d,'dictionary') || isa(d,'hash') then begin
+  if isa(obj,'dictionary') || isa(obj,'hash') then begin
 
      ;;==Check key against value based on type
      case 1B of
-        isa(v,/number): r = d.haskey(k) && d[k] eq v
-        isa(v,/string): r = d.haskey(k) && strcmp(d[k],v)
+        isa(value,/number): ret = obj.haskey(key) && obj[key] eq value
+        isa(value,/string): ret = obj.haskey(key) && strcmp(obj[key],value)
         else: printf, lun,"[KEY_VALUE] Could not recognized type"
      endcase
 
@@ -43,5 +47,5 @@ function key_value, d,k,v,lun=lun
   else printf, lun, "[KEY_VALUE] Warning: Input is not a dictionary or hash."
 
   ;;==Return the truth value
-  return, r
+  return, ret
 end
