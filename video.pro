@@ -23,46 +23,32 @@
 ;    of arg1, arg2, and arg3.
 ;-
 
-  ;;=>Strategy: 
-  ;;Let the user provide optional graphics keywords (e.g., xtitle,
-  ;;axis_style) directly, thereby passing them through _EXTRA. If the
-  ;;user wants to add a simple legend in plot mode, they can set
-  ;;/legend; if they want to customize the legend, they can supply a
-  ;;dictionary of keywords via legend; similarly for a colorbar in
-  ;;image mode. If the user wants to add text to the movie, they can
-  ;;supply a dictionary containing parameters and keywords via
-  ;;text. In that case, the user-supplied dictionary must contain a
-  ;;member called 'xyz' for position and a member called 'string' for
-  ;;the text string. It may also contain an optional member called 
-  ;;'format' for the text format. This naming convention is consistent
-  ;;with the names of the two required and one optional parameters as
-  ;;described on the IDL man page for text.pro.
+;;=>Strategy: 
+;;Let the user provide optional graphics keywords (e.g., xtitle,
+;;axis_style) directly, thereby passing them through _EXTRA. If the
+;;user wants to add a simple legend in plot mode, they can set
+;;/legend; if they want to customize the legend, they can supply a
+;;dictionary of keywords via legend; similarly for a colorbar in
+;;image mode. If the user wants to add text to the movie, they can
+;;supply a dictionary containing parameters and keywords via
+;;text. In that case, the user-supplied dictionary must contain a
+;;member called 'xyz' for position and a member called 'string' for
+;;the text string. It may also contain an optional member called 
+;;'format' for the text format. This naming convention is consistent
+;;with the names of the two required and one optional parameters as
+;;described on the IDL man page for text.pro.
+
+;;=>To do:
+;;1) Decide what the return value/object should be.
+;;2) Distinguish between QUIET and VERBOSE.
 
 function video, arg1,arg2,arg3, $
                 verbose=verbose, $
                 quiet=quiet, $
                 lun=lun, $
                 filename=filename, $
-                ;; log=log, $
-                ;; alog_base=alog_base, $
                 framerate=framerate, $
                 resize=resize, $
-                ;; overplot=overplot, $
-                ;; graphics_kw=graphics_kw, $
-                ;; legend_kw=legend_kw, $
-                ;; add_legend=add_legend, $
-                ;; ;; plot_kw=plot_kw, $
-                ;; ;; add_legend=add_legend, $
-                ;; ;; legend_kw=legend_kw, $
-                ;; ;; image_kw=image_kw, $
-                ;; ;; add_colorbar=add_colorbar, $
-                ;; ;; colorbar_kw=colorbar_kw, $
-                ;; text_xyz=text_xyz, $
-                ;; text_string=text_string, $
-                ;; text_format=text_format, $
-                ;; text_kw=text_kw, $
-                ;; legend=legend, $
-                ;; colorbar=colorbar, $
                 text=text, $
                 _EXTRA=ex
 
@@ -109,9 +95,26 @@ function video, arg1,arg2,arg3, $
      else: mode = 'error'
   endcase
 
-  ;;->Warn the user that idlffvideowrite::put will throw an error if
-  ;;either nx<30 or ny<30. Suggest that they use the RESIZE
-  ;;keyword. Is it worth adding an auto-resize capability?
+  ;;==Warn the user that idlffvideowrite::put will throw an error if
+  ;;  either nx < 30 or ny < 30.
+  if (nx lt 30) || (ny lt 30) then begin
+     if nx lt 30 then begin
+        msg = "[VIDEO] idlffvideowrite::put requires nx > 29. Consider using resize > 1."
+        printf, lun,msg
+        mode = 'error'
+     endif
+     if ny lt 30 then begin
+        msg = "[VIDEO] idlffvideowrite::put requires ny > 29. Consider using resize > 1."
+        printf, lun,msg
+        mode = 'error'
+     endif
+     if (nx lt 30) && (ny lt 30) then begin
+        msg = "[VIDEO] idlffvideowrite::put requires [nx,ny] > [29,29]. "+ $
+              "Consider using resize > 1."
+        printf, lun,msg
+        mode = 'error'
+     endif
+  endif
 
   ;;==If input is good, handle some graphics keywords
   if ~strcmp(mode,'error') then begin
@@ -244,15 +247,18 @@ function video, arg1,arg2,arg3, $
         if arg1_is_x_axis then begin
            xin = arg1
            yin = arg2
+           if isa(arg3,/string) then format = arg3
         endif $
         else begin
            xin = !NULL
            yin = arg1
+           if isa(arg2,/string) then format = arg2
         endelse
+
         for it=0,nt-1 do begin
            dex.title = title[it]
            text.string = tstr[it]
-           frm = plot_frame(xin,yin[*,it], $
+           frm = plot_frame(xin,yin[*,it],format, $
                             legend = legend, $
                             text = text, $
                             _REF_EXTRA = dex.tostruct())

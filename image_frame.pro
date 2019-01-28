@@ -1,8 +1,11 @@
 function image_frame, fin,xin,yin, $
+                      lun=lun, $
+                      quiet=quiet, $
                       colorbar=ckw_in, $
                       text=tkw_in, $
                       _REF_EXTRA=ex
 
+  if n_elements(lun) eq 0 then lun = -1
   if n_elements(ckw_in) ne 0 then ckw = ckw_in[*]
   if n_elements(tkw_in) ne 0 then tkw = tkw_in[*]
 

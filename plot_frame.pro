@@ -1,8 +1,11 @@
-function plot_frame, xin,yin, $
+function plot_frame, xin,yin,format, $
+                     lun=lun, $
+                     quiet=quiet, $
                      legend=lkw_in, $
                      text=tkw_in, $
                      _REF_EXTRA=ex
 
+  if n_elements(lun) eq 0 then lun = -1
   if n_elements(lkw_in) ne 0 then lkw = lkw_in[*]
   if n_elements(tkw_in) ne 0 then tkw = tkw_in[*]
 
@@ -15,16 +18,50 @@ function plot_frame, xin,yin, $
   if ~tkw.haskey('add') then $
      tkw['add'] = 0
 
-  if n_elements(xin) ne 0 then begin
-     frm = plot(xin,yin, $
-                /buffer, $
-                _STRICT_EXTRA = ex)
+  ;; n_params = (n_elements(xin) ne 0) + $
+  ;;            (n_elements(yin) ne 0) + $
+  ;;            (n_elements(format) ne 0)
+  ;; case n_params of 
+  ;;    1: frm = plot(yin, $
+  ;;                  /buffer, $
+  ;;                  _STRICT_EXTRA = ex)
+  ;;    2: frm = plot(xin,yin, $
+  ;;                  /buffer, $
+  ;;                  _STRICT_EXTRA = ex)
+  ;;    3: frm = plot(xin,yin,format, $
+  ;;                  /buffer, $
+  ;;                  _STRICT_EXTRA = ex)
+  ;;    else: begin
+  ;;       msg = "[PLOT_FRAME] Wrong number of arguments"
+  ;;       printf, lun,msg
+  ;;    end
+  ;; endcase
+
+  if n_elements(format) ne 0 then begin
+     if n_elements(xin) ne 0 then begin
+        frm = plot(xin,yin,format, $
+                   /buffer, $
+                   _STRICT_EXTRA = ex)
+     endif $
+     else begin
+        frm = plot(yin,format, $
+                   /buffer, $
+                   _STRICT_EXTRA = ex)
+     endelse
   endif $
   else begin
-     frm = plot(yin, $
-                /buffer, $
-                _STRICT_EXTRA = ex)
+     if n_elements(xin) ne 0 then begin
+        frm = plot(xin,yin, $
+                   /buffer, $
+                   _STRICT_EXTRA = ex)
+     endif $
+     else begin
+        frm = plot(yin, $
+                   /buffer, $
+                   _STRICT_EXTRA = ex)
+     endelse
   endelse
+
 
   if lkw.add then begin
      lkw.remove, 'add'
