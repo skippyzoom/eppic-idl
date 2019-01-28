@@ -17,8 +17,8 @@
 ;    The value against which to check K.
 ; LUN (default: -1)
 ;    Logical unit number for printing runtime messages.
-; <return>
-;    Boolean truth value.
+; <return> (boolean)
+;    Truth value of query.
 ;-
 function key_value, d,k,v,lun=lun
 
@@ -40,7 +40,7 @@ function key_value, d,k,v,lun=lun
      endcase
 
   endif $
-  else printf, lun, "[KEY_VALUE] Warning: d is not an object"
+  else printf, lun, "[KEY_VALUE] Warning: Input is not a dictionary or hash."
 
   ;;==Return the truth value
   return, r
