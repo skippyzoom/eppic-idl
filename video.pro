@@ -22,6 +22,22 @@
 ;    and the appropriate calling sequence, based on the dimensions 
 ;    of arg1, arg2, and arg3.
 ;-
+
+  ;;=>Strategy: 
+  ;;Let the user provide optional graphics keywords (e.g., xtitle,
+  ;;axis_style) directly, thereby passing them through _EXTRA. If the
+  ;;user wants to add a simple legend in plot mode, they can set
+  ;;/legend; if they want to customize the legend, they can supply a
+  ;;dictionary of keywords via legend; similarly for a colorbar in
+  ;;image mode. If the user wants to add text to the movie, they can
+  ;;supply a dictionary containing parameters and keywords via
+  ;;text. In that case, the user-supplied dictionary must contain a
+  ;;member called 'xyz' for position and a member called 'string' for
+  ;;the text string. It may also contain an optional member called 
+  ;;'format' for the text format. This naming convention is consistent
+  ;;with the names of the two required and one optional parameters as
+  ;;described on the IDL man page for text.pro.
+
 function video, arg1,arg2,arg3, $
                 verbose=verbose, $
                 quiet=quiet, $
@@ -45,8 +61,8 @@ function video, arg1,arg2,arg3, $
                 ;; text_string=text_string, $
                 ;; text_format=text_format, $
                 ;; text_kw=text_kw, $
-                legend=legend, $
-                colorbar=colorbar, $
+                ;; legend=legend, $
+                ;; colorbar=colorbar, $
                 text=text, $
                 _EXTRA=ex
 
@@ -63,22 +79,6 @@ function video, arg1,arg2,arg3, $
   ;;==Make sure target directory exists
   if ~file_test(file_dirname(filename),/directory) then $
      spawn, 'mkdir -p '+file_dirname(filename)
-
-  ;;=>Strategy: 
-  ;;Let the user provide optional graphics keywords (e.g., xtitle,
-  ;;axis_style) directly, thereby passing them through _EXTRA. If the
-  ;;user wants to add a simple legend in plot mode, they can set
-  ;;/legend; if they want to customize the legend, they can supply a
-  ;;dictionary of keywords via legend; similarly for a colorbar in
-  ;;image mode. If the user wants to add text to the movie, they can
-  ;;supply a dictionary containing parameters and keywords via
-  ;;text. In that case, the user-supplied dictionary must contain a
-  ;;member called 'xyz' for position and a member called 'string' for
-  ;;the text string. It may also contain an optional member called 
-  ;;'format' for the text format. This naming convention is consistent
-  ;;with the names of the two required and one optional parameters as
-  ;;described on the IDL man page for text.pro.
-  ;;three required parameter
 
   ;;==Determine image/plot mode from input dimensions
   sarg1 = size(arg1)
@@ -127,7 +127,7 @@ function video, arg1,arg2,arg3, $
                    dimensions[1]*resize[1]]
      dex.dimensions = dimensions
 
-     ;;==Remove time-dependent keywords and reserve
+     ;;==Remove time-dependent graphics keywords and reserve
      if dex.haskey('title') then begin
         case n_elements(dex.title) of 
            0: title = make_array(nt,value='')
@@ -141,11 +141,11 @@ function video, arg1,arg2,arg3, $
         title = make_array(nt,value='')
 
      ;;==Handle LEGEND (for plot movies)
-     if keyword_set(legend) then begin
+     if key_value(dex,'legend') then begin
         case 1B of 
-           isa(legend,/number): legend = dictionary('add',1, $
-                                                    'orientation',0)
-           isa(legend,'dictionary'): legend['add'] = 1
+           isa(dex.legend,/number): legend = dictionary('add',1, $
+                                                        'orientation',0)
+           isa(dex.legend,'dictionary'): legend = (dex.legend)[*]
            else: begin
               msg = "[VIDEO] LEGEND may be set as a boolean (/legend), "+cr+ $
                     "        "+ $
@@ -158,14 +158,15 @@ function video, arg1,arg2,arg3, $
               if ~keyword_set(quiet) then printf, lun,msg
            end
         endcase
+        dex.remove, 'legend'
      endif
 
      ;;==Handle COLORBAR (for image movies)
-     if keyword_set(colorbar) then begin
+     if key_value(dex,'colorbar') then begin
         case 1B of 
-           isa(colorbar,/number): colorbar = dictionary('add',1, $
-                                                        'orientation',0)
-           isa(colorbar,'dictionary'): colorbar['add'] = 1
+           isa(dex.colorbar,/number): colorbar = dictionary('add',1, $
+                                                            'orientation',0)
+           isa(dex.colorbar,'dictionary'): colorbar = (dex.colorbar)[*]
            else: begin
               msg = "[VIDEO] COLORBAR may be set as a boolean (/colorbar), "+cr+ $
                     "        "+ $
@@ -178,6 +179,7 @@ function video, arg1,arg2,arg3, $
               if ~keyword_set(quiet) then printf, lun,msg
            end
         endcase
+        dex.remove, 'colorbar'
      endif
 
      ;;==Handle TEXT
@@ -187,40 +189,45 @@ function video, arg1,arg2,arg3, $
               printf, lun,'[VIDEO] TEXT must be a dictionary'
            text = dictionary('add',0)
         endif                
-        if ~text.haskey('add') then text.add = 1B
-        if ~text.haskey('xyz') then begin
-           if ~keyword_set(quiet) then $
-              printf, lun,'[VIDEO] TEXT requires an array of positions called XYZ'
-           text.add = 0B
-        endif $
-        else begin
-           case n_elements(text.xyz) of
-              0: text.xyz = [0,0,0]
-              2: text.xyz = [text.xyz,0]
-              else: begin
-                 msg = "[VIDEO] TEXT.XYZ has an inappropriate number of elements. "+ $
-                       "Using [0,0,0]"
-                 if ~keyword_set(quiet) then printf, lun,msg
-                 text.xyz = [0,0,0]
-              end
-           endcase
-        endelse
-        if ~text.haskey('string') then begin
-           if ~keyword_set(quiet) then $
-              printf, lun,'[VIDEO] TEXT requires a string called STRING'
-           text.add = 0B
-        endif $
-        else begin
-           case n_elements(text.string) of
-              0: tstr = make_array(nt,value='')
-              1: tstr = make_array(nt,value=text.string)
-              nt: tstr = text.string
-              else: tstr = !NULL
-           endcase
-        endelse
-     endif
+     endif $
+     else begin
+        text = dictionary('add',0, $
+                          'string',!NULL, $
+                          'xyz',!NULL)
+     endelse
+     if ~text.haskey('add') then text.add = 1B
+     if ~text.haskey('xyz') then begin
+        if ~keyword_set(quiet) then $
+           printf, lun,'[VIDEO] TEXT requires an array of positions called XYZ'
+        text.add = 0B
+     endif $
+     else begin
+        case n_elements(text.xyz) of
+           0: text.xyz = [0,0,0]
+           2: text.xyz = [text.xyz,0]
+           else: begin
+              msg = "[VIDEO] TEXT.XYZ has an inappropriate number of elements. "+ $
+                    "Using [0,0,0]"
+              if ~keyword_set(quiet) then printf, lun,msg
+              text.xyz = [0,0,0]
+           end
+        endcase
+     endelse
+     if ~text.haskey('string') then begin
+        if ~keyword_set(quiet) then $
+           printf, lun,'[VIDEO] TEXT requires a string called STRING'
+        text.add = 0B
+     endif $
+     else begin
+        case n_elements(text.string) of
+           0: tstr = make_array(nt,value='')
+           1: tstr = make_array(nt,value=text.string)
+           nt: tstr = text.string
+           else: tstr = !NULL
+        endcase
+     endelse
 
-  endif
+  endif                         ;Mode is not 'error'
 
   ;;==Create video or print error message and return
   case 1B of
