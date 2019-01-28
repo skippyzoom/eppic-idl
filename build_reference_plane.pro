@@ -1,5 +1,5 @@
 ;+
-; Builds a logically 2-D that read_ph5_plane.pro can use to set
+; Builds a logically 2-D object that read_ph5_plane.pro can use to set
 ; dimensions for data reading.
 ;
 ; Created by Matt Young.
