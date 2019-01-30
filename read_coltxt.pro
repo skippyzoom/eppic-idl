@@ -10,7 +10,7 @@
 ;    Pattern for strsplit.
 ; HEAD_LENGTH (default: 0)
 ;    Length of data-file header.
-; <return>
+; <return> (float)
 ;    Array of data from file.
 ;-
 function read_coltxt, path, $
