@@ -42,8 +42,10 @@ function image_frame, fin,xin,yin, $
      tkw.remove, 'xyz'
      tstr = tkw.string
      tkw.remove, 'string'
-     tfmt = tkw.format
-     tkw.remove, 'format'
+     if tkw.haskey('format') then begin
+        tfmt = tkw.format
+        tkw.remove, 'format'
+     endif else tfmt = !NULL
      txt = text(txyz[0],txyz[1],txyz[2],tstr,tfmt, $
                 target = frm, $
                 _EXTRA = tkw.tostruct())

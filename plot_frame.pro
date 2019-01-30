@@ -18,25 +18,6 @@ function plot_frame, xin,yin,format, $
   if ~tkw.haskey('add') then $
      tkw['add'] = 0
 
-  ;; n_params = (n_elements(xin) ne 0) + $
-  ;;            (n_elements(yin) ne 0) + $
-  ;;            (n_elements(format) ne 0)
-  ;; case n_params of 
-  ;;    1: frm = plot(yin, $
-  ;;                  /buffer, $
-  ;;                  _STRICT_EXTRA = ex)
-  ;;    2: frm = plot(xin,yin, $
-  ;;                  /buffer, $
-  ;;                  _STRICT_EXTRA = ex)
-  ;;    3: frm = plot(xin,yin,format, $
-  ;;                  /buffer, $
-  ;;                  _STRICT_EXTRA = ex)
-  ;;    else: begin
-  ;;       msg = "[PLOT_FRAME] Wrong number of arguments"
-  ;;       printf, lun,msg
-  ;;    end
-  ;; endcase
-
   if n_elements(format) ne 0 then begin
      if n_elements(xin) ne 0 then begin
         frm = plot(xin,yin,format, $
@@ -76,8 +57,10 @@ function plot_frame, xin,yin,format, $
      tkw.remove, 'xyz'
      tstr = tkw.string
      tkw.remove, 'string'
-     tfmt = tkw.format
-     tkw.remove, 'format'
+     if tkw.haskey('format') then begin
+        tfmt = tkw.format
+        tkw.remove, 'format'
+     endif else tfmt = ''
      txt = text(txyz[0],txyz[1],txyz[2],tstr,tfmt, $
                 target = frm, $
                 _EXTRA = tkw.tostruct())
