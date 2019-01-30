@@ -18,6 +18,8 @@
 ;    Path in which to search for moments*.out files.
 ; LUN (default: -1)
 ;    Logical unit number for printing runtime messages.
+; <return> (struct)
+;    Distribution moments and common moments.
 ;------------------------------------------------------------------------------
 ;                                   **NOTES**
 ; -- This function assumes that distribution 0 is magnetized
@@ -37,7 +39,7 @@
 ;-
 
 function read_moments, path=path, $
-                          lun=lun
+                       lun=lun
 
   ;;==Defaults and guards
   if n_elements(path) eq 0 then path = './'
