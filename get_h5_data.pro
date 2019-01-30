@@ -13,15 +13,17 @@
 ;------------------------------------------------------------------------------
 ;                                 **PARAMETERS**
 ; FILENAME (required)
+;    Name of the file to check.
 ; DATANAME (required)
+;    Name of the target data quantity.
 ; LUN (default: -1)
 ;    Logical unit number for printing runtime messages.
 ; START (default: none)
 ;    Array of starting indices for selecting a data subset.
 ; COUNT (default: none)
 ;    Array of lengths of data subset in each dimension.
-; <return>
-;    The requested data array.
+; <return> (variable type)
+;    The requested data array, or !NULL.
 ;-
 function get_h5_data, filename,dataname, $
                       lun=lun, $
