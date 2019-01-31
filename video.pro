@@ -41,6 +41,7 @@
 ;;=>To do:
 ;;1) Decide what the return value/object should be.
 ;;2) Distinguish between QUIET and VERBOSE.
+;;3) Update header comment for new keywords
 
 function video, arg1,arg2,arg3, $
                 lun=lun, $
