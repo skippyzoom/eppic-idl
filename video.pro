@@ -43,9 +43,9 @@
 ;;2) Distinguish between QUIET and VERBOSE.
 
 function video, arg1,arg2,arg3, $
+                lun=lun, $
                 verbose=verbose, $
                 quiet=quiet, $
-                lun=lun, $
                 filename=filename, $
                 framerate=framerate, $
                 resize=resize, $
@@ -98,22 +98,17 @@ function video, arg1,arg2,arg3, $
   ;;==Warn the user that idlffvideowrite::put will throw an error if
   ;;  either nx < 30 or ny < 30.
   if (nx lt 30) || (ny lt 30) then begin
-     if nx lt 30 then begin
-        msg = "[VIDEO] idlffvideowrite::put requires nx > 29. Consider using resize > 1."
-        printf, lun,msg
-        mode = 'error'
-     endif
-     if ny lt 30 then begin
-        msg = "[VIDEO] idlffvideowrite::put requires ny > 29. Consider using resize > 1."
-        printf, lun,msg
-        mode = 'error'
-     endif
-     if (nx lt 30) && (ny lt 30) then begin
+     if nx lt 30 then $
+        msg = "[VIDEO] idlffvideowrite::put requires nx > 29. "+ $
+              "Consider using resize > 1."
+     if ny lt 30 then $
+        msg = "[VIDEO] idlffvideowrite::put requires ny > 29. "+ $
+              "Consider using resize > 1."
+     if (nx lt 30) && (ny lt 30) then $
         msg = "[VIDEO] idlffvideowrite::put requires [nx,ny] > [29,29]. "+ $
               "Consider using resize > 1."
-        printf, lun,msg
-        mode = 'error'
-     endif
+     printf, lun,msg
+     mode = 'error'
   endif
 
   ;;==If input is good, handle some graphics keywords
