@@ -45,7 +45,6 @@
 
 function video, arg1,arg2,arg3, $
                 lun=lun, $
-                verbose=verbose, $
                 quiet=quiet, $
                 filename=filename, $
                 framerate=framerate, $
