@@ -8,7 +8,7 @@
 ; Created by Matt Young.
 ;------------------------------------------------------------------------------
 ;                                 **PARAMETERS**
-; VALUES (requires)
+; VALUES (required)
 ;    An array of numerical values for which to make string labels.
 ; FORMAT (default: 'f8.3')
 ;    Optional user-specified FORTRAN-style format code. See 
@@ -18,6 +18,8 @@
 ;    the code and width. This function will also add 1 to the width 
 ;    to account for the +/- symbol, so that the printed numbers have 
 ;    the user-specified width.
+; <return> (string array)
+;    Labels with +/- symbols as appropriate.
 ;-
 function plusminus_labels, values,format=format
 
