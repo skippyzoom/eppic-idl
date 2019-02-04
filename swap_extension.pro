@@ -1,8 +1,8 @@
 ;+
-; Swap the extension on a file. 
+; Swap a file extension.
 ;
 ; This function swaps one extension for another in a file name (e.g.,
-; converts 'file.pdf' to 'file.png') It calls the IDL function
+; converts 'file.pdf' to 'file.png'). It calls the IDL function
 ; file_basename.
 ;
 ; Created by Matt Young.
@@ -15,6 +15,8 @@
 ;    the substring to remove from NAME.
 ; NEW_EXT (required)
 ;    The new extension.
+; <return> (string)
+;    New file name.
 ;-
 function swap_extension, name,cur_ext,new_ext
   return, file_basename(name,cur_ext)+new_ext
