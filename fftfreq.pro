@@ -10,8 +10,8 @@
 ;    The number of FFT points.
 ; D (default: 1.0)
 ;    The sampling interval.
-; <return>
-;    An array of sample frequencies.
+; <return> (float array)
+;    The sample frequencies.
 ;-
 function fftfreq, n,d
 
