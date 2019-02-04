@@ -1,19 +1,19 @@
 ;+
 ; Extract the local subdirectory.
 ;
-; This function extracts the local subdirectory from a given
-; path. If the user does not specify a path, this function 
-; uses the current working path. If the user specifies the 
-; path with a terminal '/', this function trims the terminal 
-; '/'. For example: get_subdirectory('/my/full/path') and 
-; get_subdirectory('/my/full/path/') both return 'path'.
+; This function extracts the local subdirectory from a given path. If
+; the user does not specify a path, this function uses the current
+; working path. If the user specifies the path with a terminal '/',
+; this function trims the terminal '/'. For example:
+; get_subdirectory('/my/full/path') and
+; get_subdirectory('/my/full/path/') both return 'path'. 
 ;
 ; Created by Matt Young.
 ;------------------------------------------------------------------------------
 ;                                 **PARAMETERS**
 ; PATH (default: current working path)
 ;    The path from which to derive the local subdirectory.
-; <return>
+; <return> (string)
 ;    The most local subdirectory in the path.
 ;-
 function get_subdirectory, path
