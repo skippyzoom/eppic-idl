@@ -9,7 +9,10 @@
 ; LIST (default: unset)
 ;    Return a list of available tables.
 ; VERBOSE (default: unset)
-;    Echo runtime messages.
+;    Print runtime messages.
+; <return> (struct)
+;    The requested color table, with members defining the red, green,
+;    and blue chanels.
 ;-
 function get_custom_ct, ct_key,list=list,verbose=verbose
 
