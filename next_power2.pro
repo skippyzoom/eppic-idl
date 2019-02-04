@@ -12,12 +12,12 @@
 ;                                 **PARAMETERS**
 ; X (required)
 ;    The number to be raised.
-; <return>
-;    The smallest power of 2 not less than x.
+; <return> (integer)
+;    The smallest power of 2 not less than X.
 ;------------------------------------------------------------------------------
 ;                                   **NOTES**
 ; -- This function returns the smallest possible power of 2.
-;    In other words, if x is a power of 2, it will return x. 
+;    In other words, if X is a power of 2, it will return X. 
 ;    That is useful when the user just wants to make sure an
 ;    array has dimensions that are powers of 2 without knowing
 ;    the dimensions until runtime (e.g. when padding an array
