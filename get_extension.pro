@@ -6,8 +6,8 @@
 ;                                 **PARAMETERS**
 ; NAME (required)
 ;    String file name from which to get extension.
-; <return>
-;    String file extension starting after the last dot (e.g., 'pdf'
+; <return> (string)
+;    File extension starting after the last dot (e.g., 'pdf'
 ;    for a file named 'file.pdf')
 ;-
 function get_extension, name
