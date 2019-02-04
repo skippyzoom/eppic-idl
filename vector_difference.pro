@@ -61,7 +61,7 @@ function vector_difference, v1x,v2x,v1y,v2y,v1z,v2z, $
      end
      else: begin
         if ~keyword_set(quiet) then $
-           printf, lun,"[DRIFT_VELOCITY] Incorrect number of arguments"
+           printf, lun,"[VECTOR_DIFFERENCE] Incorrect number of arguments"
         return, !NULL
      end
   endcase
