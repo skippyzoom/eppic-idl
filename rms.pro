@@ -11,10 +11,9 @@
 ;    Array of integers or floats.
 ; NORMALIZE (default: unset)
 ;    Normalize the RMS array before returning
-; <return>
-;    Scalar or array of the same type as DATA, containing the RMS
-;    value. Use of the 'dimension' keyword to mean() determines the
-;    dimensions of the result.
+; <return> (scalar or array of same type as DATA)
+;    The RMS value. Use of the 'dimension' keyword to mean()
+;    determines the dimensions of the result.
 ;-
 function rms, data, $
               normalize=normalize, $
