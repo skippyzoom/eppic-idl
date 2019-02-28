@@ -41,6 +41,7 @@ function overlay_rtheta, img,r,theta, $
                          lun=lun, $
                          degrees=degrees, $
                          radians=radians, $
+                         center=center, $
                          r_color=r_color, $
                          r_thick=r_thick, $
                          r_linestyle=r_linestyle, $
@@ -54,6 +55,7 @@ function overlay_rtheta, img,r,theta, $
 
   ;;==Defaults and guards
   if n_elements(lun) eq 0 then lun = -1
+  if n_elements(center) eq 0 then center = [0.0,0.0]
   if n_elements(r_color) eq 0 then r_color = 'black'
   if n_elements(r_thick) eq 0 then r_thick = 1
   if n_elements(r_linestyle) eq 0 then r_linestyle = 'solid_line'
@@ -66,7 +68,7 @@ function overlay_rtheta, img,r,theta, $
 
   ;;==Draw a circle at each radius
   for ir=0,nr-1 do $
-     ell = ellipse(0.0,0.0, $
+     ell = ellipse(center[0],center[1], $
                    major = r[ir], $
                    target = img, $
                    /data, $
@@ -86,13 +88,13 @@ function overlay_rtheta, img,r,theta, $
 
   ;;==Draw a line at each angle
   for ith=0,nth-1 do $
-     lin = polyline([0.0,max_r*cos(theta[ith])], $
-                    [0.0,max_r*sin(theta[ith])], $
+     lin = polyline([center[0],center[0]+max_r*cos(theta[ith])], $
+                    [center[1],center[1]+max_r*sin(theta[ith])], $
                     target = img, $
                     /data, $
-                    color=theta_color, $
-                    linestyle=theta_linestyle, $
-                    thick=theta_thick)
+                    color = theta_color, $
+                    linestyle = theta_linestyle, $
+                    thick = theta_thick)
 
   ;;==Restore original input arrays
   r = r_in
