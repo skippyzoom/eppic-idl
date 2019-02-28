@@ -18,21 +18,30 @@
 ;-
 function get_subdirectory, path
   
-  ;;==Get current working path
+  ;;==Get current working path by default
   if n_elements(path) eq 0 then spawn, 'pwd',path
 
-  ;;==Find location of terminal '/' character
-  last_slash = strpos(path,'/',/reverse_search)
+  ;;==Determine number of paths
+  n_paths = n_elements(path)
 
-  ;;==Determine path length
-  path_len = strlen(path)
+  ;;==Loop over paths
+  for ip=0,n_paths-1 do begin
 
-  ;;==Trim the terminal slash
-  if last_slash eq path_len-1 then begin
-     path = strmid(path,0,path_len-1)
-     last_slash = strpos(path,'/',/reverse_search)
-  endif
+     ;;==Find location of terminal '/' character
+     last_slash = strpos(path[ip],'/',/reverse_search)
+
+     ;;==Determine path length
+     path_len = strlen(path[ip])
+
+     ;;==Trim the terminal slash
+     if last_slash eq path_len-1 then begin
+        path[ip] = strmid(path[ip],0,path_len-1)
+        last_slash = strpos(path[ip],'/',/reverse_search)
+     endif
+
+  endfor
   
-  ;;==Return the most local subdirectory
+  ;;==Return the most local subdirectory(s)
   return, strmid(path,last_slash+1,path_len)
+
 end
