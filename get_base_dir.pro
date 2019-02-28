@@ -20,11 +20,14 @@ function get_base_dir
   ;;==Check for a host match
   case 1 of
      ;;--Boston University Shared Computing Cluster
-     strcmp(host,'scc',3,/fold_case): base = '/projectnb/eregion/may/Stampede_runs'
+     strcmp(host,'scc',3,/fold_case): $
+        base = '/projectnb/eregion/may/Stampede_runs'
      ;;--Texas Advanced Computing Center Stampede/Stampede2
-     strcmp(host,'stampede',8,/fold_case): base = '/scratch/02994/may'
+     strcmp(host,'stampede',8,/fold_case): $
+        base = '/scratch/02994/may'
      ;;--University of New Hampshire Blackstar
-     strcmp(host,'sr.unh.edu',10,/fold_case): base = '/net/home/sttg/myoung/BV_hybrid/data'
+     strcmp(host,'sr.unh.edu',10,/fold_case): $
+        base = '/net/home/sttg/myoung/BV_hybrid/data'
      ;;--None of the above
      else: print, "[GET_BASE_DIR] Found no match. Using './'"
   endcase
