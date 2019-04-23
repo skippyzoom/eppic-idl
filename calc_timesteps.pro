@@ -27,6 +27,9 @@ function calc_timesteps, path=path, $
                          lun=lun, $
                          verbose=verbose
   
+  ;;==Set default LUN
+  if n_elements(lun) eq 0 then lun = -1
+
   ;;==Set default path
   if n_elements(path) eq 0 then path = './'
 
